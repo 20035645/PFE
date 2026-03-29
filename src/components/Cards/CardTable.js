@@ -3,9 +3,16 @@ import PropTypes from "prop-types";
 
 // components
 
-import { getAllUsers, deleteUser } from "../..//services/apiUser";
+import { getAllUsers, deleteUser , addUser , updateUser } from "../..//services/apiUser";
 export default function CardTable({ color }) {
-  const [users, setUsers] = React.useState([]); 
+  const [users, setUsers] = React.useState([]);
+  const [newUser, setNewUser] = React.useState({ email: "", name: "", age: "", location: "" , role: "" , password: "" });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewUser({ ...newUser, [name]: value });
+    console.log(newUser);
+  }
 
   const fetchUsers = async () => {
     try {
@@ -28,6 +35,26 @@ export default function CardTable({ color }) {
   React.useEffect(() => {
     fetchUsers();
   }, []);
+
+  const handleAddUser = async () => {
+    try {
+      await addUser(newUser);
+      fetchUsers();
+      setNewUser({ email: "", name: "", age: "", location: "" , role: "" , password: "" });
+    } catch (error) {
+      console.error("Error adding user:", error);
+    }
+  }
+
+  const handleUpdateUser = async () => {
+    try {
+      await updateUser(newUser._id, newUser);
+      fetchUsers();
+      setNewUser({ email: "", name: "", age: "", location: "" , role: "" , password: "" });
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  }
 
   return (
     <>
@@ -74,7 +101,7 @@ export default function CardTable({ color }) {
                       : "bg-lightBlue-800 text-lightBlue-300 border-lightBlue-700")
                   }
                 >
-                  role
+                  name
                 </th>
                 <th
                   className={
@@ -139,7 +166,7 @@ export default function CardTable({ color }) {
                     </span>
                   </th>
                   <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
-                    {user.role}
+                    {user.name}
                   </td>
                   <td className="border-t-0 px-6 align-middle border-l-0 border-r-0 text-xs whitespace-nowrap p-4">
                     {user.age}
@@ -154,6 +181,7 @@ export default function CardTable({ color }) {
                     <button
                       className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-sm px-6 py-3 rounded-full shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                       type="button"
+                      onClick={() => setNewUser(user)}
                     >
                       update
                     </button>
@@ -172,6 +200,78 @@ export default function CardTable({ color }) {
             </tbody>
           </table>
         </div>
+      </div>
+      <div class="mb-3 pt-0">
+        <input
+          type="text"
+          placeholder="name"
+          name="name"
+          onChange={handleInputChange}
+          defaultValue={newUser.name}
+          class="px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-1/4"
+        />
+        <input
+          type="number"
+          placeholder="age"
+          name="age"
+          onChange={handleInputChange}
+          defaultValue={newUser.age}
+          class="px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-1/4"
+        />
+        <input
+          type="text"
+          placeholder="location"
+          name="location"
+          onChange={handleInputChange}
+          defaultValue={newUser.location}
+          class="px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-1/4"
+        />
+        <input
+          type="text"
+          placeholder="role"
+          name="role"
+          onChange={handleInputChange}
+          defaultValue={newUser.role}
+          class="px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-1/4"
+        />
+        <br />
+        <input
+          type="email"
+          placeholder="email"
+          name="email"
+          onChange={handleInputChange}
+          defaultValue={newUser.email}
+          class="px-3 py-3 mr-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-1/4"
+        />
+        <input
+          type="password"
+          placeholder="password"
+          name="password"
+          onChange={handleInputChange}
+
+          class="px-3 py-3 mr-3 mt-3 placeholder-blueGray-300 text-blueGray-600 relative bg-white bg-white rounded text-sm shadow outline-none focus:outline-none focus:shadow-outline w-1/4"
+        />
+        <button
+          className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          type="button"
+          onClick={()=>handleAddUser()}
+        >
+          Add User
+        </button>
+        <button
+          className="bg-red-500 text-white active:bg-lightBlue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          type="button"
+          onClick={() => setNewUser({ email: "", name: "", age: "", location: "" , role: "" , password: "" })}
+        >
+          Cancel
+        </button>
+        <button
+          className="bg-lightBlue-500 text-white active:bg-lightBlue-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+          type="button"
+          onClick={()=>handleUpdateUser()}
+        >
+          Update
+        </button>
       </div>
     </>
   );
