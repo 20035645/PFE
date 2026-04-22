@@ -1,0 +1,39 @@
+{
+  "files": {
+    "main.css": "/static/css/main.c87ef38d.chunk.css",
+    "main.js": "/static/js/main.8ef96bf8.chunk.js",
+    "main.js.map": "/static/js/main.8ef96bf8.chunk.js.map",
+    "runtime-main.js": "/static/js/runtime-main.f5961303.js",
+    "runtime-main.js.map": "/static/js/runtime-main.f5961303.js.map",
+    "static/css/2.4ca0dccb.chunk.css": "/static/css/2.4ca0dccb.chunk.css",
+    "static/js/2.e8b16229.chunk.js": "/static/js/2.e8b16229.chunk.js",
+    "static/js/2.e8b16229.chunk.js.map": "/static/js/2.e8b16229.chunk.js.map",
+    "index.html": "/index.html",
+    "static/css/2.4ca0dccb.chunk.css.map": "/static/css/2.4ca0dccb.chunk.css.map",
+    "static/css/main.c87ef38d.chunk.css.map": "/static/css/main.c87ef38d.chunk.css.map",
+    "static/js/2.e8b16229.chunk.js.LICENSE.txt": "/static/js/2.e8b16229.chunk.js.LICENSE.txt",
+    "static/media/component-info-2.png": "/static/media/component-info-2.5212a3a6.png",
+    "static/media/component-info-card.png": "/static/media/component-info-card.d19a4464.png",
+    "static/media/component-menu.png": "/static/media/component-menu.418bd949.png",
+    "static/media/component-profile-card.png": "/static/media/component-profile-card.52a3ee76.png",
+    "static/media/documentation.png": "/static/media/documentation.014ebef5.png",
+    "static/media/all.min.css": "/static/media/fa-solid-900.efbd5d20.eot",
+    "static/media/gym.a8e9f550.jpg": "/static/media/gym.a8e9f550.jpg",
+    "static/media/hero-gym.2bb4ac6d.jpg": "/static/media/hero-gym.2bb4ac6d.jpg",
+    "static/media/landing.jpg": "/static/media/landing.8150f1b0.jpg",
+    "static/media/login.jpg": "/static/media/login.9c1ecd37.jpg",
+    "static/media/profile.jpg": "/static/media/profile.c62f8a5b.jpg",
+    "static/media/program-combat.b18a8186.jpg": "/static/media/program-combat.b18a8186.jpg",
+    "static/media/program-conditioning.805d294e.jpg": "/static/media/program-conditioning.805d294e.jpg",
+    "static/media/program-strength.fc179124.jpg": "/static/media/program-strength.fc179124.jpg",
+    "static/media/team-1-800x800.jpg": "/static/media/team-1-800x800.fa5a7ac2.jpg",
+    "static/media/team-2-800x800.jpg": "/static/media/team-2-800x800.3e08ef14.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.f5961303.js",
+    "static/css/2.4ca0dccb.chunk.css",
+    "static/js/2.e8b16229.chunk.js",
+    "static/css/main.c87ef38d.chunk.css",
+    "static/js/main.8ef96bf8.chunk.js"
+  ]
+}

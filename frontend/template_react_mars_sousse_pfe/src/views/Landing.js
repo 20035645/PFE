@@ -1,0 +1,553 @@
+import React from "react";
+import { Link } from "react-router-dom";
+
+// ── STYLES ──────────────────────────────────────────────
+const styles = {
+  // globals
+  body: {
+    fontFamily: "'Barlow', sans-serif",
+    background: "#0A0A0A",
+    color: "#F5F5F5",
+    overflowX: "hidden",
+    margin: 0,
+  },
+  // NAV
+  nav: {
+    position: "fixed", top: 0, left: 0, width: "100%", zIndex: 100,
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    padding: "0 5%", height: "72px",
+    background: "rgba(10,10,10,0.92)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(214,40,40,0.2)",
+    boxSizing: "border-box",
+  },
+  logo: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.7rem", letterSpacing: "3px", color: "#F5F5F5",
+    textDecoration: "none",
+  },
+  logoSpan: { color: "#D62828" },
+  navLinks: { display: "flex", gap: "2.5rem", listStyle: "none", margin: 0, padding: 0 },
+  navLink: {
+    textDecoration: "none", color: "#888", fontWeight: 600,
+    fontSize: "0.78rem", letterSpacing: "2px", textTransform: "uppercase",
+  },
+  navBtn: {
+    background: "#D62828", color: "#F5F5F5", padding: "0.55rem 1.4rem",
+    borderRadius: "2px", letterSpacing: "2px", fontWeight: 700,
+    fontSize: "0.78rem", textTransform: "uppercase", textDecoration: "none",
+  },
+  // HERO
+  hero: {
+    position: "relative", minHeight: "100vh",
+    display: "flex", alignItems: "center", overflow: "hidden",
+  },
+  heroBg: {
+    position: "absolute", inset: 0,
+    background: "linear-gradient(105deg, rgba(10,10,10,0.88) 40%, rgba(214,40,40,0.08) 100%)",
+    backgroundImage: [
+      "linear-gradient(105deg, rgba(10,10,10,0.88) 40%, rgba(214,40,40,0.08) 100%)",
+      "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80')",
+    ].join(", "),
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
+  heroContent: {
+    position: "relative", padding: "0 8%", maxWidth: "800px",
+    animation: "fadeUp 1s ease both",
+  },
+  heroTag: {
+    display: "inline-block", fontSize: "0.7rem", letterSpacing: "4px",
+    textTransform: "uppercase", color: "#D62828",
+    border: "1px solid #D62828", padding: "0.3rem 0.9rem", marginBottom: "1.5rem",
+  },
+  heroTitle: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "clamp(3.5rem, 8vw, 7rem)",
+    lineHeight: 0.95, letterSpacing: "2px", marginBottom: "1.5rem",
+  },
+  heroAccent: { color: "#D62828" },
+  heroDesc: {
+    color: "#bbb", fontSize: "1.05rem", lineHeight: 1.7,
+    maxWidth: "500px", marginBottom: "2.5rem", fontWeight: 300,
+  },
+  heroBtns: { display: "flex", gap: "1rem", flexWrap: "wrap" },
+  btnPrimary: {
+    background: "#D62828", color: "#F5F5F5", padding: "0.85rem 2rem",
+    fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: "0.8rem",
+    letterSpacing: "3px", textTransform: "uppercase",
+    border: "none", cursor: "pointer", borderRadius: "2px",
+    textDecoration: "none", display: "inline-block",
+  },
+  btnOutline: {
+    background: "transparent", color: "#F5F5F5", padding: "0.85rem 2rem",
+    fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: "0.8rem",
+    letterSpacing: "3px", textTransform: "uppercase",
+    border: "1px solid rgba(255,255,255,0.4)",
+    cursor: "pointer", borderRadius: "2px",
+    textDecoration: "none", display: "inline-block",
+  },
+  // STATS
+  statsBar: {
+    background: "#111111",
+    borderTop: "1px solid rgba(214,40,40,0.3)",
+    borderBottom: "1px solid rgba(214,40,40,0.3)",
+    display: "flex", justifyContent: "space-around", flexWrap: "wrap",
+    padding: "2rem 5%", gap: "1rem",
+  },
+  stat: { textAlign: "center" },
+  statNum: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2.6rem", color: "#D62828", letterSpacing: "2px",
+  },
+  statLabel: { fontSize: "0.72rem", letterSpacing: "3px", textTransform: "uppercase", color: "#888" },
+  // SECTION
+  section: { padding: "6rem 8%" },
+  sectionDark: { padding: "6rem 8%", background: "#1A1A1A" },
+  sectionTag: { fontSize: "0.7rem", letterSpacing: "4px", textTransform: "uppercase", color: "#D62828", marginBottom: "0.7rem" },
+  sectionTitle: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "clamp(2.2rem, 5vw, 3.8rem)", letterSpacing: "2px",
+    marginBottom: "3rem", lineHeight: 1.05,
+  },
+  // COURS
+  coursGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" },
+  coursCard: {
+    background: "#111111", border: "1px solid #222",
+    padding: "2rem", borderRadius: "3px",
+    transition: "border-color .3s, transform .3s",
+    cursor: "default",
+  },
+  coursCardHover: { borderColor: "#D62828", transform: "translateY(-4px)" },
+  coursIcon: { fontSize: "2rem", marginBottom: "1rem" },
+  coursName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "2px", marginBottom: "0.5rem" },
+  coursDesc: { color: "#888", fontSize: "0.9rem", lineHeight: 1.6 },
+  // PLANS
+  plansGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem", alignItems: "start" },
+  plan: { background: "#111111", border: "1px solid #222", borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center" },
+  planFeatured: {
+    background: "linear-gradient(160deg, #1a0000 0%, #111111 100%)",
+    border: "1px solid #D62828",
+    borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center",
+    boxShadow: "0 0 40px rgba(214,40,40,0.35)",
+  },
+  planBadge: {
+    display: "inline-block", background: "#D62828",
+    fontSize: "0.65rem", letterSpacing: "3px", textTransform: "uppercase",
+    padding: "0.25rem 0.8rem", marginBottom: "1rem", borderRadius: "2px",
+  },
+  planName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", letterSpacing: "3px", marginBottom: "1rem" },
+  planPrice: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#D62828", lineHeight: 1 },
+  planFeatures: { listStyle: "none", margin: "1.5rem 0 2rem", textAlign: "left", padding: 0 },
+  planFeatureItem: {
+    padding: "0.5rem 0", color: "#ccc", fontSize: "0.9rem",
+    borderBottom: "1px solid #1e1e1e", display: "flex", alignItems: "center", gap: "0.6rem",
+  },
+  featureArrow: { color: "#D62828", flexShrink: 0 },
+  // CONTACT
+  contactGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "start" },
+  contactInfoP: { color: "#888", lineHeight: 1.8, marginBottom: "2rem" },
+  contactItem: { display: "flex", gap: "1rem", alignItems: "flex-start", marginBottom: "1.2rem" },
+  contactIcon: {
+    width: "40px", height: "40px",
+    background: "rgba(214,40,40,0.12)",
+    border: "1px solid rgba(214,40,40,0.3)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    flexShrink: 0, fontSize: "1rem",
+  },
+  contactText: { color: "#ccc", fontSize: "0.9rem" },
+  contactForm: { display: "flex", flexDirection: "column", gap: "1rem" },
+  formInput: {
+    background: "#111111", border: "1px solid #2a2a2a",
+    color: "#F5F5F5", padding: "0.9rem 1.2rem",
+    fontFamily: "'Barlow', sans-serif", fontSize: "0.9rem",
+    borderRadius: "2px", outline: "none",
+  },
+  // MODAL
+  modalOverlay: {
+    position: "fixed", inset: 0, zIndex: 999,
+    background: "rgba(0,0,0,0.85)",
+    backdropFilter: "blur(6px)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+  },
+  modalBox: {
+    background: "#111111",
+    border: "1px solid rgba(214,40,40,0.4)",
+    borderRadius: "4px",
+    padding: "3rem 2.5rem",
+    width: "100%", maxWidth: "420px",
+    position: "relative",
+    boxShadow: "0 0 60px rgba(214,40,40,0.2)",
+    animation: "fadeUp 0.35s ease both",
+  },
+  modalClose: {
+    position: "absolute", top: "1rem", right: "1.2rem",
+    background: "none", border: "none", color: "#888",
+    fontSize: "1.4rem", cursor: "pointer", lineHeight: 1,
+  },
+  modalTitle: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2rem", letterSpacing: "3px",
+    marginBottom: "0.3rem",
+  },
+  modalSub: { color: "#888", fontSize: "0.85rem", marginBottom: "2rem" },
+  modalLabel: {
+    display: "block", fontSize: "0.7rem", letterSpacing: "2px",
+    textTransform: "uppercase", color: "#888", marginBottom: "0.4rem",
+  },
+  modalInput: {
+    width: "100%", background: "#0A0A0A",
+    border: "1px solid #2a2a2a", color: "#F5F5F5",
+    padding: "0.85rem 1rem", fontFamily: "'Barlow', sans-serif",
+    fontSize: "0.95rem", borderRadius: "2px", outline: "none",
+    marginBottom: "1.2rem", boxSizing: "border-box",
+  },
+  modalInputFocus: { borderColor: "#D62828" },
+  modalForgot: {
+    display: "block", textAlign: "right", color: "#888",
+    fontSize: "0.78rem", textDecoration: "none", marginTop: "-0.8rem",
+    marginBottom: "1.5rem", cursor: "pointer",
+  },
+  modalDivider: {
+    textAlign: "center", color: "#444", fontSize: "0.8rem",
+    margin: "1.5rem 0", position: "relative",
+  },
+  modalError: {
+    background: "rgba(214,40,40,0.1)", border: "1px solid rgba(214,40,40,0.4)",
+    color: "#ff6b6b", padding: "0.7rem 1rem", borderRadius: "2px",
+    fontSize: "0.85rem", marginBottom: "1rem",
+  },
+  modalSuccess: {
+    background: "rgba(40,214,100,0.1)", border: "1px solid rgba(40,214,100,0.4)",
+    color: "#6bffaa", padding: "0.7rem 1rem", borderRadius: "2px",
+    fontSize: "0.85rem", marginBottom: "1rem", textAlign: "center",
+  },
+  // FOOTER
+  footer: {
+    background: "#0A0A0A",
+    borderTop: "1px solid rgba(214,40,40,0.2)",
+    padding: "2rem 8%",
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    flexWrap: "wrap", gap: "1rem",
+  },
+  footerLogo: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "3px" },
+};
+
+const sliderBtn = {
+  position: "absolute", top: "50%", transform: "translateY(-50%)",
+  zIndex: 3, background: "rgba(0,0,0,0.5)", color: "#fff",
+  border: "1px solid rgba(255,255,255,0.2)", borderRadius: "2px",
+  width: "48px", height: "48px", fontSize: "1.3rem",
+  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+  transition: "background .2s, border-color .2s",
+};
+
+const dotsContainer = {
+  position: "absolute", bottom: "2rem", left: "50%",
+  transform: "translateX(-50%)", zIndex: 3,
+  display: "flex", gap: "0.5rem", alignItems: "center",
+};
+
+const dot = {
+  height: "8px", borderRadius: "4px",
+  border: "none", cursor: "pointer", padding: 0,
+  transition: "all 0.3s ease",
+};
+
+// ── COURSES DATA ─────────────────────────────────────────
+const courses = [
+  { icon: "🥊", name: "Boxe & Combat", desc: "Cours collectifs de boxe anglaise, MMA et self-défense avec des instructeurs professionnels." },
+  { icon: "🏋️", name: "Musculation", desc: "Programmes personnalisés de renforcement musculaire pour tous niveaux, du débutant au confirmé." },
+  { icon: "🔥", name: "CrossFit", desc: "Entraînements HIIT intenses qui combinent force, endurance et agilité en sessions de 45 min." },
+  { icon: "🧘", name: "Yoga & Stretching", desc: "Sessions de récupération active et de mobilité pour équilibrer vos entraînements intensifs." },
+  { icon: "🚴", name: "Spinning", desc: "Vélos stationnaires avec coaching audio et musique pour brûler jusqu'à 600 cal par séance." },
+  { icon: "⚡", name: "Cardio Training", desc: "Programmes cardio variés sur tapis, elliptiques et rameurs avec suivi de performance." },
+];
+
+// ── PLANS DATA ───────────────────────────────────────────
+const plans = [
+  {
+    name: "Starter", price: "59", featured: false,
+    features: ["Accès salle 6h–22h", "Vestiaires & douches", "2 cours collectifs/mois", "Application mobile"],
+  },
+  {
+    name: "Pro", price: "99", featured: true,
+    features: ["Accès illimité 24h/24", "Cours collectifs illimités", "1 séance coaching/mois", "Analyse corporelle mensuelle", "Accès zone VIP"],
+  },
+  {
+    name: "Elite", price: "149", featured: false,
+    features: ["Tout le plan Pro", "Coach personnel dédié", "Plan nutritionnel", "Accès invité 2×/mois", "Récupération & spa"],
+  },
+];
+
+// ── SLIDES DATA ──────────────────────────────────────────
+const slides = [
+  {
+    url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80",
+    tag: "Équipements Modernes",
+    title: "TRANSFORMEZ VOTRE CORPS, DÉPASSEZ VOS LIMITES !",
+    accent: "CORPS,",
+    desc: "Rejoignez GymAccess et profitez d'équipements modernes, de coachs certifiés et d'un accès 24h/24.",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80",
+    tag: "Coachs Certifiés",
+    title: "ATTEIGNEZ VOS OBJECTIFS AVEC NOS EXPERTS !",
+    accent: "OBJECTIFS",
+    desc: "Nos coachs certifiés créent des programmes personnalisés adaptés à votre niveau et vos ambitions.",
+  },
+  {
+    url: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80",
+    tag: "Accès 24h/24",
+    title: "ENTRAÎNEZ-VOUS QUAND VOUS VOULEZ !",
+    accent: "QUAND",
+    desc: "Accès illimité 24h/24 et 7j/7. Votre salle de sport toujours disponible, à votre rythme.",
+  },
+];
+
+// ── COMPONENT ────────────────────────────────────────────
+export default function Index() {
+  const [hoveredCard,    setHoveredCard]    = React.useState(null);
+  const [currentSlide,   setCurrentSlide]   = React.useState(0);
+  const [transitioning,  setTransitioning]  = React.useState(false);
+
+  // Auto-play 5s
+  React.useEffect(() => {
+    const t = setInterval(() => changeSlide((currentSlide + 1) % slides.length), 5000);
+    return () => clearInterval(t);
+  }, [currentSlide]);
+
+  const changeSlide = (idx) => {
+    if (transitioning) return;
+    setTransitioning(true);
+    setCurrentSlide(idx);
+    setTimeout(() => setTransitioning(false), 700);
+  };
+
+  const prevSlide = () => changeSlide((currentSlide - 1 + slides.length) % slides.length);
+  const nextSlide = () => changeSlide((currentSlide + 1) % slides.length);
+
+  const sl = slides[currentSlide];
+
+  // Build title with accent word in red
+  const renderTitle = (title, accent) => {
+    const parts = title.split(accent);
+    return (
+      <>
+        {parts[0]}
+        <span style={styles.heroAccent}>{accent}</span>
+        {parts[1]}
+      </>
+    );
+  };
+
+  return (
+    <div style={styles.body}>
+
+      {/* Google Fonts */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap"
+        rel="stylesheet"
+      />
+
+      {/* CSS keyframes */}
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        * { box-sizing: border-box; }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #0A0A0A; }
+        ::-webkit-scrollbar-thumb { background: #D62828; border-radius: 10px; }
+      `}</style>
+
+      {/* ── NAV ── */}
+      <nav style={styles.nav}>
+        <div style={styles.logo}>GYM<span style={styles.logoSpan}>ACCESS</span></div>
+        <ul style={styles.navLinks}>
+          <li><a href="#hero" style={styles.navLink}>Accueil</a></li>
+          <li><a href="#cours" style={styles.navLink}>Cours</a></li>
+          <li><a href="#abonnements" style={styles.navLink}>Abonnements</a></li>
+          <li><a href="#contact" style={styles.navLink}>Contact</a></li>
+          <li>
+            <Link to="/auth/login" style={styles.navBtn}>Espace Membre</Link>
+          </li>
+        </ul>
+      </nav>
+
+      {/* ── HERO SLIDER ── */}
+      <section id="hero" style={styles.hero}>
+
+        {/* Background images */}
+        {slides.map((s, i) => (
+          <div key={i} style={{
+            position: "absolute", inset: 0,
+            backgroundImage: [
+              "linear-gradient(105deg, rgba(10,10,10,0.88) 40%, rgba(214,40,40,0.06) 100%)",
+              `url('${s.url}')`,
+            ].join(", "),
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            opacity: i === currentSlide ? 1 : 0,
+            transition: "opacity 0.7s ease",
+            zIndex: 0,
+          }} />
+        ))}
+
+        {/* Content */}
+        <div style={{ ...styles.heroContent, zIndex: 2, opacity: transitioning ? 0 : 1, transition: "opacity 0.4s ease" }}>
+          <div style={styles.heroTag}>{sl.tag}</div>
+          <h1 style={styles.heroTitle}>{renderTitle(sl.title, sl.accent)}</h1>
+          <p style={styles.heroDesc}>{sl.desc}</p>
+          <div style={styles.heroBtns}>
+            <a href="#abonnements" style={styles.btnPrimary}>Rejoignez-Nous</a>
+            <a href="#abonnements" style={styles.btnOutline}>Voir Nos Offres</a>
+          </div>
+        </div>
+
+        {/* Arrow Left */}
+        <button onClick={prevSlide} style={{...sliderBtn, left: "2%"}}>&#8592;</button>
+
+        {/* Arrow Right */}
+        <button onClick={nextSlide} style={{...sliderBtn, right: "2%"}}>&#8594;</button>
+
+        {/* Dots */}
+        <div style={dotsContainer}>
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => changeSlide(i)}
+              style={{
+                ...dot,
+                background: i === currentSlide ? "#D62828" : "rgba(255,255,255,0.3)",
+                width:  i === currentSlide ? "28px" : "8px",
+              }}
+            />
+          ))}
+        </div>
+
+      </section>
+
+      {/* ── STATS BAR ── */}
+      <div style={styles.statsBar}>
+        {[
+          { num: "1200+", label: "Membres Actifs" },
+          { num: "24/7",  label: "Accès Libre" },
+          { num: "30+",   label: "Cours par Semaine" },
+          { num: "15+",   label: "Coachs Certifiés" },
+        ].map((s) => (
+          <div key={s.label} style={styles.stat}>
+            <div style={styles.statNum}>{s.num}</div>
+            <div style={styles.statLabel}>{s.label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── COURS ── */}
+      <section id="cours" style={styles.sectionDark}>
+        <div style={styles.sectionTag}>Nos Disciplines</div>
+        <div style={styles.sectionTitle}>COURS DISPONIBLES</div>
+        <div style={styles.coursGrid}>
+          {courses.map((c, i) => (
+            <div
+              key={i}
+              style={{
+                ...styles.coursCard,
+                ...(hoveredCard === i ? { borderColor: "#D62828", transform: "translateY(-4px)" } : {}),
+              }}
+              onMouseEnter={() => setHoveredCard(i)}
+              onMouseLeave={() => setHoveredCard(null)}
+            >
+              <div style={styles.coursIcon}>{c.icon}</div>
+              <div style={styles.coursName}>{c.name}</div>
+              <p style={styles.coursDesc}>{c.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── ABONNEMENTS ── */}
+      <section id="abonnements" style={styles.section}>
+        <div style={styles.sectionTag}>Tarifs</div>
+        <div style={styles.sectionTitle}>CHOISISSEZ VOTRE PLAN</div>
+        <div style={styles.plansGrid}>
+          {plans.map((p) => (
+            <div key={p.name} style={p.featured ? styles.planFeatured : styles.plan}>
+              {p.featured && <div style={styles.planBadge}>Populaire</div>}
+              <div style={styles.planName}>{p.name}</div>
+              <div style={styles.planPrice}>
+                <span style={{ fontSize: "1.2rem", verticalAlign: "super", color: "#F5F5F5" }}>DT</span>
+                {p.price}
+                <span style={{ fontSize: "1rem", color: "#888", fontFamily: "'Barlow', sans-serif", fontWeight: 300 }}>/mois</span>
+              </div>
+              <ul style={styles.planFeatures}>
+                {p.features.map((f) => (
+                  <li key={f} style={styles.planFeatureItem}>
+                    <span style={styles.featureArrow}>▸</span> {f}
+                  </li>
+                ))}
+              </ul>
+              <a
+                href="#contact"
+                style={{
+                  ...(p.featured ? styles.btnPrimary : styles.btnOutline),
+                  width: "100%", textAlign: "center",
+                }}
+              >
+                Choisir
+              </a>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CONTACT ── */}
+      <section id="contact" style={styles.sectionDark}>
+        <div style={styles.sectionTag}>Nous Trouver</div>
+        <div style={styles.sectionTitle}>CONTACT</div>
+        <div style={styles.contactGrid}>
+          {/* Info */}
+          <div>
+            <p style={styles.contactInfoP}>
+              Une question ? Prêt à commencer votre transformation ?
+              Notre équipe est là pour vous accompagner.
+            </p>
+            {[
+              { icon: "📍", text: "Avenue Habib Bourguiba, Tunis 1000" },
+              { icon: "📞", text: "+216 71 000 000" },
+              { icon: "✉️", text: "contact@gymaccess.tn" },
+              { icon: "⏰", text: "Lun – Dim : 24h/24" },
+            ].map((item) => (
+              <div key={item.text} style={styles.contactItem}>
+                <div style={styles.contactIcon}>{item.icon}</div>
+                <div style={styles.contactText}>{item.text}</div>
+              </div>
+            ))}
+          </div>
+          {/* Form */}
+          <div style={styles.contactForm}>
+            <input style={styles.formInput} type="text"  placeholder="Votre Nom" />
+            <input style={styles.formInput} type="email" placeholder="Votre Email" />
+            <input style={styles.formInput} type="text"  placeholder="Sujet" />
+            <textarea
+              style={{ ...styles.formInput, resize: "vertical", minHeight: "120px" }}
+              placeholder="Votre message..."
+            />
+            <button style={styles.btnPrimary}>Envoyer le Message</button>
+          </div>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={styles.footer}>
+        <div style={styles.footerLogo}>
+          GYM<span style={styles.logoSpan}>ACCESS</span>
+        </div>
+        <p style={{ color: "#888", fontSize: "0.8rem" }}>© 2026 GymAccess — Tous droits réservés</p>
+        <p style={{ color: "#444", fontSize: "0.75rem" }}>Transformez-vous. Dépassez-vous.</p>
+      </footer>
+
+    </div>
+  );
+}
