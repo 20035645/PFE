@@ -31,11 +31,14 @@ const styles = {
   navLink: {
     textDecoration: "none", color: "#888", fontWeight: 600,
     fontSize: "0.78rem", letterSpacing: "2px", textTransform: "uppercase",
+    transition: "color 0.3s ease",
   },
   navBtn: {
     background: "#D62828", color: "#F5F5F5", padding: "0.55rem 1.4rem",
     borderRadius: "2px", letterSpacing: "2px", fontWeight: 700,
     fontSize: "0.78rem", textTransform: "uppercase", textDecoration: "none",
+    transition: "all 0.3s ease", boxShadow: "0 4px 15px rgba(214,40,40,0.3)",
+    cursor: "pointer",
   },
   // HERO
   hero: {
@@ -78,6 +81,7 @@ const styles = {
     letterSpacing: "3px", textTransform: "uppercase",
     border: "none", cursor: "pointer", borderRadius: "2px",
     textDecoration: "none", display: "inline-block",
+    transition: "all 0.3s ease", boxShadow: "0 6px 20px rgba(214,40,40,0.4)",
   },
   btnOutline: {
     background: "transparent", color: "#F5F5F5", padding: "0.85rem 2rem",
@@ -86,6 +90,7 @@ const styles = {
     border: "1px solid rgba(255,255,255,0.4)",
     cursor: "pointer", borderRadius: "2px",
     textDecoration: "none", display: "inline-block",
+    transition: "all 0.3s ease",
   },
   // STATS
   statsBar: {
@@ -110,7 +115,7 @@ const styles = {
     fontSize: "clamp(2.2rem, 5vw, 3.8rem)", letterSpacing: "2px",
     marginBottom: "3rem", lineHeight: 1.05,
   },
-  // COURS
+  // COURSES
   coursGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" },
   coursCard: {
     background: "#111111", border: "1px solid #222",
@@ -122,25 +127,57 @@ const styles = {
   coursIcon: { fontSize: "2rem", marginBottom: "1rem" },
   coursName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "2px", marginBottom: "0.5rem" },
   coursDesc: { color: "#888", fontSize: "0.9rem", lineHeight: 1.6 },
+  // PROGRAMS
+  programsContainer: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center", marginBottom: "4rem" },
+  programsInfo: { display: "flex", flexDirection: "column", gap: "1.5rem" },
+  programsDesc: { color: "#bbb", fontSize: "1rem", lineHeight: 1.7, maxWidth: "500px" },
+  programsGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" },
+  programCard: {
+    background: "#111111", border: "1px solid #222",
+    padding: "2rem", borderRadius: "3px",
+    overflow: "hidden", transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    cursor: "pointer", position: "relative",
+    boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
+  },
+  programCardImage: {
+    width: "100%", height: "300px",
+    backgroundSize: "cover", backgroundPosition: "center",
+    marginBottom: "1.5rem", borderRadius: "2px",
+    transition: "transform 0.4s ease, filter 0.4s ease",
+    filter: "brightness(0.9)",
+  },
+  programNumber: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2.5rem", color: "#D62828", letterSpacing: "2px", marginBottom: "0.5rem",
+  },
+  programLabel: { fontSize: "0.65rem", letterSpacing: "3px", textTransform: "uppercase", color: "#888", marginBottom: "0.5rem" },
+  programName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "2px", marginBottom: "1rem" },
+  programCardDesc: { color: "#888", fontSize: "0.85rem", lineHeight: 1.6 },
   // PLANS
-  plansGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem", alignItems: "start" },
-  plan: { background: "#111111", border: "1px solid #222", borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center" },
+  plansGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem", alignItems: "start" },
+  plan: { 
+    background: "#111111", border: "1px solid #222", borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center",
+    transition: "all 0.3s ease", boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
+  },
   planFeatured: {
-    background: "linear-gradient(160deg, #1a0000 0%, #111111 100%)",
-    border: "1px solid #D62828",
+    background: "linear-gradient(135deg, #1a0000 0%, #111111 100%)",
+    border: "2px solid #D62828",
     borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center",
-    boxShadow: "0 0 40px rgba(214,40,40,0.35)",
+    boxShadow: "0 0 50px rgba(214,40,40,0.4), inset 0 0 30px rgba(214,40,40,0.1)",
+    transition: "all 0.3s ease",
   },
   planBadge: {
     display: "inline-block", background: "#D62828",
     fontSize: "0.65rem", letterSpacing: "3px", textTransform: "uppercase",
-    padding: "0.25rem 0.8rem", marginBottom: "1rem", borderRadius: "2px",
+    padding: "0.25rem 0.8rem", marginBottom: "1.5rem", borderRadius: "2px",
   },
-  planName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", letterSpacing: "3px", marginBottom: "1rem" },
-  planPrice: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "3.5rem", color: "#D62828", lineHeight: 1 },
-  planFeatures: { listStyle: "none", margin: "1.5rem 0 2rem", textAlign: "left", padding: 0 },
+  planName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", letterSpacing: "2px", marginBottom: "1.5rem" },
+  planPrice: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: "#F5F5F5", lineHeight: 1, marginBottom: "1.5rem" },
+  planPriceAmount: { color: "#D62828", fontSize: "2.8rem" },
+  planPriceUnit: { color: "#888", fontSize: "0.9rem", fontFamily: "'Barlow', sans-serif", fontWeight: 300 },
+  planFeatures: { listStyle: "none", margin: "2rem 0", textAlign: "left", padding: 0 },
   planFeatureItem: {
-    padding: "0.5rem 0", color: "#ccc", fontSize: "0.9rem",
+    padding: "0.6rem 0", color: "#ccc", fontSize: "0.9rem",
     borderBottom: "1px solid #1e1e1e", display: "flex", alignItems: "center", gap: "0.6rem",
   },
   featureArrow: { color: "#D62828", flexShrink: 0 },
@@ -254,29 +291,54 @@ const dot = {
   transition: "all 0.3s ease",
 };
 
+// ── PROGRAMS DATA ────────────────────────────────────────
+const programs = [
+  {
+    number: "01",
+    label: "Programme",
+    name: "Force",
+    desc: "Powerlifting, haltérophilie olympique, hypertrophie. Développez une force durable.",
+    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
+  },
+  {
+    number: "02",
+    label: "Programme",
+    name: "Condition Physique",
+    desc: "HIIT, protocoles d'athlète hybride, développement du cardio. Surpassez tout le monde.",
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
+  },
+  {
+    number: "03",
+    label: "Programme",
+    name: "Combat",
+    desc: "Boxe, Muay Thaï et BJJ. Fondamentaux à travers la préparation au combat avec des compétiteurs actifs.",
+    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
+  },
+];
+
 // ── COURSES DATA ─────────────────────────────────────────
 const courses = [
   { icon: "🥊", name: "Boxe & Combat", desc: "Cours collectifs de boxe anglaise, MMA et self-défense avec des instructeurs professionnels." },
   { icon: "🏋️", name: "Musculation", desc: "Programmes personnalisés de renforcement musculaire pour tous niveaux, du débutant au confirmé." },
   { icon: "🔥", name: "CrossFit", desc: "Entraînements HIIT intenses qui combinent force, endurance et agilité en sessions de 45 min." },
-  { icon: "🧘", name: "Yoga & Stretching", desc: "Sessions de récupération active et de mobilité pour équilibrer vos entraînements intensifs." },
+  { icon: "🧘", name: "Yoga & Étirement", desc: "Sessions de récupération active et de mobilité pour équilibrer vos entraînements intensifs." },
   { icon: "🚴", name: "Spinning", desc: "Vélos stationnaires avec coaching audio et musique pour brûler jusqu'à 600 cal par séance." },
   { icon: "⚡", name: "Cardio Training", desc: "Programmes cardio variés sur tapis, elliptiques et rameurs avec suivi de performance." },
 ];
 
-// ── PLANS DATA ───────────────────────────────────────────
-const plans = [
+// ── MEMBERSHIP DATA ──────────────────────────────────────
+const memberships = [
   {
-    name: "Starter", price: "59", featured: false,
-    features: ["Accès salle 6h–22h", "Vestiaires & douches", "2 cours collectifs/mois", "Application mobile"],
+    name: "Accès Journalier", price: "29", unit: "/ jour", featured: false,
+    features: ["Accès à une seule séance", "Tous les horaires d'ouverture", "Casier & serviette"],
   },
   {
-    name: "Pro", price: "99", featured: true,
-    features: ["Accès illimité 24h/24", "Cours collectifs illimités", "1 séance coaching/mois", "Analyse corporelle mensuelle", "Accès zone VIP"],
+    name: "Accès Total", price: "149", unit: "/ mois", featured: true,
+    features: ["Accès illimité 24h/24", "Tous les cours collectifs", "Salle libre & sparring", "Salle de récupération"],
   },
   {
-    name: "Elite", price: "149", featured: false,
-    features: ["Tout le plan Pro", "Coach personnel dédié", "Plan nutritionnel", "Accès invité 2×/mois", "Récupération & spa"],
+    name: "Coaching Premium", price: "299", unit: "/ mois", featured: false,
+    features: ["Tous les avantages Accès Total", "1 séance hebdomadaire avec un coach", "Programme personnalisé", "Suivi nutritionnel"],
   },
 ];
 
@@ -356,22 +418,35 @@ export default function Index() {
           from { opacity: 0; transform: translateY(40px); }
           to   { opacity: 1; transform: translateY(0); }
         }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(40px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(214,40,40,0.3); }
+          50% { box-shadow: 0 0 40px rgba(214,40,40,0.6); }
+        }
         * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #0A0A0A; }
-        ::-webkit-scrollbar-thumb { background: #D62828; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #D62828; border-radius: 10px; transition: background 0.3s; }
+        ::-webkit-scrollbar-thumb:hover { background: #ff5555; }
       `}</style>
 
       {/* ── NAV ── */}
       <nav style={styles.nav}>
         <div style={styles.logo}>GYM<span style={styles.logoSpan}>ACCESS</span></div>
         <ul style={styles.navLinks}>
-          <li><a href="#hero" style={styles.navLink}>Accueil</a></li>
-          <li><a href="#cours" style={styles.navLink}>Cours</a></li>
-          <li><a href="#abonnements" style={styles.navLink}>Abonnements</a></li>
-          <li><a href="#contact" style={styles.navLink}>Contact</a></li>
+          <li><a href="#hero" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Accueil</a></li>
+          <li><a href="#cours" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Cours</a></li>
+          <li><a href="#abonnements" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Abonnements</a></li>
+          <li><a href="#contact" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Contact</a></li>
           <li>
-            <Link to="/auth/login" style={styles.navBtn}>Espace Membre</Link>
+            <Link to="/auth/login" style={styles.navBtn} onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 25px rgba(214,40,40,0.5)'; }} onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 15px rgba(214,40,40,0.3)'; }}>Espace Membre</Link>
           </li>
         </ul>
       </nav>
@@ -444,45 +519,73 @@ export default function Index() {
         ))}
       </div>
 
-      {/* ── COURS ── */}
+      {/* ── THE WORK ── */}
       <section id="cours" style={styles.sectionDark}>
-        <div style={styles.sectionTag}>Nos Disciplines</div>
-        <div style={styles.sectionTitle}>COURS DISPONIBLES</div>
-        <div style={styles.coursGrid}>
-          {courses.map((c, i) => (
+        <div style={styles.sectionTag}>Nos Programmes</div>
+        <div style={styles.sectionTitle}>Trois façons de vous surpasser.</div>
+        <div style={styles.programsContainer}>
+          <div style={styles.programsInfo}>
+            <p style={styles.programsDesc}>
+              Chaque programme est dirigé par un coach, périodisé et adapté à votre corps - et non l'inverse.
+            </p>
+          </div>
+        </div>
+        <div style={styles.programsGrid}>
+          {programs.map((p) => (
             <div
-              key={i}
+              key={p.number}
               style={{
-                ...styles.coursCard,
-                ...(hoveredCard === i ? { borderColor: "#D62828", transform: "translateY(-4px)" } : {}),
+                ...styles.programCard,
+                ...(hoveredCard === p.number ? { borderColor: "#D62828", transform: "translateY(-8px)", boxShadow: "0 15px 40px rgba(214,40,40,0.3)" } : {}),
               }}
-              onMouseEnter={() => setHoveredCard(i)}
+              onMouseEnter={() => setHoveredCard(p.number)}
               onMouseLeave={() => setHoveredCard(null)}
             >
-              <div style={styles.coursIcon}>{c.icon}</div>
-              <div style={styles.coursName}>{c.name}</div>
-              <p style={styles.coursDesc}>{c.desc}</p>
+              <div style={{ ...styles.programCardImage, backgroundImage: `url('${p.image}')`, ...(hoveredCard === p.number ? { transform: "scale(1.05)", filter: "brightness(1.1)" } : {}) }} />
+              <div style={styles.programNumber}>{p.number}</div>
+              <div style={styles.programLabel}>{p.label}</div>
+              <div style={styles.programName}>{p.name}</div>
+              <p style={styles.programCardDesc}>{p.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── ABONNEMENTS ── */}
+      {/* ── MEMBERSHIP ── */}
       <section id="abonnements" style={styles.section}>
-        <div style={styles.sectionTag}>Tarifs</div>
-        <div style={styles.sectionTitle}>CHOISISSEZ VOTRE PLAN</div>
+        <div style={styles.sectionTag}>Abonnements</div>
+        <div style={styles.sectionTitle}>Choisissez votre combat.</div>
         <div style={styles.plansGrid}>
-          {plans.map((p) => (
-            <div key={p.name} style={p.featured ? styles.planFeatured : styles.plan}>
-              {p.featured && <div style={styles.planBadge}>Populaire</div>}
-              <div style={styles.planName}>{p.name}</div>
+          {memberships.map((m) => (
+            <div key={m.name} style={m.featured ? styles.planFeatured : styles.plan}
+              onMouseEnter={e => {
+                if (m.featured) {
+                  e.currentTarget.style.transform = 'translateY(-8px)';
+                  e.currentTarget.style.boxShadow = '0 0 60px rgba(214,40,40,0.5), inset 0 0 40px rgba(214,40,40,0.15)';
+                } else {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.5)';
+                }
+              }}
+              onMouseLeave={e => {
+                if (m.featured) {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 0 50px rgba(214,40,40,0.4), inset 0 0 30px rgba(214,40,40,0.1)';
+                } else {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
+                }
+              }}
+            >
+              {m.featured && <div style={styles.planBadge}>Le Plus Populaire</div>}
+              <div style={styles.planName}>{m.name}</div>
               <div style={styles.planPrice}>
-                <span style={{ fontSize: "1.2rem", verticalAlign: "super", color: "#F5F5F5" }}>DT</span>
-                {p.price}
-                <span style={{ fontSize: "1rem", color: "#888", fontFamily: "'Barlow', sans-serif", fontWeight: 300 }}>/mois</span>
+                <span style={{ color: "#F5F5F5" }}>€</span>
+                <span style={styles.planPriceAmount}>{m.price}</span>
+                <div style={styles.planPriceUnit}>{m.unit}</div>
               </div>
               <ul style={styles.planFeatures}>
-                {p.features.map((f) => (
+                {m.features.map((f) => (
                   <li key={f} style={styles.planFeatureItem}>
                     <span style={styles.featureArrow}>▸</span> {f}
                   </li>
@@ -491,11 +594,23 @@ export default function Index() {
               <a
                 href="#contact"
                 style={{
-                  ...(p.featured ? styles.btnPrimary : styles.btnOutline),
+                  ...(m.featured ? styles.btnPrimary : styles.btnOutline),
                   width: "100%", textAlign: "center",
                 }}
+                onMouseEnter={e => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = m.featured ? '0 10px 30px rgba(214,40,40,0.6)' : '0 6px 20px rgba(255,255,255,0.2)';
+                  if (!m.featured) e.target.style.borderColor = '#D62828';
+                  if (!m.featured) e.target.style.color = '#D62828';
+                }}
+                onMouseLeave={e => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = m.featured ? '0 6px 20px rgba(214,40,40,0.4)' : 'none';
+                  if (!m.featured) e.target.style.borderColor = 'rgba(255,255,255,0.4)';
+                  if (!m.featured) e.target.style.color = '#F5F5F5';
+                }}
               >
-                Choisir
+                COMMENCER MAINTENANT
               </a>
             </div>
           ))}
@@ -514,9 +629,9 @@ export default function Index() {
               Notre équipe est là pour vous accompagner.
             </p>
             {[
-              { icon: "📍", text: "Avenue Habib Bourguiba, Tunis 1000" },
-              { icon: "📞", text: "+216 71 000 000" },
-              { icon: "✉️", text: "contact@gymaccess.tn" },
+              { icon: "📍", text: "123 Avenue des Champs-Élysées, Paris 75008" },
+              { icon: "📞", text: "+33 1 23 45 67 89" },
+              { icon: "✉️", text: "contact@gymaccess.fr" },
               { icon: "⏰", text: "Lun – Dim : 24h/24" },
             ].map((item) => (
               <div key={item.text} style={styles.contactItem}>
@@ -544,7 +659,7 @@ export default function Index() {
         <div style={styles.footerLogo}>
           GYM<span style={styles.logoSpan}>ACCESS</span>
         </div>
-        <p style={{ color: "#888", fontSize: "0.8rem" }}>© 2026 GymAccess — Tous droits réservés</p>
+        <p style={{ color: "#888", fontSize: "0.8rem" }}>© 2026 GymAccess France — Tous droits réservés</p>
         <p style={{ color: "#444", fontSize: "0.75rem" }}>Transformez-vous. Dépassez-vous.</p>
       </footer>
 
