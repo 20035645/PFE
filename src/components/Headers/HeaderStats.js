@@ -1,64 +1,65 @@
 import React from "react";
-
-// components
-
 import CardStats from "components/Cards/CardStats.js";
 
 export default function HeaderStats() {
   return (
     <>
-      {/* Header */}
-      <div className="relative bg-lightBlue-600 md:pt-32 pb-32 pt-12">
+      <div
+        className="relative pt-12 pb-32"
+        style={{ background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0510 60%, #0a0a0a 100%)' }}
+      >
+        {/* Decorative line */}
+        <div className="absolute bottom-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, #e11d48, transparent)' }}></div>
+
         <div className="px-4 md:px-10 mx-auto w-full">
           <div>
-            {/* Card stats */}
             <div className="flex flex-wrap">
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="TRAFFIC"
-                  statTitle="350,897"
+                  statSubtitle="MEMBRES ACTIFS"
+                  statTitle="1,247"
                   statArrow="up"
-                  statPercent="3.48"
-                  statPercentColor="text-emerald-500"
-                  statDescripiron="Since last month"
-                  statIconName="far fa-chart-bar"
-                  statIconColor="bg-red-500"
-                />
-              </div>
-              <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
-                <CardStats
-                  statSubtitle="NEW USERS"
-                  statTitle="2,356"
-                  statArrow="down"
-                  statPercent="3.48"
-                  statPercentColor="text-red-500"
-                  statDescripiron="Since last week"
-                  statIconName="fas fa-chart-pie"
-                  statIconColor="bg-orange-500"
-                />
-              </div>
-              <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
-                <CardStats
-                  statSubtitle="SALES"
-                  statTitle="924"
-                  statArrow="down"
-                  statPercent="1.10"
-                  statPercentColor="text-orange-500"
-                  statDescripiron="Since yesterday"
+                  statPercent="12.5"
+                  statPercentColor="text-green-400"
+                  statDescripiton="Depuis le mois dernier"
                   statIconName="fas fa-users"
-                  statIconColor="bg-pink-500"
+                  statIconColor="bg-red-600"
                 />
               </div>
               <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
                 <CardStats
-                  statSubtitle="PERFORMANCE"
-                  statTitle="49,65%"
+                  statSubtitle="ABONNEMENTS ACTIFS"
+                  statTitle="846"
                   statArrow="up"
-                  statPercent="12"
-                  statPercentColor="text-emerald-500"
-                  statDescripiron="Since last month"
-                  statIconName="fas fa-percent"
-                  statIconColor="bg-lightBlue-500"
+                  statPercent="8.3"
+                  statPercentColor="text-green-400"
+                  statDescripiton="Depuis le mois dernier"
+                  statIconName="fas fa-id-card"
+                  statIconColor="bg-red-700"
+                />
+              </div>
+              <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
+                <CardStats
+                  statSubtitle="REVENUS MENSUELS"
+                  statTitle="28,490 DT"
+                  statArrow="up"
+                  statPercent="5.7"
+                  statPercentColor="text-green-400"
+                  statDescripiton="Depuis le mois dernier"
+                  statIconName="fas fa-dollar-sign"
+                  statIconColor="bg-red-800"
+                />
+              </div>
+              <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
+                <CardStats
+                  statSubtitle="SÉANCES AUJOURD'HUI"
+                  statTitle="89"
+                  statArrow="down"
+                  statPercent="3.2"
+                  statPercentColor="text-red-400"
+                  statDescripiton="Depuis hier"
+                  statIconName="fas fa-dumbbell"
+                  statIconColor="bg-red-900"
                 />
               </div>
             </div>

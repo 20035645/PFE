@@ -1,93 +1,62 @@
-/*eslint-disable*/
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-// components
-
 import IndexDropdown from "components/Dropdowns/IndexDropdown.js";
 
-export default function Navbar(props) {
-  const [navbarOpen, setNavbarOpen] = React.useState(false);
+export default function IndexNavbar() {
+  const [navbarOpen, setNavbarOpen] = useState(false);
+
   return (
     <>
-      <nav className="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg bg-white shadow">
+      <nav
+        className="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between px-6 py-3"
+        style={{ backgroundColor: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #2a2a2a' }}
+      >
         <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
           <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-            <Link
-              to="/"
-              className="text-blueGray-700 text-sm font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase"
-            >
-              Notus React
+            <Link to="/" className="flex items-center gap-2 leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase font-bold">
+              <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
+                <i className="fas fa-dumbbell text-white text-sm"></i>
+              </div>
+              <span style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.3rem', fontWeight: 700, color: 'white', letterSpacing: '0.1em' }}>
+                GYM<span style={{ color: '#e11d48' }}>ACCESS</span>
+              </span>
             </Link>
             <button
-              className="cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"
+              className="cursor-pointer text-gray-400 lg:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-transparent block outline-none focus:outline-none"
               type="button"
               onClick={() => setNavbarOpen(!navbarOpen)}
             >
               <i className="fas fa-bars"></i>
             </button>
           </div>
-          <div
-            className={
-              "lg:flex flex-grow items-center bg-white lg:bg-opacity-0 lg:shadow-none" +
-              (navbarOpen ? " block" : " hidden")
-            }
-            id="example-navbar-warning"
-          >
-            <ul className="flex flex-col lg:flex-row list-none mr-auto">
-              <li className="flex items-center">
-                <a
-                  className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://www.creative-tim.com/learning-lab/tailwind/react/overview/notus?ref=nr-index-navbar"
-                >
-                  <i className="text-blueGray-400 far fa-file-alt text-lg leading-lg mr-2" />{" "}
-                  Docs
+          <div className={`lg:flex flex-grow items-center${navbarOpen ? " flex" : " hidden"}`} id="example-navbar-warning">
+            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto items-center gap-1">
+              <li className="nav-item">
+                <a href="#nutrition" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
+                  Nutrition
                 </a>
               </li>
-            </ul>
-            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-              <li className="flex items-center">
+              <li className="nav-item">
+                <a href="#abonnements" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
+                  Abonnements
+                </a>
+              </li>
+              <li className="nav-item">
+                <a href="#coachs" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
+                  Coachs
+                </a>
+              </li>
+              <li className="nav-item">
                 <IndexDropdown />
               </li>
-              <li className="flex items-center">
-                <a
-                  className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdemos.creative-tim.com%2Fnotus-react%2F%23%2F"
-                  target="_blank"
+              <li className="nav-item">
+                <Link
+                  to="/auth/register"
+                  className="btn-gym px-6 py-2 rounded text-sm font-bold inline-block"
+                  style={{ fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}
                 >
-                  <i className="text-blueGray-400 fab fa-facebook text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Share</span>
-                </a>
-              </li>
-
-              <li className="flex items-center">
-                <a
-                  className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdemos.creative-tim.com%2Fnotus-react%2F%23%2F&text=Start%20your%20development%20with%20a%20Free%20Tailwind%20CSS%20and%20React%20UI%20Kit%20and%20Admin.%20Let%20Notus%20React%20amaze%20you%20with%20its%20cool%20features%20and%20build%20tools%20and%20get%20your%20project%20to%20a%20whole%20new%20level.%20"
-                  target="_blank"
-                >
-                  <i className="text-blueGray-400 fab fa-twitter text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Tweet</span>
-                </a>
-              </li>
-
-              <li className="flex items-center">
-                <a
-                  className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://github.com/creativetimofficial/notus-react?ref=nr-index-navbar"
-                  target="_blank"
-                >
-                  <i className="text-blueGray-400 fab fa-github text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Star</span>
-                </a>
-              </li>
-
-              <li className="flex items-center">
-                <button
-                  className="bg-lightBlue-500 text-white active:bg-lightBlue-600 text-xs font-bold uppercase px-4 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none lg:mr-1 lg:mb-0 ml-3 mb-3 ease-linear transition-all duration-150"
-                  type="button"
-                >
-                  <i className="fas fa-arrow-alt-circle-down"></i> Download
-                </button>
+                  REJOINDRE
+                </Link>
               </li>
             </ul>
           </div>

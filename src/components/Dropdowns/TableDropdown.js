@@ -1,70 +1,51 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { createPopper } from "@popperjs/core";
 
-const NotificationDropdown = () => {
-  // dropdown props
-  const [dropdownPopoverShow, setDropdownPopoverShow] = React.useState(false);
-  const btnDropdownRef = React.createRef();
-  const popoverDropdownRef = React.createRef();
-  const openDropdownPopover = () => {
-    createPopper(btnDropdownRef.current, popoverDropdownRef.current, {
-      placement: "left-start",
-    });
+export default function TableDropdown() {
+  const [dropdownPopoverShow, setDropdownPopoverShow] = useState(false);
+  const btnRef = useRef(null);
+  const popoverRef = useRef(null);
+
+  const openDropdown = () => {
+    createPopper(btnRef.current, popoverRef.current, { placement: "left-start" });
     setDropdownPopoverShow(true);
   };
-  const closeDropdownPopover = () => {
-    setDropdownPopoverShow(false);
-  };
+  const closeDropdown = () => setDropdownPopoverShow(false);
+
+  useEffect(() => {
+    const handleClickOutside = () => { if (dropdownPopoverShow) closeDropdown(); };
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [dropdownPopoverShow]);
+
   return (
     <>
-      <a
-        className="text-blueGray-500 py-1 px-3"
-        href="#pablo"
-        ref={btnDropdownRef}
-        onClick={(e) => {
-          e.preventDefault();
-          dropdownPopoverShow ? closeDropdownPopover() : openDropdownPopover();
-        }}
+      <button
+        ref={btnRef}
+        onClick={(e) => { e.stopPropagation(); dropdownPopoverShow ? closeDropdown() : openDropdown(); }}
+        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}
       >
         <i className="fas fa-ellipsis-v"></i>
-      </a>
+      </button>
       <div
-        ref={popoverDropdownRef}
-        className={
-          (dropdownPopoverShow ? "block " : "hidden ") +
-          "bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow-lg min-w-48"
-        }
+        ref={popoverRef}
+        className={`${dropdownPopoverShow ? "block " : "hidden "}rounded shadow-xl z-50 py-2`}
+        style={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a', minWidth: '140px' }}
       >
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Action
-        </a>
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Another action
-        </a>
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Something else here
-        </a>
+        {[
+          { label: "Voir", icon: "fas fa-eye" },
+          { label: "Modifier", icon: "fas fa-edit" },
+          { label: "Supprimer", icon: "fas fa-trash" },
+        ].map((item, i) => (
+          <button key={i}
+            className="flex items-center gap-3 px-4 py-2 text-xs hover:text-red-400 transition-colors w-full text-left"
+            style={{ color: i === 2 ? '#ef4444' : '#9ca3af', fontFamily: 'Rajdhani, sans-serif', background: 'none', border: 'none', cursor: 'pointer' }}
+            onClick={() => closeDropdown()}>
+            <i className={`${item.icon} w-4`}></i>
+            {item.label}
+          </button>
+        ))}
       </div>
     </>
   );
-};
-
-export default NotificationDropdown;
+}
