@@ -17,7 +17,7 @@ export default function Auth() {
     <>
       <Navbar transparent />
       <main>
-        <section className="relative w-full h-full py-40 min-h-screen">
+        <section className="relative w-full min-h-screen flex items-center justify-center">
           <div
             className="absolute top-0 w-full h-full bg-blueGray-800 bg-no-repeat bg-full"
             style={{
@@ -25,12 +25,14 @@ export default function Auth() {
                 "url(" + require("assets/img/register_bg_2.png").default + ")",
             }}
           ></div>
-          <Switch>
-          <Route path="/auth/login" exact component={Login} />
-          <Route path="/auth/forget" exact component={forget} />
-          <Route path="/auth/register" exact component={Register} />
-            <Redirect from="/auth" to="/auth/login" />
-          </Switch>
+          <div className="relative z-10 w-full">
+            <Switch>
+              <Route path="/auth/login" exact component={Login} />
+              <Route path="/auth/forget" exact component={forget} />
+              <Route path="/auth/register" exact component={Register} />
+              <Redirect from="/auth" to="/auth/login" />
+            </Switch>
+          </div>
           <FooterSmall absolute />
         </section>
       </main>

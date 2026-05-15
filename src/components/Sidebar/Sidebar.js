@@ -2,132 +2,274 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import UserDropdown from "components/Dropdowns/UserDropdown.js";
 
-export default function Sidebar() {
-  const [collapseShow, setCollapseShow] = useState("hidden");
+const styles = {
+  nav: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: "256px",
+    background: "#111111",
+    borderRight: "1px solid rgba(214,40,40,0.18)",
+    display: "flex",
+    flexDirection: "column",
+    zIndex: 40,
+    fontFamily: "'Barlow', Arial, sans-serif",
+    overflowY: "auto",
+  },
+  header: {
+    padding: "20px 20px 16px",
+    borderBottom: "1px solid rgba(214,40,40,0.15)",
+    background: "rgba(10,10,10,0.6)",
+    flexShrink: 0,
+  },
+  logoWrap: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    textDecoration: "none",
+  },
+  logoIcon: {
+    width: "34px",
+    height: "34px",
+    background: "#D62828",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  logoText: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.55rem",
+    letterSpacing: "4px",
+    color: "#F5F5F5",
+    lineHeight: 1,
+  },
+  body: {
+    flex: 1,
+    padding: "8px 0",
+    overflowY: "auto",
+  },
+  sectionLabel: {
+    padding: "18px 20px 8px",
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "0.72rem",
+    letterSpacing: "3px",
+    color: "#D62828",
+    textTransform: "uppercase",
+  },
+  divider: {
+    border: "none",
+    borderTop: "1px solid rgba(214,40,40,0.13)",
+    margin: "6px 0",
+  },
+  statsCard: {
+    margin: "12px 14px 16px",
+    padding: "14px 16px",
+    background: "rgba(214,40,40,0.07)",
+    border: "1px solid rgba(214,40,40,0.22)",
+  },
+  statsLabel: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "0.72rem",
+    letterSpacing: "2px",
+    color: "#D62828",
+    marginBottom: "10px",
+  },
+  statsRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  statItem: { textAlign: "center" },
+  statValue: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.5rem",
+    color: "#F5F5F5",
+    letterSpacing: "1px",
+    lineHeight: 1,
+  },
+  statDesc: {
+    fontSize: "0.65rem",
+    color: "#666",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    marginTop: "2px",
+  },
+  footer: {
+    padding: "14px 20px",
+    borderTop: "1px solid rgba(214,40,40,0.15)",
+    background: "rgba(10,10,10,0.4)",
+    flexShrink: 0,
+  },
+  userRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  avatar: {
+    width: "32px",
+    height: "32px",
+    background: "#D62828",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "0.9rem",
+    color: "#fff",
+    letterSpacing: "1px",
+    flexShrink: 0,
+  },
+};
+
+function NavItem({ to, icon, label }) {
   const location = useLocation();
+  const active = location.pathname === to;
 
-  const isActive = (path) => location.pathname === path;
-
-  const navItem = (to, icon, label) => (
-    <li className="items-center">
+  return (
+    <li style={{ listStyle: "none" }}>
       <Link
         to={to}
-        className={`flex items-center gap-3 text-xs uppercase py-3 px-4 font-semibold transition-all duration-200 ${
-          isActive(to)
-            ? "sidebar-active text-red-500"
-            : "text-gray-400 hover:text-red-400 hover:bg-red-900 hover:bg-opacity-10"
-        }`}
-        style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em', fontSize: '0.8rem' }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px 20px",
+          color: active ? "#D62828" : "#7A7A7A",
+          textDecoration: "none",
+          fontSize: "0.75rem",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "2px",
+          background: active ? "rgba(214,40,40,0.1)" : "transparent",
+          borderLeft: active ? "2px solid #D62828" : "2px solid transparent",
+          transition: "all 0.15s ease",
+        }}
       >
-        <i className={`${icon} text-sm w-5 text-center`}></i>
+        <i className={`${icon} text-sm`} style={{ width: "16px", textAlign: "center", opacity: active ? 1 : 0.6 }} />
         {label}
       </Link>
     </li>
   );
+}
+
+export default function Sidebar() {
+  const [collapseShow, setCollapseShow] = useState(false);
 
   return (
     <>
-      <nav
-        className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6"
-        style={{ backgroundColor: '#111111', borderRight: '1px solid #2a2a2a' }}
-      >
-        <div className="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center justify-between w-full mx-auto">
-          
-          {/* Toggler */}
-          <button
-            className="cursor-pointer text-gray-400 opacity-50 md:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-transparent"
-            onClick={() => setCollapseShow(collapseShow === "hidden" ? "bg-gray-900 m-2 py-3 px-6" : "hidden")}
-          >
-            <i className="fas fa-bars"></i>
-          </button>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;800&family=Bebas+Neue&display=swap"
+        rel="stylesheet"
+      />
 
-          {/* Logo */}
+      {/* Mobile toggle */}
+      <button
+        onClick={() => setCollapseShow(!collapseShow)}
+        style={{
+          position: "fixed",
+          top: "16px",
+          left: "16px",
+          zIndex: 50,
+          display: "none", // géré via CSS media query dans votre setup
+          background: "rgba(17,17,17,0.9)",
+          border: "1px solid rgba(214,40,40,0.3)",
+          color: "#F5F5F5",
+          padding: "8px 12px",
+          cursor: "pointer",
+        }}
+        className="md:hidden"
+      >
+        <i className="fas fa-bars" />
+      </button>
+
+      <nav style={styles.nav} className={`md:flex ${collapseShow ? "flex" : "hidden md:flex"}`}>
+
+        {/* Header / Logo */}
+        <div style={styles.header}>
           <Link
             to="/"
-            className="md:block text-left md:pb-2 mr-0 inline-block whitespace-nowrap p-4 px-0"
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+            }}
           >
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
-                <i className="fas fa-dumbbell text-white text-sm"></i>
-              </div>
-              <span style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.4rem', fontWeight: 700, color: 'white', letterSpacing: '0.1em' }}>
-                GYM<span style={{ color: '#e11d48' }}>ACCESS</span>
-              </span>
+            <div
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "2rem",
+                letterSpacing: "4px",
+                color: "#F5F5F5",
+                lineHeight: 1,
+              }}
+            >
+              GYM<span style={{ color: "#D62828" }}>ACCESS</span>
             </div>
           </Link>
+        </div>
 
-          {/* User dropdown mobile */}
-          <ul className="md:hidden items-center flex flex-wrap list-none">
-            <li className="inline-block relative">
-              <UserDropdown />
-            </li>
+        {/* Body */}
+        <div style={styles.body}>
+
+          <div style={styles.sectionLabel}>Administration</div>
+          <ul style={{ padding: 0, margin: 0 }}>
+            <NavItem to="/admin/dashboard" icon="fas fa-chart-bar" label="Dashboard" />
+            <NavItem to="/admin/settings" icon="fas fa-cog" label="Paramètres" />
+            <NavItem to="/admin/tables" icon="fas fa-users" label="Membres" />
+            <NavItem to="/admin/maps" icon="fas fa-map-marked-alt" label="Localisation" />
           </ul>
 
-          {/* Collapse */}
-          <div className={`md:flex md:flex-col md:items-stretch md:opacity-100 md:relative md:mt-4 md:shadow-none shadow absolute top-0 left-0 right-0 z-40 overflow-y-auto overflow-x-hidden h-auto items-center flex-1 rounded ${collapseShow}`}>
-            
-            {/* Close mobile */}
-            <div className="md:min-w-full md:hidden block pb-4 mb-4 border-b border-gray-800">
-              <div className="flex flex-wrap">
-                <div className="w-6/12">
-                  <Link to="/" className="md:block text-left inline-block whitespace-nowrap text-sm font-bold p-4 px-0" style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif' }}>
-                    GYMACCESS
-                  </Link>
-                </div>
-                <div className="w-6/12 flex justify-end">
-                  <button
-                    type="button"
-                    className="cursor-pointer text-gray-500 opacity-50 md:hidden"
-                    onClick={() => setCollapseShow("hidden")}
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
+          <hr style={styles.divider} />
+          <div style={styles.sectionLabel}>Pages</div>
+          <ul style={{ padding: 0, margin: 0 }}>
+            <NavItem to="/" icon="fas fa-dumbbell" label="Salle de sport" />
+            <NavItem to="/profile" icon="fas fa-user" label="Profil" />
+            <NavItem to="/auth/login" icon="fas fa-sign-in-alt" label="Connexion" />
+            <NavItem to="/auth/register" icon="fas fa-user-plus" label="Inscription" />
+          </ul>
+
+          <hr style={styles.divider} />
+
+          {/* Quick stats */}
+          <div style={styles.statsCard}>
+            <div style={styles.statsLabel}>Aujourd'hui</div>
+            <div style={styles.statsRow}>
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>247</div>
+                <div style={styles.statDesc}>Membres</div>
+              </div>
+              <div style={{ width: "1px", background: "rgba(214,40,40,0.2)", alignSelf: "stretch" }} />
+              <div style={styles.statItem}>
+                <div style={{ ...styles.statValue, color: "#D62828" }}>89</div>
+                <div style={styles.statDesc}>Actifs</div>
+              </div>
+              <div style={{ width: "1px", background: "rgba(214,40,40,0.2)", alignSelf: "stretch" }} />
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>12</div>
+                <div style={styles.statDesc}>Séances</div>
               </div>
             </div>
+          </div>
 
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" style={{ borderColor: '#2a2a2a' }} />
-            
-            {/* Admin Section */}
-            <h6 className="md:min-w-full text-xs uppercase font-bold block pt-1 pb-4 no-underline" style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.15em' }}>
-              Administration
-            </h6>
-            <ul className="md:flex-col md:min-w-full flex flex-col list-none">
-              {navItem("/admin/dashboard", "fas fa-chart-bar", "Dashboard")}
-              {navItem("/admin/settings", "fas fa-cog", "Paramètres")}
-              {navItem("/admin/tables", "fas fa-table", "Membres")}
-              {navItem("/admin/maps", "fas fa-map-marked-alt", "Localisation")}
-            </ul>
+        </div>
 
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" style={{ borderColor: '#2a2a2a' }} />
-
-            {/* Pages Section */}
-            <h6 className="md:min-w-full text-xs uppercase font-bold block pt-1 pb-4 no-underline" style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.15em' }}>
-              Pages
-            </h6>
-            <ul className="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
-              {navItem("/landing", "fas fa-dumbbell", "Salle de Sport")}
-              {navItem("/profile", "fas fa-user", "Profil")}
-              {navItem("/auth/login", "fas fa-sign-in-alt", "Connexion")}
-              {navItem("/auth/register", "fas fa-user-plus", "Inscription")}
-            </ul>
-
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" style={{ borderColor: '#2a2a2a' }} />
-
-            {/* Quick Stats */}
-            <div className="px-2 py-3 rounded-lg mb-4" style={{ background: 'rgba(225,29,72,0.08)', border: '1px solid rgba(225,29,72,0.2)' }}>
-              <p className="text-xs mb-2" style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}>AUJOURD'HUI</p>
-              <div className="flex justify-between text-xs text-gray-400">
-                <span><i className="fas fa-users mr-1"></i>247 membres</span>
-                <span><i className="fas fa-fire mr-1" style={{ color: '#e11d48' }}></i>89 actifs</span>
+        {/* Footer utilisateur */}
+        <div style={styles.footer}>
+          <div style={styles.userRow}>
+            <div style={styles.avatar}>AD</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#F5F5F5", textTransform: "uppercase", letterSpacing: "1px" }}>
+                Admin
+              </div>
+              <div style={{ fontSize: "0.65rem", color: "#555", textTransform: "uppercase", letterSpacing: "1px", marginTop: "2px" }}>
+                Administrateur
               </div>
             </div>
-
+            <UserDropdown />
           </div>
         </div>
+
       </nav>
     </>
   );

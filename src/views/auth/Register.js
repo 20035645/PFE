@@ -1,134 +1,139 @@
+// REGISTER.JS
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { registerUser } from "../../services/apiUser";
+
+const plans = [
+  { id: "standard", name: "Standard", price: "39 DT/mois" },
+  { id: "premium",  name: "Premium",  price: "69 DT/mois" },
+  { id: "coaching", name: "Coaching", price: "99 DT/mois" },
+];
 
 export default function Register() {
-  const [plan, setPlan] = useState("standard");
+  const history = useHistory();
+
+  const [selectedPlan, setSelectedPlan] = useState("standard");
+  const [error,   setError]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    firstName: "", lastName: "", email: "", phone: "", password: "", confirmPassword: "",
+  });
+
+  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas");
+      return;
+    }
+    if (form.password.length < 6) {
+      setError("Le mot de passe doit contenir au moins 6 caractères");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await registerUser({
+        firstName: form.firstName,
+        lastName:  form.lastName,
+        email:     form.email,
+        phone:     form.phone,
+        password:  form.password,
+        plan:      selectedPlan,
+      });
+
+      if (res.data.token) localStorage.setItem("token", res.data.token);
+
+      // Après inscription → aller sur login
+      history.push("/auth/login");
+    } catch (err) {
+      setError(err.response?.data?.message || "Erreur lors de l'inscription");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="container mx-auto px-4 h-full">
-      <div className="flex content-center items-center justify-center h-full" style={{ minHeight: '85vh', paddingTop: '80px' }}>
-        <div className="w-full lg:w-6/12 px-4">
-          <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-2xl rounded-2xl"
-            style={{ backgroundColor: '#111111', border: '1px solid #2a2a2a' }}>
-            
-            <div className="rounded-t mb-0 px-6 py-6 text-center" style={{ borderBottom: '1px solid #2a2a2a' }}>
-              <div className="flex items-center justify-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
-                  <i className="fas fa-user-plus text-white text-sm"></i>
-                </div>
-                <h2 className="text-2xl font-bold" style={{ color: 'white', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.05em' }}>
-                  CRÉER MON COMPTE
-                </h2>
-              </div>
-              <p className="text-sm" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
-                Rejoignez GymAccess et commencez votre transformation
-              </p>
-            </div>
+    <div style={styles.page}>
+      <div style={styles.overlay}></div>
+      <div style={styles.card}>
+        <div style={styles.iconWrap}><span style={styles.icon}>👤</span></div>
+        <h1 style={styles.title}>CRÉER MON COMPTE</h1>
+        <p style={styles.subtitle}>Rejoignez GymAccess et commencez votre transformation</p>
 
-            <div className="flex-auto px-6 lg:px-10 py-8">
-              <form>
-                <div className="flex flex-wrap">
-                  {/* Nom & Prénom */}
-                  <div className="w-full lg:w-6/12 px-2">
-                    <div className="relative w-full mb-4">
-                      <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>Prénom</label>
-                      <input type="text" placeholder="Ahmed" className="px-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none"
-                        style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }} />
-                    </div>
-                  </div>
-                  <div className="w-full lg:w-6/12 px-2">
-                    <div className="relative w-full mb-4">
-                      <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>Nom</label>
-                      <input type="text" placeholder="Chaabane" className="px-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none"
-                        style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }} />
-                    </div>
-                  </div>
+        {error && <div style={styles.errorBox}>{error}</div>}
 
-                  {/* Email & Téléphone */}
-                  <div className="w-full lg:w-6/12 px-2">
-                    <div className="relative w-full mb-4">
-                      <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>Email</label>
-                      <input type="email" placeholder="votre@email.com" className="px-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none"
-                        style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }} />
-                    </div>
-                  </div>
-                  <div className="w-full lg:w-6/12 px-2">
-                    <div className="relative w-full mb-4">
-                      <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>Téléphone</label>
-                      <input type="tel" placeholder="+216 XX XXX XXX" className="px-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none"
-                        style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }} />
-                    </div>
-                  </div>
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div style={styles.grid}>
+            <Input label="PRÉNOM"    name="firstName"       value={form.firstName}       onChange={handleChange} placeholder="Ahmed" />
+            <Input label="NOM"       name="lastName"        value={form.lastName}        onChange={handleChange} placeholder="Chaabane" />
+            <Input label="EMAIL"     name="email"           type="email"    value={form.email}           onChange={handleChange} placeholder="votre@email.com" />
+            <Input label="TÉLÉPHONE" name="phone"           value={form.phone}           onChange={handleChange} placeholder="+216 XX XXX XXX" />
+            <Input label="MOT DE PASSE" name="password"     type="password" value={form.password}        onChange={handleChange} placeholder="••••••••" />
+            <Input label="CONFIRMER"    name="confirmPassword" type="password" value={form.confirmPassword} onChange={handleChange} placeholder="••••••••" />
+          </div>
 
-                  {/* Mot de passe */}
-                  <div className="w-full lg:w-6/12 px-2">
-                    <div className="relative w-full mb-4">
-                      <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>Mot de passe</label>
-                      <input type="password" placeholder="••••••••" className="px-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none"
-                        style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }} />
-                    </div>
-                  </div>
-                  <div className="w-full lg:w-6/12 px-2">
-                    <div className="relative w-full mb-4">
-                      <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>Confirmer</label>
-                      <input type="password" placeholder="••••••••" className="px-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none"
-                        style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }} />
-                    </div>
-                  </div>
-
-                  {/* Plan */}
-                  <div className="w-full px-2 mb-4">
-                    <label className="block uppercase text-xs font-bold mb-3" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>
-                      Choisir un Abonnement
-                    </label>
-                    <div className="flex gap-3">
-                      {[
-                        { id: "standard", label: "Standard", price: "39 DT/mois" },
-                        { id: "premium", label: "Premium", price: "69 DT/mois" },
-                        { id: "coaching", label: "Coaching", price: "99 DT/mois" },
-                      ].map((p) => (
-                        <div key={p.id}
-                          className="flex-1 p-3 rounded cursor-pointer text-center transition-all"
-                          style={{
-                            border: plan === p.id ? '2px solid #e11d48' : '1px solid #2a2a2a',
-                            background: plan === p.id ? 'rgba(225,29,72,0.1)' : '#1a1a1a',
-                          }}
-                          onClick={() => setPlan(p.id)}>
-                          <div className="text-sm font-bold" style={{ color: plan === p.id ? '#e11d48' : 'white', fontFamily: 'Oswald, sans-serif' }}>{p.label}</div>
-                          <div className="text-xs" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>{p.price}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="w-full px-2">
-                    <label className="flex items-center gap-2 cursor-pointer mb-4">
-                      <input type="checkbox" style={{ accentColor: '#e11d48' }} />
-                      <span className="text-xs" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
-                        J'accepte les <a href="#pablo" style={{ color: '#e11d48' }}>conditions d'utilisation</a>
-                      </span>
-                    </label>
-                  </div>
-                </div>
-
-                <div className="text-center mt-2 px-2">
-                  <Link to="/auth/login"
-                    className="btn-gym text-white font-bold uppercase text-sm px-6 py-3 rounded shadow w-full block text-center"
-                    style={{ fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}>
-                    CRÉER MON COMPTE
-                  </Link>
-                </div>
-              </form>
-              <div className="text-center mt-4">
-                <Link to="/auth/login" className="text-xs hover:text-red-400 transition-colors" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
-                  Déjà membre? <span style={{ color: '#e11d48' }}>Se connecter</span>
-                </Link>
-              </div>
+          <div>
+            <div style={styles.label}>ABONNEMENT</div>
+            <div style={styles.planGrid}>
+              {plans.map((plan) => {
+                const active = selectedPlan === plan.id;
+                return (
+                  <button key={plan.id} type="button" onClick={() => setSelectedPlan(plan.id)}
+                    style={{ ...styles.planCard, borderColor: active ? "#ef4444" : "#333", background: active ? "rgba(239,68,68,0.1)" : "#111" }}>
+                    <div style={styles.planName}>{plan.name.toUpperCase()}</div>
+                    <div style={styles.planPrice}>{plan.price}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        </div>
+
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "INSCRIPTION EN COURS..." : "CRÉER MON COMPTE"}
+          </button>
+        </form>
+
+        <p style={styles.footer}>
+          Déjà membre ?{" "}
+          <Link to="/auth/login" style={styles.linkRed}>Se connecter</Link>
+        </p>
       </div>
     </div>
   );
 }
+
+function Input({ label, name, value, onChange, placeholder, type = "text" }) {
+  return (
+    <div>
+      <label style={styles.label}>{label}</label>
+      <input style={styles.input} name={name} type={type} value={value}
+        onChange={onChange} placeholder={placeholder} required />
+    </div>
+  );
+}
+
+const styles = {
+  page:     { minHeight:"100vh", width:"100%", background:"#000", display:"flex", justifyContent:"center", alignItems:"center", padding:"3rem 1rem", position:"relative", boxSizing:"border-box" },
+  overlay:  { position:"absolute", inset:0, background:"radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)" },
+  card:     { position:"relative", zIndex:2, width:"100%", maxWidth:"700px", background:"#111", border:"1px solid #222", borderRadius:"20px", padding:"3rem", boxShadow:"0 20px 60px rgba(220,38,38,0.25)" },
+  iconWrap: { width:"75px", height:"75px", borderRadius:"50%", background:"linear-gradient(135deg,#ef4444,#991b1b)", display:"flex", justifyContent:"center", alignItems:"center", margin:"0 auto 1.5rem" },
+  icon:     { fontSize:"32px" },
+  title:    { color:"#fff", textAlign:"center", fontSize:"2rem", fontWeight:800, letterSpacing:"0.2em", marginBottom:"0.8rem" },
+  subtitle: { textAlign:"center", color:"#888", marginBottom:"2.5rem" },
+  errorBox: { background:"rgba(220,38,38,0.12)", border:"1px solid rgba(220,38,38,0.4)", color:"#f87171", borderRadius:"8px", padding:"0.75rem 1rem", marginBottom:"1.5rem", fontSize:"0.88rem", textAlign:"center" },
+  form:     { display:"flex", flexDirection:"column", gap:"2rem" },
+  grid:     { display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1.2rem" },
+  label:    { display:"block", color:"#aaa", fontSize:"0.75rem", fontWeight:700, marginBottom:"0.5rem", letterSpacing:"0.15em" },
+  input:    { width:"100%", background:"#000", border:"1px solid #333", borderRadius:"10px", padding:"1rem", color:"#fff", fontSize:"0.95rem", outline:"none", boxSizing:"border-box" },
+  planGrid: { display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:"1rem" },
+  planCard: { border:"2px solid", borderRadius:"12px", padding:"1.2rem", cursor:"pointer", transition:"0.2s" },
+  planName: { color:"#fff", fontWeight:800, letterSpacing:"0.1em", textAlign:"center" },
+  planPrice:{ color:"#888", marginTop:"0.5rem", textAlign:"center", fontSize:"0.9rem" },
+  button:   { background:"linear-gradient(135deg,#ef4444,#991b1b)", border:"none", borderRadius:"12px", padding:"1rem", color:"#fff", fontWeight:800, fontSize:"1rem", letterSpacing:"0.15em", cursor:"pointer", boxShadow:"0 10px 30px rgba(220,38,38,0.35)" },
+  footer:   { textAlign:"center", marginTop:"2rem", color:"#888" },
+  linkRed:  { color:"#ef4444", textDecoration:"none", fontWeight:700 },
+};

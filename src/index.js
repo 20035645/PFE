@@ -11,6 +11,7 @@ import Auth from "layouts/Auth.js";
 import Index from "views/Index.js";
 import Landing from "views/Landing.js";
 import Profile from "views/Profile.js";
+import NewPage from "views/NewPage.js";
 
 ReactDOM.render(
   <BrowserRouter>
@@ -19,6 +20,7 @@ ReactDOM.render(
       <Route path="/auth" component={Auth} />
       <Route path="/landing" component={Landing} />
       <Route path="/profile" component={Profile} />
+      <Route path="/newpage" component={NewPage} />
       <Route path="/" exact component={Index} />
       <Redirect from="*" to="/" />
     </Switch>

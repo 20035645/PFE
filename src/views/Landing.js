@@ -1,862 +1,477 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import IndexNavbar from "components/Navbars/IndexNavbar.js";
-import Footer from "components/Footers/Footer.js";
+import React, { useState, useEffect } from "react";
+import API from "../services/api";
 
-// ─── COUNTDOWN TIMER ──────────────────────────────────────────────────────────
-function Countdown() {
-  const [time, setTime] = useState({ h: 23, m: 59, s: 59 });
+const css = `
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;800&display=swap');
+:root{--red:#D62828;--black:#0A0A0A;--dark:#111111;--card:#141414;--border:rgba(214,40,40,0.16);--gray:#A3A3A3;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:#F5F5F5;font-family:'Barlow',sans-serif;}
+
+.nav{display:flex;justify-content:space-between;align-items:center;padding:18px 5%;background:rgba(10,10,10,0.92);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:99;backdrop-filter:blur(12px);}
+.logo{font-family:'Bebas Neue';font-size:1.9rem;letter-spacing:4px;color:#F5F5F5;}
+.logo em{color:var(--red);font-style:normal;}
+.nav-links{display:flex;gap:22px;align-items:center;}
+.nav-links a{color:#A3A3A3;text-decoration:none;text-transform:uppercase;letter-spacing:2px;font-size:.72rem;font-weight:700;transition:.2s;}
+.nav-links a:hover{color:#F5F5F5;}
+.nav-cta{background:var(--red);color:#fff;border:none;padding:11px 18px;font-family:'Barlow';font-weight:700;letter-spacing:2px;font-size:.72rem;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 24px rgba(214,40,40,.35);}
+
+.hero-nutr{position:relative;padding:100px 5% 70px;min-height:80vh;display:flex;align-items:center;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,10,10,.97) 40%,rgba(214,40,40,.12) 100%);}
+.hero-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;}
+.hero-inner{position:relative;z-index:2;max-width:640px;}
+.hero-tag{display:inline-block;border:1px solid rgba(214,40,40,.5);color:var(--red);padding:6px 14px;text-transform:uppercase;letter-spacing:3px;font-size:.68rem;margin-bottom:20px;}
+.hero-title{font-family:'Bebas Neue';font-size:clamp(3.5rem,7vw,6.5rem);line-height:.92;letter-spacing:2px;margin-bottom:18px;}
+.hero-title em{color:var(--red);font-style:normal;}
+.hero-sub{color:#C0C0C0;line-height:1.8;font-size:1.05rem;margin-bottom:30px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.btn-red{background:var(--red);color:#fff;border:none;padding:14px 24px;font-family:'Barlow';font-weight:700;letter-spacing:2px;font-size:.75rem;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 28px rgba(214,40,40,.4);}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);padding:14px 24px;font-family:'Barlow';font-weight:700;letter-spacing:2px;font-size:.75rem;text-transform:uppercase;cursor:pointer;}
+.hero-stats{display:flex;gap:32px;margin-top:36px;}
+.hstat-val{font-family:'Bebas Neue';font-size:2.2rem;color:var(--red);letter-spacing:2px;line-height:1;}
+.hstat-lbl{font-size:.65rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
+
+.sec{padding:80px 5%;}
+.sec-dark{background:#0e0e0e;}
+.sec-label{color:var(--red);text-transform:uppercase;letter-spacing:3px;font-size:.68rem;margin-bottom:10px;}
+.sec-title{font-family:'Bebas Neue';font-size:clamp(2.2rem,4.5vw,3.6rem);line-height:1;letter-spacing:2px;margin-bottom:14px;}
+.sec-sub{color:#B0B0B0;line-height:1.8;max-width:560px;}
+
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0e0e0e;}
+.sstrip-cell{padding:26px;text-align:center;border-right:1px solid var(--border);}
+.sstrip-cell:last-child{border-right:none;}
+.sstrip-num{font-family:'Bebas Neue';font-size:2.6rem;color:var(--red);letter-spacing:2px;}
+.sstrip-lbl{font-size:.65rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:4px;}
+
+.calc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;align-items:start;}
+.calc-form{background:var(--card);border:1px solid var(--border);padding:28px;}
+.calc-label{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:#777;margin-bottom:6px;display:block;}
+.calc-input,.calc-select{width:100%;background:#0A0A0A;border:1px solid #1e1e1e;color:#F5F5F5;padding:10px 14px;font-family:'Barlow';font-size:.9rem;margin-bottom:16px;outline:none;}
+.calc-input:focus,.calc-select:focus{border-color:rgba(214,40,40,.5);}
+.gender-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.gender-btn{background:#0A0A0A;border:1px solid #1e1e1e;color:#777;padding:10px;font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:2px;cursor:pointer;transition:.2s;}
+.gender-btn.active{border-color:var(--red);color:var(--red);}
+.calc-btn{width:100%;background:var(--red);color:#fff;border:none;padding:14px;font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:3px;cursor:pointer;margin-top:4px;}
+.calc-results{background:var(--card);border:1px solid var(--border);padding:28px;}
+.res-main{text-align:center;padding:24px 0;border-bottom:1px solid #1e1e1e;margin-bottom:20px;}
+.res-cal{font-family:'Bebas Neue';font-size:4rem;color:var(--red);letter-spacing:3px;line-height:1;}
+.res-cal-lbl{font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:6px;}
+.macros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.macro-box{background:#0A0A0A;border:1px solid #1e1e1e;padding:16px;text-align:center;}
+.macro-val{font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;line-height:1;}
+.macro-lbl{font-size:.62rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:4px;}
+
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;}
+.plan-c{background:var(--card);border:1px solid var(--border);padding:26px;}
+.plan-c.featured{border-color:var(--red);box-shadow:0 0 32px rgba(214,40,40,.15);}
+.plan-badge{display:inline-block;background:var(--red);color:#fff;font-size:.62rem;text-transform:uppercase;letter-spacing:2px;padding:4px 10px;margin-bottom:10px;}
+.plan-name{font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;margin-bottom:4px;}
+.plan-price{font-family:'Bebas Neue';font-size:3rem;color:var(--red);letter-spacing:2px;line-height:1;}
+.plan-period{font-size:.68rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-bottom:18px;margin-top:2px;}
+.plan-feats{list-style:none;padding:0;margin-bottom:20px;}
+.plan-feats li{padding:7px 0;font-size:.82rem;color:#C0C0C0;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:8px;}
+.plan-feats li span{color:var(--red);font-weight:700;}
+.plan-btn{width:100%;border:1px solid rgba(214,40,40,.4);background:transparent;color:var(--red);padding:12px;font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:3px;cursor:pointer;transition:.2s;}
+.plan-btn:hover,.plan-c.featured .plan-btn{background:var(--red);color:#fff;}
+
+.meals-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
+.meal-tab{background:none;border:none;color:#666;padding:12px 22px;font-family:'Bebas Neue';font-size:1.05rem;letter-spacing:2px;cursor:pointer;border-bottom:2px solid transparent;transition:.2s;}
+.meal-tab.on{color:var(--red);border-bottom-color:var(--red);}
+.meals-panel{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.meal-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #161616;}
+.meal-num{font-family:'Bebas Neue';font-size:1.4rem;color:var(--red);min-width:28px;}
+.meal-name{font-weight:700;font-size:.88rem;color:#F0F0F0;}
+.meal-type{font-size:.68rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
+.macros-summary{background:var(--card);border:1px solid var(--border);padding:24px;}
+.macro-big{font-family:'Bebas Neue';font-size:4rem;color:var(--red);letter-spacing:3px;line-height:1;text-align:center;}
+.macro-big-lbl{text-align:center;font-size:.65rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;}
+.mbar-row{margin-bottom:14px;}
+.mbar-header{display:flex;justify-content:space-between;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:#777;margin-bottom:6px;}
+.mbar-track{background:#1a1a1a;height:4px;}
+.mbar-fill{height:4px;background:var(--red);transition:.4s;}
+
+.coaches-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;}
+.coach-c{background:var(--card);border:1px solid var(--border);padding:22px;text-align:center;transition:.3s;}
+.coach-c:hover{border-color:rgba(214,40,40,.45);transform:translateY(-4px);}
+.coach-avatar{width:64px;height:64px;background:rgba(214,40,40,.12);border:1px solid var(--border);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:1.4rem;color:var(--red);letter-spacing:2px;}
+.coach-name{font-family:'Bebas Neue';font-size:1.25rem;letter-spacing:2px;margin-bottom:4px;}
+.coach-spec{font-size:.68rem;color:var(--red);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}
+.coach-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.cstat{background:#0A0A0A;padding:8px;text-align:center;}
+.cstat-v{font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:1px;}
+.cstat-l{font-size:.58rem;color:#555;text-transform:uppercase;letter-spacing:1px;}
+.coach-book{width:100%;background:transparent;border:1px solid rgba(214,40,40,.35);color:var(--red);padding:9px;font-family:'Bebas Neue';font-size:1rem;letter-spacing:2px;cursor:pointer;transition:.2s;}
+.coach-book:hover{background:var(--red);color:#fff;}
+
+.tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;}
+.tip-c{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--red);padding:22px;transition:.3s;}
+.tip-c:hover{transform:translateY(-3px);}
+.tip-title{font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:2px;margin-bottom:8px;margin-top:10px;}
+.tip-txt{font-size:.82rem;color:#888;line-height:1.7;}
+
+.bar-nutr{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;}
+.baritem{background:var(--card);border:1px solid var(--border);padding:20px;transition:.3s;}
+.baritem:hover{border-color:rgba(214,40,40,.45);transform:translateY(-3px);}
+.baritem-badge{display:inline-block;font-size:.62rem;text-transform:uppercase;letter-spacing:2px;padding:3px 8px;border:1px solid rgba(214,40,40,.4);color:var(--red);margin-bottom:10px;}
+.baritem-name{font-family:'Bebas Neue';font-size:1.35rem;letter-spacing:2px;margin-bottom:6px;}
+.baritem-desc{font-size:.78rem;color:#777;line-height:1.6;}
+.baritem-price{font-family:'Bebas Neue';font-size:1.5rem;color:var(--red);letter-spacing:2px;margin-top:10px;}
+
+.cta-band{background:rgba(214,40,40,.07);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 5%;text-align:center;}
+.cta-title{font-family:'Bebas Neue';font-size:clamp(2.5rem,5vw,4.5rem);letter-spacing:3px;margin-bottom:14px;}
+.cta-sub{color:#A0A0A0;font-size:1rem;line-height:1.8;max-width:500px;margin:0 auto 28px;}
+.cta-btns{display:flex;gap:14px;justify-content:center;}
+
+.footer{border-top:1px solid var(--border);padding:24px 5%;background:#080808;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-logo{font-family:'Bebas Neue';font-size:1.5rem;letter-spacing:3px;}
+.footer-logo em{color:var(--red);font-style:normal;}
+.footer-copy{font-size:.72rem;color:#444;text-transform:uppercase;letter-spacing:1px;}
+
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .calc-wrap,.meals-panel,.plans-grid,.coaches-grid{grid-template-columns:1fr;}
+  .stats-strip,.bar-nutr{grid-template-columns:1fr 1fr;}
+  .tips-grid{grid-template-columns:1fr;}
+}
+`;
+
+const MEALS = {
+  seche: {
+    cal: 1800, p: 160, g: 180, l: 55, meals: [
+      { n: "01", name: "Blancs d'œufs + yaourt grec", type: "Petit-déjeuner" },
+      { n: "02", name: "Salade + poulet grillé + légumes", type: "Déjeuner" },
+      { n: "03", name: "Amandes + pomme", type: "Collation" },
+      { n: "04", name: "Poisson vapeur + haricots verts", type: "Dîner" },
+      { n: "05", name: "Caséine + infusion minceur", type: "Pré-sleep" },
+    ]
+  },
+  maintien: {
+    cal: 2400, p: 150, g: 280, l: 70, meals: [
+      { n: "01", name: "Avoine + fruits + miel", type: "Petit-déjeuner" },
+      { n: "02", name: "Riz + légumineuses + légumes", type: "Déjeuner" },
+      { n: "03", name: "Fromage blanc + noix", type: "Collation" },
+      { n: "04", name: "Saumon + quinoa + brocolis", type: "Dîner" },
+      { n: "05", name: "Lait chaud + banane", type: "Pré-sleep" },
+    ]
+  },
+  masse: {
+    cal: 3200, p: 180, g: 400, l: 80, meals: [
+      { n: "01", name: "Œufs + avoine + banane", type: "Petit-déjeuner" },
+      { n: "02", name: "Poulet + riz + légumes + huile", type: "Déjeuner" },
+      { n: "03", name: "Shake protéiné + fruits secs", type: "Collation pré-workout" },
+      { n: "04", name: "Thon + pâtes + huile d'olive", type: "Dîner" },
+      { n: "05", name: "Viande rouge + patate douce", type: "Post-training" },
+      { n: "06", name: "Caséine + beurre d'amande", type: "Pré-sleep" },
+    ]
+  },
+};
+
+const COACHES = [
+  { initials: "NA", name: "NABIL A.", spec: "Prise de masse & force", years: 8, clients: 120, rating: "4.9" },
+  { initials: "SB", name: "SARRA B.", spec: "Sèche & rééquilibrage", years: 6, clients: 85, rating: "5.0" },
+  { initials: "AM", name: "AMINE M.", spec: "Performance & HIIT", years: 5, clients: 95, rating: "4.8" },
+  { initials: "LT", name: "LEILA T.", spec: "Nutrition végétale", years: 7, clients: 110, rating: "4.9" },
+];
+
+const TIPS = [
+  { title: "Timing des repas", txt: "Consomme 30g de protéines dans les 30 min post-entraînement pour maximiser la synthèse musculaire de 40%." },
+  { title: "Fréquence des repas", txt: "5 à 6 petits repas espacés de 3h maintiennent ton métabolisme actif et évitent les pics de glycémie." },
+  { title: "Protéines complètes", txt: "Combine légumineuses + céréales pour obtenir tous les acides aminés essentiels si tu suis une alimentation végétale." },
+  { title: "Hydratation active", txt: "Bois 500ml d'eau 2h avant l'effort, 200ml toutes les 20min pendant et 600ml par heure d'entraînement intense." },
+  { title: "Glucides intelligents", txt: "Privilégie les glucides à index glycémique bas (avoine, patate douce, riz complet) pour une énergie stable toute la journée." },
+  { title: "Progression calorique", txt: "Augmente ou réduis tes calories de 100-200 kcal par semaine max. Les changements brusques perturbent le métabolisme." },
+];
+
+const BAR = [
+  { badge: "Sèche", name: "BOWL PROTÉINÉ", desc: "Quinoa, poulet grillé, légumes rôtis, sauce tahini. 480 kcal · 42g prot.", price: "8.5 DT" },
+  { badge: "Énergie", name: "SMOOTHIE BOOST", desc: "Banane, whey vanille, beurre d'arachide, lait d'avoine. 320 kcal · 28g prot.", price: "6.5 DT" },
+  { badge: "Masse", name: "WRAP MASSE", desc: "Tortilla complète, thon, avocat, riz, légumes. 620 kcal · 52g prot.", price: "9 DT" },
+  { badge: "Recovery", name: "SHAKE RECOVERY", desc: "Whey, BCAA, miel, lait entier, cacao. Post-training idéal. 380 kcal.", price: "7 DT" },
+];
+
+export default function NutritionPage() {
+  const [genre, setGenre] = useState("H");
+  const [age, setAge] = useState(25);
+  const [poids, setPoids] = useState(75);
+  const [taille, setTaille] = useState(175);
+  const [activite, setActivite] = useState(1.375);
+  const [objectif, setObjectif] = useState("maintien");
+  const [result, setResult] = useState({ cal: 2456, bmr: 1876, p: 184, g: 307, l: 82, imc: 24.5, imcTxt: "Normal" });
+  const [mealTab, setMealTab] = useState("seche");
+  const [backendMessage, setBackendMessage] = useState("");
+
+  const scroll = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+
+  const calcCalories = () => {
+    let bmr = genre === "H"
+      ? Math.round(88.362 + 13.397 * poids + 4.799 * taille - 5.677 * age)
+      : Math.round(447.593 + 9.247 * poids + 3.098 * taille - 4.330 * age);
+    let tdee = Math.round(bmr * activite);
+    if (objectif === "deficit") tdee -= 500;
+    if (objectif === "surplus") tdee += 300;
+    const p = Math.round(poids * 2.2);
+    const l = Math.round(tdee * 0.25 / 9);
+    const g = Math.round((tdee - p * 4 - l * 9) / 4);
+    const imc = +(poids / ((taille / 100) ** 2)).toFixed(1);
+    const imcTxt = imc < 18.5 ? "Insuffisant" : imc < 25 ? "Normal" : imc < 30 ? "Surpoids" : "Obésité";
+    setResult({ cal: tdee, bmr, p, g, l, imc, imcTxt });
+  };
+
   useEffect(() => {
-    const iv = setInterval(() => {
-      setTime((prev) => {
-        let { h, m, s } = prev;
-        s--;
-        if (s < 0) { s = 59; m--; }
-        if (m < 0) { m = 59; h--; }
-        if (h < 0) { h = 23; m = 59; s = 59; }
-        return { h, m, s };
+
+    API.get("/test")
+      .then((res) => {
+        setBackendMessage(res.data.message);
+      })
+      .catch((err) => {
+        console.log(err);
       });
-    }, 1000);
-    return () => clearInterval(iv);
+
   }, []);
-
-  const pad = (n) => String(n).padStart(2, "0");
-
-  return (
-    <div className="flex items-center gap-2">
-      {[{ v: pad(time.h), l: "H" }, { v: pad(time.m), l: "M" }, { v: pad(time.s), l: "S" }].map(({ v, l }, i) => (
-        <React.Fragment key={i}>
-          <div className="flex flex-col items-center">
-            <div
-              className="w-14 h-14 flex items-center justify-center rounded-lg font-black text-2xl"
-              style={{ background: "#1a1a1a", border: "1px solid #e11d4833", color: "#e11d48", fontFamily: "Oswald, sans-serif" }}
-            >
-              {v}
-            </div>
-            <span style={{ fontSize: "9px", color: "#4b5563", fontFamily: "Rajdhani, sans-serif", letterSpacing: "0.1em", marginTop: "4px" }}>{l}</span>
-          </div>
-          {i < 2 && <span style={{ color: "#e11d48", fontSize: "20px", fontWeight: 900, marginBottom: "12px" }}>:</span>}
-        </React.Fragment>
-      ))}
-    </div>
-  );
-}
-
-// ─── ANIMATED COUNTER ─────────────────────────────────────────────────────────
-function AnimCounter({ target, suffix = "+" }) {
-  const [val, setVal] = useState(0);
-  const ref = useRef(null);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) {
-        let step = 0;
-        const steps = 50;
-        const iv = setInterval(() => {
-          step++;
-          setVal(Math.floor((target * step) / steps));
-          if (step >= steps) clearInterval(iv);
-        }, 30);
-        obs.disconnect();
-      }
-    }, { threshold: 0.3 });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [target]);
-  return <span ref={ref}>{val}{suffix}</span>;
-}
-
-// ─── HERO LANDING ─────────────────────────────────────────────────────────────
-function HeroLanding() {
-  const [videoHovered, setVideoHovered] = useState(false);
-
-  return (
-    <section
-      className="relative overflow-hidden"
-      style={{ minHeight: "100vh", paddingTop: "80px", background: "#080608" }}
-    >
-      {/* ── Diagonal split background ── */}
-      <div
-        className="absolute inset-0"
-        style={{
-          background: "linear-gradient(110deg, #0d0208 55%, #1a0510 55%)",
-        }}
-      />
-      {/* Red accent panel far right */}
-      <div
-        className="absolute top-0 right-0 bottom-0"
-        style={{ width: "3px", background: "linear-gradient(to bottom, transparent, #e11d48, transparent)" }}
-      />
-      {/* Grid */}
-      <div
-        className="absolute inset-0 opacity-4"
-        style={{
-          backgroundImage: "linear-gradient(rgba(225,29,72,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(225,29,72,0.15) 1px, transparent 1px)",
-          backgroundSize: "60px 60px",
-        }}
-      />
-      {/* Top-left glow */}
-      <div
-        className="absolute"
-        style={{ top: "-100px", left: "-100px", width: "500px", height: "500px", background: "radial-gradient(circle, rgba(225,29,72,0.08) 0%, transparent 65%)" }}
-      />
-      {/* Bottom-right glow */}
-      <div
-        className="absolute"
-        style={{ bottom: "-100px", right: "20%", width: "400px", height: "400px", background: "radial-gradient(circle, rgba(225,29,72,0.06) 0%, transparent 65%)" }}
-      />
-
-      <div className="container mx-auto px-4 relative z-10 flex flex-wrap items-center" style={{ minHeight: "calc(100vh - 80px)" }}>
-
-        {/* ── LEFT column ── */}
-        <div className="w-full lg:w-1/2 px-4 py-16">
-
-          {/* Offer badge */}
-          <div
-            className="inline-flex items-center gap-3 px-4 py-2 rounded-lg mb-8"
-            style={{ background: "rgba(225,29,72,0.08)", border: "1px solid rgba(225,29,72,0.3)" }}
-          >
-            <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#e11d48", display: "inline-block", boxShadow: "0 0 8px #e11d48", animation: "pulse 1.5s infinite" }} />
-            <span style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif", fontSize: "12px", letterSpacing: "0.15em", fontWeight: 700 }}>
-              OFFRE LIMITÉE — PREMIER MOIS À MOITIÉ PRIX
-            </span>
-          </div>
-
-          {/* Main headline */}
-          <h1
-            style={{
-              fontFamily: "Oswald, sans-serif",
-              color: "white",
-              lineHeight: 0.95,
-              letterSpacing: "0.01em",
-              fontSize: "clamp(3.8rem, 7vw, 6.5rem)",
-              fontWeight: 900,
-              marginBottom: "0",
-            }}
-          >
-            FORGE
-          </h1>
-          <h1
-            style={{
-              fontFamily: "Oswald, sans-serif",
-              color: "#e11d48",
-              lineHeight: 0.95,
-              letterSpacing: "0.01em",
-              fontSize: "clamp(3.8rem, 7vw, 6.5rem)",
-              fontWeight: 900,
-              WebkitTextStroke: "1px #e11d48",
-              marginBottom: "0",
-            }}
-          >
-            TON CORPS.
-          </h1>
-          <h2
-            style={{
-              fontFamily: "Oswald, sans-serif",
-              color: "#4b5563",
-              lineHeight: 1.1,
-              letterSpacing: "0.15em",
-              fontSize: "clamp(1rem, 2.5vw, 1.8rem)",
-              fontWeight: 500,
-              marginTop: "8px",
-              marginBottom: "24px",
-            }}
-          >
-            TRANSFORME TA VIE. MAINTENANT.
-          </h2>
-
-          <p
-            style={{
-              color: "#9ca3af",
-              fontFamily: "Rajdhani, sans-serif",
-              lineHeight: "1.8",
-              maxWidth: "460px",
-              fontSize: "16px",
-              marginBottom: "32px",
-            }}
-          >
-            Rejoins <strong style={{ color: "white" }}>+1247 membres</strong> qui ont déjà transformé leur physique grâce à nos équipements premium, coachs certifiés et suivi nutritionnel personnalisé.
-          </p>
-
-          {/* CTA buttons */}
-          <div className="flex flex-wrap gap-3 mb-10">
-            <Link
-              to="/auth/register"
-              className="px-8 py-4 rounded-lg font-bold inline-flex items-center gap-2 transition-all hover:opacity-90 hover:scale-105"
-              style={{
-                background: "linear-gradient(135deg, #e11d48, #9f1239)",
-                color: "white",
-                fontFamily: "Oswald, sans-serif",
-                letterSpacing: "0.12em",
-                fontSize: "15px",
-                boxShadow: "0 0 40px rgba(225,29,72,0.35)",
-              }}
-            >
-              <i className="fas fa-fire" />
-              REJOINDRE MAINTENANT
-            </Link>
-            <a
-              href="tel:+21671000000"
-              className="px-6 py-4 rounded-lg font-bold inline-flex items-center gap-2 transition-all hover:border-gray-500"
-              style={{
-                border: "1px solid #2a2a2a",
-                color: "#9ca3af",
-                fontFamily: "Oswald, sans-serif",
-                letterSpacing: "0.1em",
-                fontSize: "15px",
-                background: "transparent",
-              }}
-            >
-              <i className="fas fa-phone" />
-              APPELER
-            </a>
-          </div>
-
-          {/* Countdown */}
-          <div
-            className="p-5 rounded-xl inline-block"
-            style={{ background: "#0f0f0f", border: "1px solid #2a2a2a" }}
-          >
-            <p style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif", fontSize: "11px", letterSpacing: "0.12em", marginBottom: "10px" }}>
-              ⏱ OFFRE EXPIRE DANS
-            </p>
-            <Countdown />
-          </div>
-
-          {/* Trust badges */}
-          <div className="flex gap-6 mt-8 flex-wrap">
-            {[
-              { icon: "fas fa-shield-alt", text: "Sans engagement" },
-              { icon: "fas fa-star", text: "Note 4.9/5" },
-              { icon: "fas fa-medal", text: "N°1 Tunis" },
-            ].map((b, i) => (
-              <div key={i} className="flex items-center gap-2">
-                <i className={b.icon} style={{ color: "#e11d48", fontSize: "12px" }} />
-                <span style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif", fontSize: "12px", letterSpacing: "0.06em" }}>{b.text}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── RIGHT column — Video card ── */}
-        <div className="hidden lg:flex w-full lg:w-1/2 px-4 py-16 items-center justify-center">
-          <div className="relative" style={{ width: "100%", maxWidth: "480px" }}>
-
-            {/* Main video card */}
-            <div
-              className="relative overflow-hidden rounded-2xl cursor-pointer"
-              style={{
-                aspectRatio: "16/10",
-                background: "linear-gradient(135deg, #1a0510 0%, #0d020a 100%)",
-                border: "1px solid #2a2a2a",
-                boxShadow: "0 30px 80px rgba(0,0,0,0.7)",
-              }}
-              onMouseEnter={() => setVideoHovered(true)}
-              onMouseLeave={() => setVideoHovered(false)}
-            >
-              {/* Fake video content */}
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Background grid */}
-                <div
-                  className="absolute inset-0 opacity-10"
-                  style={{
-                    backgroundImage: "linear-gradient(rgba(225,29,72,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(225,29,72,0.4) 1px, transparent 1px)",
-                    backgroundSize: "30px 30px",
-                  }}
-                />
-                {/* Silhouette placeholder */}
-                <div className="absolute bottom-0 flex items-end justify-center" style={{ opacity: 0.07 }}>
-                  <svg width="200" height="280" viewBox="0 0 200 280" fill="white">
-                    <ellipse cx="100" cy="36" rx="28" ry="28" />
-                    <rect x="52" y="70" width="96" height="110" rx="20" />
-                    <rect x="28" y="80" width="30" height="90" rx="14" />
-                    <rect x="142" y="80" width="30" height="90" rx="14" />
-                    <rect x="52" y="178" width="40" height="100" rx="14" />
-                    <rect x="108" y="178" width="40" height="100" rx="14" />
-                  </svg>
-                </div>
-                {/* Glow center */}
-                <div style={{ width: "200px", height: "200px", borderRadius: "50%", background: "radial-gradient(circle, rgba(225,29,72,0.2) 0%, transparent 70%)" }} />
-              </div>
-
-              {/* Play button */}
-              <div className="absolute inset-0 flex items-center justify-center z-10">
-                <div
-                  className="transition-all"
-                  style={{
-                    width: videoHovered ? "80px" : "70px",
-                    height: videoHovered ? "80px" : "70px",
-                    borderRadius: "50%",
-                    background: videoHovered ? "rgba(225,29,72,0.9)" : "rgba(225,29,72,0.7)",
-                    border: "2px solid rgba(255,255,255,0.3)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    boxShadow: videoHovered ? "0 0 40px rgba(225,29,72,0.6)" : "0 0 20px rgba(225,29,72,0.3)",
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  <i className="fas fa-play" style={{ color: "white", fontSize: "22px", marginLeft: "4px" }} />
-                </div>
-              </div>
-
-              {/* Top label */}
-              <div className="absolute top-4 left-4 flex items-center gap-2">
-                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#ef4444", display: "inline-block" }} />
-                <span style={{ color: "white", fontFamily: "Rajdhani, sans-serif", fontSize: "11px", letterSpacing: "0.1em" }}>VISITE VIRTUELLE</span>
-              </div>
-
-              {/* Bottom overlay */}
-              <div
-                className="absolute bottom-0 left-0 right-0 p-4"
-                style={{ background: "linear-gradient(to top, rgba(0,0,0,0.8), transparent)" }}
-              >
-                <p style={{ color: "white", fontFamily: "Oswald, sans-serif", fontSize: "14px", letterSpacing: "0.05em" }}>
-                  Découvrez GymAccess en vidéo
-                </p>
-                <p style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", fontSize: "11px" }}>
-                  2 minutes — Visite complète des installations
-                </p>
-              </div>
-            </div>
-
-            {/* Floating stat cards */}
-            <div
-              className="absolute px-4 py-3 rounded-xl"
-              style={{
-                top: "-20px",
-                right: "-20px",
-                background: "#111",
-                border: "1px solid #2a2a2a",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.6)",
-                minWidth: "120px",
-              }}
-            >
-              <div style={{ fontFamily: "Oswald, sans-serif", fontSize: "24px", fontWeight: 900, color: "#e11d48" }}>4.9★</div>
-              <div style={{ fontFamily: "Rajdhani, sans-serif", fontSize: "10px", color: "#6b7280", letterSpacing: "0.08em" }}>NOTE MOYENNE</div>
-            </div>
-
-            <div
-              className="absolute px-4 py-3 rounded-xl"
-              style={{
-                bottom: "-20px",
-                left: "-20px",
-                background: "#111",
-                border: "1px solid rgba(16,185,129,0.3)",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.6)",
-              }}
-            >
-              <div className="flex items-center gap-2">
-                <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#22c55e" }} />
-                <span style={{ fontFamily: "Rajdhani, sans-serif", fontSize: "11px", color: "white", letterSpacing: "0.06em" }}>OUVERT MAINTENANT</span>
-              </div>
-              <div style={{ fontFamily: "Oswald, sans-serif", fontSize: "13px", color: "#22c55e", marginTop: "2px" }}>06:00 — 23:00</div>
-            </div>
-
-            {/* Members joined today */}
-            <div
-              className="absolute px-4 py-3 rounded-xl"
-              style={{
-                bottom: "30px",
-                right: "-24px",
-                background: "#111",
-                border: "1px solid #2a2a2a",
-                boxShadow: "0 8px 30px rgba(0,0,0,0.6)",
-              }}
-            >
-              <div className="flex items-center gap-2 mb-1">
-                {[0, 1, 2].map((i) => (
-                  <div key={i} className="w-6 h-6 rounded-full flex items-center justify-center text-xs"
-                    style={{ background: `linear-gradient(135deg, #e11d48, #9f1239)`, border: "1px solid #0f0f0f", marginLeft: i > 0 ? "-8px" : 0 }}>
-                    <i className="fas fa-user" style={{ color: "white", fontSize: "8px" }} />
-                  </div>
-                ))}
-              </div>
-              <div style={{ fontFamily: "Rajdhani, sans-serif", fontSize: "10px", color: "#6b7280" }}>+12 inscrits aujourd'hui</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Scroll indicator ── */}
-      <div className="absolute bottom-8 left-1/2 z-10" style={{ transform: "translateX(-50%)" }}>
-        <div className="flex flex-col items-center gap-2 animate-bounce">
-          <span style={{ color: "#4b5563", fontFamily: "Rajdhani, sans-serif", fontSize: "11px" }}>Défiler</span>
-          <i className="fas fa-chevron-down" style={{ color: "#e11d48", fontSize: "11px" }} />
-        </div>
-      </div>
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
-      `}</style>
-    </section>
-  );
-}
-
-// ─── MAIN LANDING ─────────────────────────────────────────────────────────────
-export default function Landing() {
-  const [activeNutrition, setActiveNutrition] = useState(0);
-
-  const nutritionPlans = [
-    {
-      title: "Prise de Masse",
-      icon: "fas fa-fire",
-      calories: "3200",
-      macros: { p: "180g", c: "400g", f: "80g" },
-      color: "#e11d48",
-      meals: ["Oeufs + Avoine + Banane", "Poulet + Riz + Légumes", "Shake Protéiné + Fruits", "Thon + Pâtes + Huile Olive", "Viande + Patate douce"],
-    },
-    {
-      title: "Perte de Poids",
-      icon: "fas fa-weight",
-      calories: "1800",
-      macros: { p: "160g", c: "150g", f: "60g" },
-      color: "#f97316",
-      meals: ["Blancs d'oeufs + Légumes", "Salade de thon + Quinoa", "Yaourt grec + Amandes", "Poulet grillé + Salade", "Soupe de légumes"],
-    },
-    {
-      title: "Maintien & Forme",
-      icon: "fas fa-balance-scale",
-      calories: "2400",
-      macros: { p: "150g", c: "280g", f: "70g" },
-      color: "#10b981",
-      meals: ["Muesli + Lait + Fruits", "Sandwich poulet + Crudités", "Fruits + Noix", "Poisson + Légumes vapeur", "Oeufs + Toast complet"],
-    },
-  ];
-
-  const coachs = [
-    { name: "Coach Nabil", specialty: "Musculation & Force", exp: "8 ans", clients: 120, rating: 4.9, icon: "fas fa-dumbbell" },
-    { name: "Coach Sarra", specialty: "Yoga & Bien-être", exp: "6 ans", clients: 85, rating: 5.0, icon: "fas fa-spa" },
-    { name: "Coach Amine", specialty: "CrossFit & HIIT", exp: "5 ans", clients: 95, rating: 4.8, icon: "fas fa-bolt" },
-    { name: "Coach Leila", specialty: "Cardio & Nutrition", exp: "7 ans", clients: 110, rating: 4.9, icon: "fas fa-heartbeat" },
-  ];
-
-  const plans = [
-    {
-      name: "Standard",
-      price: "39",
-      icon: "fas fa-id-card",
-      color: "#6b7280",
-      features: ["Accès salle 7j/7", "Vestiaires & Douches", "Cours collectifs x4/sem", "Bilan mensuel", null, null],
-    },
-    {
-      name: "Premium",
-      price: "69",
-      icon: "fas fa-crown",
-      color: "#e11d48",
-      featured: true,
-      features: ["Accès salle 7j/7", "Vestiaires & Douches", "Cours collectifs illimités", "Bilan mensuel", "Programme personnalisé", "Accès spa & sauna"],
-    },
-    {
-      name: "Coaching",
-      price: "99",
-      icon: "fas fa-user-tie",
-      color: "#8b5cf6",
-      features: ["Tout Premium inclus", "4 séances coach/mois", "Suivi nutritionnel", "Plan alimentaire", "Accès prioritaire", "Suivi app mobile"],
-    },
-  ];
-
-  const conseils = [
-    { icon: "fas fa-bed", title: "Récupération", desc: "Dormez 7-9h par nuit. La croissance musculaire se produit pendant le repos, pas pendant l'entraînement." },
-    { icon: "fas fa-tint", title: "Hydratation", desc: "Buvez 2-3 litres d'eau par jour. Une déshydratation de 2% réduit vos performances de 20%." },
-    { icon: "fas fa-apple-alt", title: "Nutrition Post-Training", desc: "Consommez des protéines dans les 30 minutes après l'effort pour maximiser la synthèse musculaire." },
-    { icon: "fas fa-redo", title: "Progression", desc: "Augmentez les charges de 5% par semaine. La surcharge progressive est la clé de la progression." },
-    { icon: "fas fa-brain", title: "Connexion Muscle", desc: "Concentrez-vous sur le muscle travaillé. La connexion mentale améliore l'activation musculaire de 35%." },
-    { icon: "fas fa-calendar-check", title: "Régularité", desc: "3 à 5 séances par semaine avec constance surpassent 7 séances irrégulières. La consistance prime." },
-  ];
+  const meal = MEALS[mealTab];
 
   return (
     <>
-      <IndexNavbar />
-      <main style={{ backgroundColor: "#0a0a0a" }}>
+      <style>{css}</style>
 
-        {/* ===== HERO CINÉMATIQUE ===== */}
-        <HeroLanding />
+      {/* NAV */}
+      <nav className="nav">
+        <div className="logo">GYM<em>ACCESS</em></div>
+        <div className="nav-links">
+          <a href="/">Acceuil</a>
 
-        {/* ===== STATS BAR ===== */}
-        <div
-          className="py-10 px-4"
-          style={{ backgroundColor: "#0f0f0f", borderTop: "1px solid #1a1a1a", borderBottom: "1px solid #1a1a1a" }}
-        >
-          <div className="container mx-auto">
-            <div className="flex flex-wrap justify-center gap-12">
-              {[
-                { target: 1247, suffix: "+", label: "Membres actifs", icon: "fas fa-users" },
-                { target: 15, suffix: "+", label: "Coachs certifiés", icon: "fas fa-user-tie" },
-                { target: 50, suffix: "+", label: "Cours / semaine", icon: "fas fa-calendar-check" },
-                { target: 8, suffix: " ans", label: "D'expérience", icon: "fas fa-award" },
-              ].map((s, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div
-                    className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.2)" }}
-                  >
-                    <i className={s.icon} style={{ color: "#e11d48", fontSize: "18px" }} />
-                  </div>
-                  <div>
-                    <div className="text-3xl font-black" style={{ color: "#e11d48", fontFamily: "Oswald, sans-serif" }}>
-                      <AnimCounter target={s.target} suffix={s.suffix} />
-                    </div>
-                    <div className="text-xs uppercase" style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif", letterSpacing: "0.1em" }}>{s.label}</div>
-                  </div>
-                </div>
-              ))}
+          <a href="#calc">Calculateur</a>
+
+          <a href="#plans">Plans</a>
+
+          <a href="#repas">Repas</a>
+
+          <a href="#coachs">Coachs</a>
+
+          <a href="#conseils">Conseils</a>
+
+          <a href="#bar">Bar</a>
+        </div>
+      </nav>
+
+      {/* HERO */}
+      <section className="hero-nutr">
+        <div className="hero-bg">
+          <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1400&q=80" alt="nutrition" />
+        </div>
+        <div className="hero-inner">
+          <div className="hero-tag">Nutrition & Performance</div>
+          <h1 className="hero-title">MANGE MIEUX.<br /><em>PERFORME PLUS.</em></h1>
+          <p className="hero-sub">Calcule tes besoins exacts en calories, découvre ton plan repas personnalisé et suis les conseils de nos experts nutritionnistes certifiés.</p>
+          <div style={{ color: "red", marginTop: "20px" }}>
+            {backendMessage}
+          </div>
+          <div className="hero-btns">
+            <button className="btn-red" onClick={() => scroll("calc")}>Calculer mes calories →</button>
+            <button className="btn-ghost" onClick={() => scroll("coachs")}>Voir les coachs</button>
+          </div>
+          <div className="hero-stats">
+            <div><div className="hstat-val">850+</div><div className="hstat-lbl">Plans créés</div></div>
+            <div><div className="hstat-val">4</div><div className="hstat-lbl">Experts nutrition</div></div>
+            <div><div className="hstat-val">98%</div><div className="hstat-lbl">Satisfaction</div></div>
+          </div>
+        </div>
+      </section>
+
+      {/* STRIP STATS */}
+      <div className="stats-strip">
+        {[["850+", "Plans nutritionnels"], ["4", "Coachs certifiés"], ["3", "Objectifs couverts"], ["7j/7", "Bar alimentaire"]].map(([n, l]) => (
+          <div key={l} className="sstrip-cell">
+            <div className="sstrip-num">{n}</div>
+            <div className="sstrip-lbl">{l}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* CALCULATEUR */}
+      <section id="calc" className="sec">
+        <div className="sec-label">Outil interactif</div>
+        <h2 className="sec-title">CALCULATEUR DE<br />CALORIES & IMC</h2>
+        <p className="sec-sub">Renseigne tes données pour obtenir tes besoins caloriques journaliers et tes macros idéales.</p>
+        <div className="calc-wrap">
+          <div className="calc-form">
+            <span className="calc-label">Genre</span>
+            <div className="gender-row">
+              <button className={`gender-btn${genre === "H" ? " active" : ""}`} onClick={() => setGenre("H")}>HOMME</button>
+              <button className={`gender-btn${genre === "F" ? " active" : ""}`} onClick={() => setGenre("F")}>FEMME</button>
+            </div>
+            <span className="calc-label">Âge</span>
+            <input className="calc-input" type="number" value={age} onChange={e => setAge(+e.target.value)} min={14} max={80} />
+            <span className="calc-label">Poids (kg)</span>
+            <input className="calc-input" type="number" value={poids} onChange={e => setPoids(+e.target.value)} min={30} max={200} />
+            <span className="calc-label">Taille (cm)</span>
+            <input className="calc-input" type="number" value={taille} onChange={e => setTaille(+e.target.value)} min={120} max={220} />
+            <span className="calc-label">Niveau d'activité</span>
+            <select className="calc-select" value={activite} onChange={e => setActivite(+e.target.value)}>
+              <option value={1.2}>Sédentaire</option>
+              <option value={1.375}>Légèrement actif (1-3x/sem)</option>
+              <option value={1.55}>Modérément actif (3-5x/sem)</option>
+              <option value={1.725}>Très actif (6-7x/sem)</option>
+              <option value={1.9}>Extrêmement actif</option>
+            </select>
+            <span className="calc-label">Objectif</span>
+            <select className="calc-select" value={objectif} onChange={e => setObjectif(e.target.value)}>
+              <option value="deficit">Perte de poids (-500 kcal)</option>
+              <option value="maintien">Maintien du poids</option>
+              <option value="surplus">Prise de masse (+300 kcal)</option>
+            </select>
+            <button className="calc-btn" onClick={calcCalories}>CALCULER →</button>
+          </div>
+          <div className="calc-results">
+            <div className="res-main">
+              <div className="res-cal">{result.cal.toLocaleString("fr")}</div>
+              <div className="res-cal-lbl">calories recommandées / jour</div>
+            </div>
+            <div className="macros-grid">
+              <div className="macro-box"><div className="macro-val" style={{ color: "#D62828" }}>{result.p}g</div><div className="macro-lbl">Protéines</div></div>
+              <div className="macro-box"><div className="macro-val">{result.g}g</div><div className="macro-lbl">Glucides</div></div>
+              <div className="macro-box"><div className="macro-val" style={{ color: "#A3A3A3" }}>{result.l}g</div><div className="macro-lbl">Lipides</div></div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid #1e1e1e" }}>
+              <span style={{ fontSize: ".7rem", textTransform: "uppercase", letterSpacing: "2px", color: "#777" }}>IMC</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.5rem", letterSpacing: "2px" }}>{result.imc}</span>
+                <span style={{ fontSize: ".65rem", padding: "4px 10px", background: "rgba(29,158,117,.15)", color: "#1D9E75", border: "1px solid rgba(29,158,117,.3)" }}>{result.imcTxt}</span>
+              </div>
+            </div>
+            <div style={{ marginTop: "16px", padding: "14px", background: "#0A0A0A", border: "1px solid #1a1a1a" }}>
+              <div style={{ fontSize: ".65rem", textTransform: "uppercase", letterSpacing: "2px", color: "#555", marginBottom: "6px" }}>Métabolisme de base (BMR)</div>
+              <div style={{ fontFamily: "'Bebas Neue'", fontSize: "1.6rem", letterSpacing: "2px" }}>{result.bmr.toLocaleString("fr")} kcal</div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* ===== SERVICES SECTION ===== */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Nos Équipements</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                TOUT CE DONT VOUS AVEZ BESOIN
-              </h2>
+      {/* PLANS */}
+      <section id="plans" className="sec sec-dark">
+        <div className="sec-label">Programmes</div>
+        <h2 className="sec-title">PLANS NUTRITIONNELS<br />PERSONNALISÉS</h2>
+        <p className="sec-sub">Trois approches adaptées à ton objectif, rédigées par nos coachs nutrition certifiés.</p>
+        <div className="plans-grid">
+          {[
+            { name: "SÈCHE", cal: "1 800", period: "déficit contrôlé", feats: ["160g protéines / jour", "180g glucides ciblés", "55g lipides essentiels", "5 repas structurés", "Suivi hebdomadaire"] },
+            { name: "MAINTIEN", cal: "2 400", period: "équilibre parfait", featured: true, feats: ["150g protéines / jour", "280g glucides équilibrés", "70g lipides sains", "5 repas + collations", "Plan repas 7 jours"] },
+            { name: "MASSE", cal: "3 200", period: "surplus optimisé", feats: ["180g protéines / jour", "400g glucides énergie", "80g lipides de qualité", "6 repas + pré-workout", "Suivi bihebdomadaire"] },
+          ].map(p => (
+            <div key={p.name} className={`plan-c${p.featured ? " featured" : ""}`}>
+              {p.featured && <div className="plan-badge">Recommandé</div>}
+              <div className="plan-name">{p.name}</div>
+              <div className="plan-price">{p.cal}</div>
+              <div className="plan-period">calories / jour · {p.period}</div>
+              <ul className="plan-feats">{p.feats.map(f => <li key={f}><span>→</span>{f}</li>)}</ul>
+              <button className="plan-btn">Choisir ce plan</button>
             </div>
-            <div className="flex flex-wrap -mx-4">
-              {[
-                { icon: "fas fa-dumbbell", title: "Zone Musculation", desc: "Plus de 200 machines et équipements de dernière génération pour tous vos exercices.", count: "200+ machines" },
-                { icon: "fas fa-running", title: "Cardio Zone", desc: "Tapis roulants, vélos elliptiques, rameurs et bien plus pour votre condition physique.", count: "50+ appareils" },
-                { icon: "fas fa-users", title: "Cours Collectifs", desc: "Yoga, CrossFit, Zumba, Pilates, Boxe - Plus de 30 cours par semaine.", count: "30+ cours/sem" },
-                { icon: "fas fa-spa", title: "Espace Détente", desc: "Sauna, hammam, espace récupération pour vous régénérer après l'effort.", count: "Premium" },
-              ].map((service, i) => (
-                <div key={i} className="w-full lg:w-3/12 md:w-6/12 px-4 mb-8">
-                  <div
-                    className="p-6 h-full rounded-xl transition-all hover:border-red-900"
-                    style={{ backgroundColor: "#111111", border: "1px solid #2a2a2a" }}
-                  >
-                    <div
-                      className="w-14 h-14 rounded-xl flex items-center justify-center mb-4"
-                      style={{ background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.2)" }}
-                    >
-                      <i className={`${service.icon} text-2xl`} style={{ color: "#e11d48" }} />
-                    </div>
-                    <h3 className="text-lg font-bold mb-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.03em" }}>
-                      {service.title}
-                    </h3>
-                    <p className="text-sm mb-4" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", lineHeight: "1.7" }}>
-                      {service.desc}
-                    </p>
-                    <span
-                      className="text-xs font-bold px-3 py-1 rounded-full"
-                      style={{ background: "rgba(225,29,72,0.1)", color: "#e11d48", border: "1px solid rgba(225,29,72,0.2)", fontFamily: "Rajdhani, sans-serif" }}
-                    >
-                      {service.count}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        {/* ===== NUTRITION SECTION ===== */}
-        <section id="nutrition" className="py-20 px-4" style={{ backgroundColor: "#111111" }}>
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Nutrition</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                PLANS NUTRITIONNELS
-              </h2>
-              <p className="mt-3 text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Des programmes alimentaires adaptés à votre objectif
-              </p>
+      {/* REPAS */}
+      <section id="repas" className="sec">
+        <div className="sec-label">Alimentation quotidienne</div>
+        <h2 className="sec-title">PLAN REPAS<br />JOURNALIER</h2>
+        <div className="meals-tabs">
+          {[["seche", "SÈCHE"], ["maintien", "MAINTIEN"], ["masse", "PRISE DE MASSE"]].map(([k, l]) => (
+            <button key={k} className={`meal-tab${mealTab === k ? " on" : ""}`} onClick={() => setMealTab(k)}>{l}</button>
+          ))}
+        </div>
+        <div className="meals-panel">
+          <div>{meal.meals.map(m => (
+            <div key={m.n} className="meal-row">
+              <div className="meal-num">{m.n}</div>
+              <div><div className="meal-name">{m.name}</div><div className="meal-type">{m.type}</div></div>
             </div>
-            <div className="flex justify-center gap-3 mb-10 flex-wrap">
-              {nutritionPlans.map((plan, i) => (
-                <button
-                  key={i}
-                  className="px-5 py-2 rounded-full text-sm font-bold transition-all"
-                  style={{
-                    fontFamily: "Oswald, sans-serif",
-                    letterSpacing: "0.08em",
-                    background: activeNutrition === i ? `linear-gradient(135deg, ${plan.color}, ${plan.color}99)` : "rgba(255,255,255,0.05)",
-                    color: activeNutrition === i ? "white" : "#9ca3af",
-                    border: activeNutrition === i ? "none" : "1px solid #2a2a2a",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => setActiveNutrition(i)}
-                >
-                  <i className={`${plan.icon} mr-2`} />{plan.title}
-                </button>
-              ))}
-            </div>
-            <div className="max-w-4xl mx-auto">
-              <div className="rounded-2xl p-8" style={{ backgroundColor: "#1a1a1a", border: `1px solid ${nutritionPlans[activeNutrition].color}33` }}>
-                <div className="flex flex-wrap -mx-4">
-                  <div className="w-full lg:w-4/12 px-4 mb-6 lg:mb-0">
-                    <h3 className="text-xl font-bold mb-6" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                      {nutritionPlans[activeNutrition].title}
-                    </h3>
-                    <div className="mb-6">
-                      <div className="text-4xl font-black" style={{ color: nutritionPlans[activeNutrition].color, fontFamily: "Oswald, sans-serif" }}>
-                        {nutritionPlans[activeNutrition].calories}
-                      </div>
-                      <div className="text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>calories / jour</div>
-                    </div>
-                    <div className="space-y-3">
-                      {[
-                        { label: "Protéines", value: nutritionPlans[activeNutrition].macros.p, color: "#e11d48" },
-                        { label: "Glucides", value: nutritionPlans[activeNutrition].macros.c, color: "#f97316" },
-                        { label: "Lipides", value: nutritionPlans[activeNutrition].macros.f, color: "#10b981" },
-                      ].map((macro, i) => (
-                        <div key={i} className="flex justify-between items-center">
-                          <span className="text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>{macro.label}</span>
-                          <span className="text-sm font-bold" style={{ color: macro.color, fontFamily: "Oswald, sans-serif" }}>{macro.value}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="w-full lg:w-8/12 px-4">
-                    <h4 className="text-sm uppercase mb-4 font-bold" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", letterSpacing: "0.1em" }}>
-                      Plan repas journalier
-                    </h4>
-                    <div className="space-y-3">
-                      {nutritionPlans[activeNutrition].meals.map((meal, i) => (
-                        <div key={i} className="flex items-center gap-3 p-3 rounded-lg"
-                          style={{ background: "rgba(255,255,255,0.03)", border: "1px solid #2a2a2a" }}>
-                          <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold"
-                            style={{
-                              background: `${nutritionPlans[activeNutrition].color}22`,
-                              color: nutritionPlans[activeNutrition].color,
-                              fontFamily: "Oswald, sans-serif",
-                              border: `1px solid ${nutritionPlans[activeNutrition].color}44`,
-                            }}
-                          >
-                            {i + 1}
-                          </div>
-                          <span className="text-sm" style={{ color: "white", fontFamily: "Rajdhani, sans-serif" }}>{meal}</span>
-                          <span className="ml-auto text-xs" style={{ color: "#4b5563", fontFamily: "Rajdhani, sans-serif" }}>
-                            {["Petit-déjeuner", "Déjeuner", "Collation", "Dîner", "Pré-sleep"][i]}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <div className="mt-4">
-                      <Link to="/auth/register" className="text-xs font-bold hover:text-red-300 transition-colors"
-                        style={{ color: "#e11d48", fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>
-                        Obtenir mon plan personnalisé →
-                      </Link>
-                    </div>
-                  </div>
+          ))}</div>
+          <div className="macros-summary">
+            <div className="macro-big">{meal.cal.toLocaleString("fr")}</div>
+            <div className="macro-big-lbl">calories / jour</div>
+            {[["Protéines", meal.p, "bar-p"], ["Glucides", meal.g, "bar-g"], ["Lipides", meal.l, "bar-l"]].map(([name, val, id], i) => (
+              <div key={name} className="mbar-row">
+                <div className="mbar-header"><span>{name}</span><span>{val}g</span></div>
+                <div className="mbar-track">
+                  <div className="mbar-fill" style={{ width: `${Math.round(val * (i === 2 ? 9 : 4) / meal.cal * 100)}%`, background: i === 0 ? "#D62828" : i === 1 ? "#888" : "#555" }} />
                 </div>
               </div>
-            </div>
+            ))}
+            <button className="btn-red" style={{ width: "100%", marginTop: "20px", border: "none" }}>Obtenir mon plan →</button>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* ===== ABONNEMENTS SECTION ===== */}
-        <section id="abonnements" className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Tarifs</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                NOS ABONNEMENTS
-              </h2>
-              <p className="mt-3 text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Sans engagement, résiliable à tout moment
-              </p>
-            </div>
-            <div className="flex flex-wrap justify-center -mx-4">
-              {plans.map((plan, i) => (
-                <div key={i} className="w-full lg:w-4/12 md:w-6/12 px-4 mb-8">
-                  <div
-                    className="rounded-2xl p-8 h-full relative overflow-hidden transition-all hover:scale-105"
-                    style={{
-                      background: plan.featured ? "linear-gradient(135deg, #1a0510 0%, #111111 100%)" : "#111111",
-                      border: plan.featured ? `2px solid ${plan.color}` : "1px solid #2a2a2a",
-                      boxShadow: plan.featured ? "0 0 40px rgba(225,29,72,0.2)" : "none",
-                    }}
-                  >
-                    {plan.featured && (
-                      <div className="absolute top-0 right-0">
-                        <div
-                          className="px-4 py-1 rounded-bl-xl text-xs font-bold"
-                          style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em" }}
-                        >
-                          POPULAIRE
-                        </div>
-                      </div>
-                    )}
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                      style={{ background: `${plan.color}22`, border: `1px solid ${plan.color}44` }}>
-                      <i className={`${plan.icon} text-xl`} style={{ color: plan.color }} />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-1" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                      {plan.name}
-                    </h3>
-                    <div className="flex items-end gap-1 mb-6">
-                      <span className="text-4xl font-black" style={{ color: plan.color, fontFamily: "Oswald, sans-serif" }}>{plan.price}</span>
-                      <span className="text-sm mb-2" style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif" }}>DT/mois</span>
-                    </div>
-                    <ul className="space-y-3 mb-8">
-                      {plan.features.map((feature, j) => (
-                        <li key={j} className="flex items-center gap-3 text-sm"
-                          style={{ color: feature ? "#9ca3af" : "#3a3a3a", fontFamily: "Rajdhani, sans-serif" }}>
-                          <i className={`fas fa-${feature ? "check" : "times"} text-xs`} style={{ color: feature ? plan.color : "#3a3a3a" }} />
-                          {feature || <span style={{ color: "#3a3a3a" }}>Non inclus</span>}
-                        </li>
-                      ))}
-                    </ul>
-                    <Link
-                      to="/auth/register"
-                      className="block text-center py-3 rounded-lg font-bold text-sm transition-all"
-                      style={{
-                        fontFamily: "Oswald, sans-serif",
-                        letterSpacing: "0.1em",
-                        background: plan.featured ? `linear-gradient(135deg, ${plan.color}, ${plan.color}99)` : "transparent",
-                        color: plan.featured ? "white" : plan.color,
-                        border: `1px solid ${plan.color}`,
-                      }}
-                    >
-                      CHOISIR CE PLAN
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== COACHS SECTION ===== */}
-        <section id="coachs" className="py-20 px-4" style={{ backgroundColor: "#111111" }}>
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Experts</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                NOS COACHS CERTIFIÉS
-              </h2>
-              <p className="mt-3 text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Des professionnels dédiés à votre réussite
-              </p>
-            </div>
-            <div className="flex flex-wrap -mx-4">
-              {coachs.map((coach, i) => (
-                <div key={i} className="w-full lg:w-3/12 md:w-6/12 px-4 mb-8">
-                  <div className="p-6 text-center h-full rounded-xl transition-all hover:border-red-900"
-                    style={{ backgroundColor: "#1a1a1a", border: "1px solid #2a2a2a" }}>
-                    <div
-                      className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4"
-                      style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)", boxShadow: "0 0 20px rgba(225,29,72,0.3)" }}
-                    >
-                      <i className={`${coach.icon} text-2xl text-white`} />
-                    </div>
-                    <h3 className="text-xl font-bold mb-1" style={{ color: "white", fontFamily: "Oswald, sans-serif" }}>{coach.name}</h3>
-                    <p className="text-xs mb-4" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif", letterSpacing: "0.08em" }}>{coach.specialty}</p>
-                    <div className="flex justify-center gap-4 mb-4">
-                      <div className="text-center">
-                        <div className="text-lg font-bold" style={{ color: "white", fontFamily: "Oswald, sans-serif" }}>{coach.exp}</div>
-                        <div className="text-xs" style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif" }}>Expérience</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-lg font-bold" style={{ color: "white", fontFamily: "Oswald, sans-serif" }}>{coach.clients}</div>
-                        <div className="text-xs" style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif" }}>Clients</div>
-                      </div>
-                    </div>
-                    <div className="flex justify-center gap-1 mb-4">
-                      {[...Array(5)].map((_, j) => (
-                        <i key={j} className="fas fa-star text-xs" style={{ color: j < Math.floor(coach.rating) ? "#f59e0b" : "#2a2a2a" }} />
-                      ))}
-                      <span className="text-xs ml-1" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>{coach.rating}</span>
-                    </div>
-                    <Link to="/auth/register"
-                      className="block text-center py-2 px-4 rounded text-xs font-bold transition-all hover:bg-red-900 hover:bg-opacity-30"
-                      style={{ fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em", color: "#e11d48", border: "1px solid rgba(225,29,72,0.3)" }}>
-                      RÉSERVER UNE SÉANCE
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== CONSEILS SECTION ===== */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Expertise</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                CONSEILS DE NOS EXPERTS
-              </h2>
-            </div>
-            <div className="flex flex-wrap -mx-4">
-              {conseils.map((conseil, i) => (
-                <div key={i} className="w-full lg:w-4/12 md:w-6/12 px-4 mb-8">
-                  <div className="p-6 h-full flex gap-4 rounded-xl transition-all hover:border-red-900"
-                    style={{ backgroundColor: "#111111", border: "1px solid #2a2a2a" }}>
-                    <div
-                      className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center"
-                      style={{ background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.2)" }}
-                    >
-                      <i className={`${conseil.icon} text-lg`} style={{ color: "#e11d48" }} />
-                    </div>
-                    <div>
-                      <h3 className="text-base font-bold mb-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.03em" }}>
-                        {conseil.title}
-                      </h3>
-                      <p className="text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", lineHeight: "1.7" }}>
-                        {conseil.desc}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ===== CTA FINAL ===== */}
-        <section className="py-24 px-4" style={{ background: "linear-gradient(135deg, #1a0510 0%, #0a0a0a 50%, #1a0510 100%)" }}>
-          <div className="container mx-auto text-center">
-            <div className="max-w-3xl mx-auto">
-              <div
-                className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8"
-                style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)", boxShadow: "0 0 60px rgba(225,29,72,0.5)" }}
-              >
-                <i className="fas fa-dumbbell text-white text-3xl" />
+      {/* COACHS */}
+      <section id="coachs" className="sec sec-dark">
+        <div className="sec-label">Experts</div>
+        <h2 className="sec-title">NOS COACHS<br />NUTRITION</h2>
+        <div className="coaches-grid">
+          {COACHES.map(c => (
+            <div key={c.name} className="coach-c">
+              <div className="coach-avatar">{c.initials}</div>
+              <div className="coach-name">{c.name}</div>
+              <div className="coach-spec">{c.spec}</div>
+              <div className="coach-stats">
+                <div className="cstat"><div className="cstat-v">{c.years}</div><div className="cstat-l">Ans exp.</div></div>
+                <div className="cstat"><div className="cstat-v">{c.clients}</div><div className="cstat-l">Clients</div></div>
               </div>
-              <h2 className="text-5xl font-black mb-4" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                PRÊT(E) À COMMENCER?
-              </h2>
-              <p className="text-lg mb-8" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Rejoignez plus de 1247 membres qui ont déjà transformé leur vie avec GymAccess.
-                Premier mois à <span style={{ color: "#e11d48", fontWeight: 700 }}>moitié prix.</span>
-              </p>
-              <div className="flex justify-center gap-4 flex-wrap">
-                <Link
-                  to="/auth/register"
-                  className="px-10 py-4 rounded-lg text-base font-bold inline-flex items-center gap-2 transition-all hover:opacity-90"
-                  style={{
-                    background: "linear-gradient(135deg, #e11d48, #9f1239)",
-                    color: "white",
-                    fontFamily: "Oswald, sans-serif",
-                    letterSpacing: "0.1em",
-                    boxShadow: "0 0 30px rgba(225,29,72,0.4)",
-                  }}
-                >
-                  <i className="fas fa-fire" />
-                  REJOINDRE MAINTENANT
-                </Link>
-                <a
-                  href="tel:+21671000000"
-                  className="px-10 py-4 rounded-lg text-base font-bold inline-flex items-center gap-2 transition-all hover:border-red-500"
-                  style={{ border: "1px solid #2a2a2a", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em" }}
-                >
-                  <i className="fas fa-phone" />
-                  APPELER
-                </a>
-              </div>
+              <div style={{ fontSize: ".72rem", color: "#555", textAlign: "center", marginBottom: "12px" }}>★★★★★ {c.rating}</div>
+              <button className="coach-book">Réserver</button>
             </div>
-          </div>
-        </section>
+          ))}
+        </div>
+      </section>
 
-        <Footer />
-      </main>
+      {/* CONSEILS */}
+      <section id="conseils" className="sec">
+        <div className="sec-label">Expertise</div>
+        <h2 className="sec-title">CONSEILS DE<br />NOS EXPERTS</h2>
+        <div className="tips-grid">
+          {TIPS.map(t => (
+            <div key={t.title} className="tip-c">
+              <div className="tip-title">{t.title}</div>
+              <p className="tip-txt">{t.txt}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* BAR */}
+      <section id="bar" className="sec sec-dark">
+        <div className="sec-label">Bar alimentaire</div>
+        <h2 className="sec-title">NOTRE CATALOGUE<br />NUTRITION</h2>
+        <div className="bar-nutr">
+          {BAR.map(b => (
+            <div key={b.name} className="baritem">
+              <div className="baritem-badge">{b.badge}</div>
+              <div className="baritem-name">{b.name}</div>
+              <p className="baritem-desc">{b.desc}</p>
+              <div className="baritem-price">{b.price}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <div className="cta-band">
+        <div className="sec-label" style={{ textAlign: "center" }}>Passe à l'action</div>
+        <div className="cta-title">PRÊT À TRANSFORMER<br />TON ALIMENTATION ?</div>
+        <p className="cta-sub">Réserve une consultation gratuite de 30 min avec l'un de nos coachs nutrition certifiés.</p>
+        <div className="cta-btns">
+          <button className="btn-red">Consultation gratuite →</button>
+        </div>
+      </div>
+
+      {/* FOOTER IDENTIQUE À INDEX.JS */}
+      <footer className="footer">
+        <div className="footer-logo">
+          GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+        </div>
+        <div className="footer-copy">
+          © 2026 GymAccess — Tous droits réservés
+        </div>
+      </footer>
     </>
   );
 }

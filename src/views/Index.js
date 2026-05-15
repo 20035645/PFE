@@ -1,730 +1,811 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import IndexNavbar from "components/Navbars/IndexNavbar.js";
-import Footer from "components/Footers/Footer.js";
 
-// ─── SLIDER DATA ──────────────────────────────────────────────────────────────
 const slides = [
   {
-    tag: "💪 MUSCULATION",
-    title: ["FORGE", "TON CORPS"],
-    highlight: "CORPS",
-    desc: "Accède à plus de 200 machines premium pour sculpter chaque muscle avec précision.",
-    cta: "COMMENCER MAINTENANT",
-    ctaLink: "/auth/register",
-    accent: "#e11d48",
-    bg: "linear-gradient(135deg, #1a0008 0%, #2d0012 50%, #0a0a0a 100%)",
-    icon: "fas fa-dumbbell",
-    stat: { num: "200+", label: "Machines" },
+    image:
+      "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80",
+    tag: "Équipements modernes",
+    title: "TRANSFORMEZ VOTRE CORPS, DÉPASSEZ VOS LIMITES",
+    accent: "DÉPASSEZ",
+    desc: "Une salle premium, des coachs certifiés, une vraie intensité d'entraînement et un accompagnement complet.",
   },
   {
-    tag: "🔥 CARDIO ZONE",
-    title: ["BRÛLE", "LES GRAISSES"],
-    highlight: "GRAISSES",
-    desc: "Tapis, vélos, rameurs et elliptiques de dernière génération pour fondre efficacement.",
-    cta: "VOIR LES ÉQUIPEMENTS",
-    ctaLink: "/auth/register",
-    accent: "#f97316",
-    bg: "linear-gradient(135deg, #1a0800 0%, #2d1200 50%, #0a0a0a 100%)",
-    icon: "fas fa-heartbeat",
-    stat: { num: "50+", label: "Appareils cardio" },
+    image:
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80",
+    tag: "Coachs certifiés",
+    title: "ATTEIGNEZ VOS OBJECTIFS AVEC DES EXPERTS",
+    accent: "OBJECTIFS",
+    desc: "Nos coachs structurent chaque progression : transformation physique, performance, cardio et remise en forme.",
   },
   {
-    tag: "🧘 COURS COLLECTIFS",
-    title: ["DÉPASSEZ", "VOS LIMITES"],
-    highlight: "LIMITES",
-    desc: "Yoga, CrossFit, Zumba, Boxe — plus de 30 cours par semaine avec des coachs certifiés.",
-    cta: "VOIR LE PLANNING",
-    ctaLink: "/auth/register",
-    accent: "#8b5cf6",
-    bg: "linear-gradient(135deg, #0d0020 0%, #1a0040 50%, #0a0a0a 100%)",
-    icon: "fas fa-users",
-    stat: { num: "30+", label: "Cours / semaine" },
-  },
-  {
-    tag: "🏆 COACHS EXPERTS",
-    title: ["GUIDÉ PAR", "DES PROS"],
-    highlight: "PROS",
-    desc: "15 coachs certifiés à votre service pour un suivi personnalisé et des résultats garantis.",
-    cta: "RENCONTRER NOS COACHS",
-    ctaLink: "/coaches",
-    accent: "#10b981",
-    bg: "linear-gradient(135deg, #001a0d 0%, #002d1a 50%, #0a0a0a 100%)",
-    icon: "fas fa-user-tie",
-    stat: { num: "15+", label: "Coachs certifiés" },
+    image:
+      "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80",
+    tag: "Nutrition sportive",
+    title: "BOOSTEZ VOS RÉSULTATS AVEC UN CATALOGUE ALIMENTAIRE",
+    accent: "RÉSULTATS",
+    desc: "Programmes nutritionnels, bar alimentaire, smoothies, bowls fitness et suivi hebdomadaire.",
   },
 ];
 
-// ─── HERO SLIDER ──────────────────────────────────────────────────────────────
-function HeroSlider() {
-  const [current, setCurrent] = useState(0);
-  const [prev, setPrev] = useState(null);
-  const [animating, setAnimating] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const timerRef = useRef(null);
-  const progressRef = useRef(null);
-  const DURATION = 5000;
+const facilityZones = [
+  {
+    title: "Zone musculation guidée",
+    desc: "Machines premium pour cibler chaque groupe musculaire avec précision.",
+  },
+  {
+    title: "Espace poids libres",
+    desc: "Haltères, racks, bancs et stations pour la force et la prise de masse.",
+  },
+  {
+    title: "Studio cardio & HIIT",
+    desc: "Tapis, vélos, rameurs et circuits dynamiques pour l'endurance et la sèche.",
+  },
+  {
+    title: "Récupération & mobilité",
+    desc: "Zone dédiée aux étirements, au gainage et à la préparation physique.",
+  },
+];
 
-  const goTo = (index) => {
-    if (animating || index === current) return;
-    setPrev(current);
-    setAnimating(true);
-    setProgress(0);
-    setTimeout(() => {
-      setCurrent(index);
-      setPrev(null);
-      setAnimating(false);
-    }, 600);
-  };
+const services = [
+  {
+    icon: "🏋️",
+    title: "Plateau premium",
+    desc: "Machines guidées, zone fonctionnelle, cardio dernière génération.",
+  },
+  {
+    icon: "⏱️",
+    title: "Accès élargi",
+    desc: "Ouverture large, accueil fluide, vestiaires et espace propre.",
+  },
+  {
+    icon: "👥",
+    title: "Coaching humain",
+    desc: "Suivi constant, bilan et ajustements selon vos résultats.",
+  },
+  {
+    icon: "🥗",
+    title: "Bar alimentaire",
+    desc: "Snacks protéinés, bowls, smoothies et récupération sur place.",
+  },
+];
 
-  const next = () => goTo((current + 1) % slides.length);
-  const prev2 = () => goTo((current - 1 + slides.length) % slides.length);
+const coaches = [
+  {
+    name: "Maya",
+    specialty: "Transformation & cardio boxing",
+    desc: "Accompagnement intensif pour perte de poids, remise en forme et confiance physique.",
+  },
+  {
+    name: "Nassim",
+    specialty: "Musculation & performance athlétique",
+    desc: "Programmes de force, prise de masse et structuration de cycles d'entraînement.",
+  },
+  {
+    name: "Clara",
+    specialty: "Mobilité & recomposition corporelle",
+    desc: "Rééquilibrage global, posture, tonicité et progression durable.",
+  },
+];
 
-  // Auto-advance
-  useEffect(() => {
-    timerRef.current = setTimeout(() => next(), DURATION);
-    return () => clearTimeout(timerRef.current);
-  }, [current]);
+const nutritionPrograms = [
+  "Perte de poids structurée sur 8 semaines",
+  "Prise de masse et renforcement musculaire",
+  "Remise en forme progressive après arrêt",
+  "Nutrition sportive avec suivi hebdomadaire",
+];
 
-  // Progress bar
-  useEffect(() => {
-    setProgress(0);
-    let start = null;
-    const step = (ts) => {
-      if (!start) start = ts;
-      const p = Math.min((ts - start) / DURATION, 1);
-      setProgress(p * 100);
-      if (p < 1) progressRef.current = requestAnimationFrame(step);
-    };
-    progressRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(progressRef.current);
-  }, [current]);
+const nutritionCatalog = [
+  {
+    title: "Menu sèche",
+    badge: "Faible sucre",
+    desc: "Repas contrôlés, snacks protéinés et organisation simple sur 7 jours.",
+  },
+  {
+    title: "Menu prise de masse",
+    badge: "Haute énergie",
+    desc: "Répartition calorique optimisée avec collations avant et après séance.",
+  },
+  {
+    title: "Bar smoothies",
+    badge: "Disponible 7j/7",
+    desc: "Smoothies protéinés, boosters récupération et recettes fraîches préparées sur place.",
+  },
+  {
+    title: "Catalogue nutrition sport",
+    badge: "Commande rapide",
+    desc: "Bowls, wraps fitness, boissons fonctionnelles et packs hebdomadaires à emporter.",
+  },
+];
 
-  const slide = slides[current];
+const memberships = [
+  {
+    name: "Essential",
+    price: "29€",
+    unit: "/mois",
+    badge: "Entrée de gamme",
+    featured: false,
+    features: ["Accès salle", "Cardio + musculation", "1 bilan de départ"],
+  },
+  {
+    name: "Performance",
+    price: "49€",
+    unit: "/mois",
+    badge: "Le plus complet",
+    featured: true,
+    features: ["Accès illimité", "2 coachings/mois", "Programme nutrition"],
+  },
+  {
+    name: "Elite",
+    price: "79€",
+    unit: "/mois",
+    badge: "Suivi premium",
+    featured: false,
+    features: [
+      "Coaching hebdo",
+      "Plan alimentaire complet",
+      "Réductions bar alimentaire",
+    ],
+  },
+];
 
+const styles = {
+  page: {
+    background: "#0A0A0A",
+    color: "#F5F5F5",
+    fontFamily: "Barlow, Arial, sans-serif",
+    minHeight: "100vh",
+  },
+  nav: {
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px 5%",
+    background: "rgba(10,10,10,0.92)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(214,40,40,0.22)",
+  },
+  logo: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2rem",
+    letterSpacing: "4px",
+    margin: 0,
+  },
+  navLinks: {
+    display: "flex",
+    gap: "24px",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  navLink: {
+    color: "#A3A3A3",
+    textDecoration: "none",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+  },
+  navBtn: {
+    background: "#D62828",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "12px 18px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    boxShadow: "0 10px 30px rgba(214,40,40,0.35)",
+  },
+  hero: {
+    position: "relative",
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "flex-end",
+    overflow: "hidden",
+  },
+  heroBg: (img) => ({
+    position: "absolute",
+    inset: 0,
+    backgroundImage: `linear-gradient(105deg, rgba(10,10,10,0.94) 35%, rgba(214,40,40,0.18) 100%), url(${img})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  }),
+  heroGrid: {
+    position: "relative",
+    zIndex: 2,
+    width: "100%",
+    display: "grid",
+    gridTemplateColumns: "1.2fr 0.8fr",
+    gap: "32px",
+    padding: "120px 5% 64px",
+  },
+  heroTag: {
+    display: "inline-block",
+    border: "1px solid rgba(214,40,40,0.5)",
+    color: "#D62828",
+    padding: "7px 12px",
+    textTransform: "uppercase",
+    letterSpacing: "3px",
+    fontSize: "0.7rem",
+    marginBottom: "18px",
+    background: "rgba(17,17,17,0.55)",
+  },
+  heroTitle: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "clamp(3.8rem, 8vw, 7.2rem)",
+    lineHeight: 0.92,
+    letterSpacing: "2px",
+    margin: "0 0 16px",
+  },
+  heroDesc: {
+    color: "#C7C7C7",
+    fontSize: "1.05rem",
+    lineHeight: 1.75,
+    maxWidth: "640px",
+    marginBottom: "28px",
+  },
+  heroButtons: {
+    display: "flex",
+    gap: "14px",
+    flexWrap: "wrap",
+    marginBottom: "28px",
+  },
+  btnPrimary: {
+    background: "#D62828",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "14px 22px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    boxShadow: "0 10px 30px rgba(214,40,40,0.35)",
+    border: "none",
+    cursor: "pointer",
+  },
+  btnSecondary: {
+    background: "transparent",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "14px 22px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    border: "1px solid rgba(255,255,255,0.2)",
+    cursor: "pointer",
+  },
+  sliderControls: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    marginTop: "8px",
+  },
+  arrowBtn: {
+    width: "42px",
+    height: "42px",
+    background: "rgba(17,17,17,0.65)",
+    color: "#fff",
+    border: "1px solid rgba(255,255,255,0.16)",
+    cursor: "pointer",
+    fontSize: "1rem",
+  },
+  dots: {
+    display: "flex",
+    gap: "8px",
+    marginLeft: "12px",
+  },
+  statsColumn: {
+    display: "grid",
+    gap: "14px",
+  },
+  statCard: {
+    background: "rgba(17,17,17,0.88)",
+    border: "1px solid rgba(214,40,40,0.16)",
+    padding: "22px",
+  },
+  statValue: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "3rem",
+    color: "#D62828",
+    letterSpacing: "3px",
+    margin: "8px 0 0",
+  },
+  statLabel: {
+    color: "#9A9A9A",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+  },
+  band: {
+    borderTop: "1px solid rgba(214,40,40,0.18)",
+    borderBottom: "1px solid rgba(214,40,40,0.18)",
+    background: "#111111",
+    padding: "28px 5%",
+  },
+  bandGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "20px",
+    textAlign: "center",
+  },
+  section: {
+    padding: "84px 5%",
+  },
+  sectionGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "40px",
+    alignItems: "center",
+  },
+  sectionTag: {
+    color: "#D62828",
+    textTransform: "uppercase",
+    letterSpacing: "3px",
+    fontSize: "0.72rem",
+    marginBottom: "12px",
+  },
+  title: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "clamp(2.4rem, 5vw, 4rem)",
+    lineHeight: 1,
+    letterSpacing: "2px",
+    margin: "0 0 18px",
+  },
+  text: {
+    color: "#B5B5B5",
+    lineHeight: 1.75,
+    fontSize: "1rem",
+  },
+  image: {
+    width: "100%",
+    minHeight: "440px",
+    objectFit: "cover",
+    border: "1px solid #232323",
+    display: "block",
+  },
+  cards2: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "16px",
+    marginTop: "22px",
+  },
+  card: {
+    background: "#121212",
+    border: "1px solid #232323",
+    padding: "24px",
+  },
+  cardHover: {
+    transform: "translateY(-4px)",
+    border: "1px solid rgba(214,40,40,0.45)",
+    boxShadow: "0 0 0 1px rgba(214,40,40,0.16)",
+  },
+  cardTitle: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.55rem",
+    letterSpacing: "1px",
+    margin: "10px 0 8px",
+  },
+  cards4: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "16px",
+    marginTop: "28px",
+  },
+  cards3: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "18px",
+    marginTop: "28px",
+  },
+  badge: {
+    display: "inline-block",
+    color: "#D62828",
+    fontSize: "0.72rem",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    marginBottom: "8px",
+  },
+  planCard: {
+    background: "#121212",
+    border: "1px solid #232323",
+    padding: "28px 24px",
+    display: "flex",
+    flexDirection: "column",
+  },
+  featuredPlan: {
+    background: "linear-gradient(135deg, #1b0505 0%, #111111 100%)",
+    border: "1px solid #D62828",
+    boxShadow: "0 0 40px rgba(214,40,40,0.2)",
+  },
+  planPrice: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "3rem",
+    letterSpacing: "2px",
+    margin: "8px 0 18px",
+  },
+  list: {
+    listStyle: "none",
+    padding: 0,
+    margin: "0 0 22px",
+    display: "grid",
+    gap: "10px",
+    color: "#C4C4C4",
+  },
+  contactGrid: {
+    display: "grid",
+    gridTemplateColumns: "0.9fr 1.1fr",
+    gap: "22px",
+  },
+  footer: {
+    borderTop: "1px solid rgba(214,40,40,0.18)",
+    padding: "28px 5%",
+    color: "#8F8F8F",
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: "12px",
+  },
+};
+
+function Dot({ active, onClick }) {
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden" style={{ paddingTop: "80px" }}>
-      {/* ── BG ── */}
-      <div
-        className="absolute inset-0 transition-all"
-        style={{
-          background: slide.bg,
-          transition: "background 0.6s ease",
-        }}
-      />
-      {/* Grid overlay */}
-      <div
-        className="absolute inset-0 opacity-5"
-        style={{
-          backgroundImage: `linear-gradient(${slide.accent}55 1px, transparent 1px), linear-gradient(90deg, ${slide.accent}55 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-        }}
-      />
-      {/* Glow */}
-      <div
-        className="absolute top-20 right-10 w-96 h-96 rounded-full opacity-10"
-        style={{ background: slide.accent, filter: "blur(100px)", transition: "background 0.6s ease" }}
-      />
-      <div
-        className="absolute bottom-20 left-10 w-64 h-64 rounded-full opacity-5"
-        style={{ background: slide.accent, filter: "blur(80px)", transition: "background 0.6s ease" }}
-      />
-
-      {/* ── CONTENT ── */}
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="flex flex-wrap items-center min-h-screen" style={{ paddingTop: "40px", paddingBottom: "100px" }}>
-
-          {/* LEFT */}
-          <div className="w-full lg:w-7/12 px-4">
-            {/* Tag */}
-            <div
-              key={`tag-${current}`}
-              className="inline-block px-4 py-1 rounded-full text-xs mb-6"
-              style={{
-                background: `${slide.accent}18`,
-                color: slide.accent,
-                border: `1px solid ${slide.accent}44`,
-                fontFamily: "Rajdhani, sans-serif",
-                letterSpacing: "0.15em",
-                animation: "slideInLeft 0.5s ease forwards",
-              }}
-            >
-              {slide.tag}
-            </div>
-
-            {/* Title */}
-            <h1
-              key={`title-${current}`}
-              className="font-black mb-6"
-              style={{
-                color: "white",
-                fontFamily: "Oswald, sans-serif",
-                lineHeight: 1.0,
-                letterSpacing: "0.02em",
-                fontSize: "clamp(3.5rem, 8vw, 6.5rem)",
-                animation: "slideInLeft 0.5s ease 0.1s forwards",
-                opacity: 0,
-              }}
-            >
-              {slide.title[0]}<br />
-              {slide.title[1].split(slide.highlight).map((part, i, arr) =>
-                i < arr.length - 1
-                  ? <React.Fragment key={i}>{part}<span style={{ color: slide.accent }}>{slide.highlight}</span></React.Fragment>
-                  : part
-              )}
-            </h1>
-
-            {/* Desc */}
-            <p
-              key={`desc-${current}`}
-              className="text-lg mb-8"
-              style={{
-                color: "#9ca3af",
-                fontFamily: "Rajdhani, sans-serif",
-                lineHeight: "1.8",
-                maxWidth: "520px",
-                animation: "slideInLeft 0.5s ease 0.2s forwards",
-                opacity: 0,
-              }}
-            >
-              {slide.desc}
-            </p>
-
-            {/* CTAs */}
-            <div
-              key={`cta-${current}`}
-              className="flex flex-wrap gap-4 mb-12"
-              style={{ animation: "slideInLeft 0.5s ease 0.3s forwards", opacity: 0 }}
-            >
-              <Link
-                to={slide.ctaLink}
-                className="px-8 py-4 rounded-lg text-base font-bold inline-flex items-center gap-2 transition-all hover:opacity-90"
-                style={{
-                  background: `linear-gradient(135deg, ${slide.accent}, ${slide.accent}99)`,
-                  color: "white",
-                  fontFamily: "Oswald, sans-serif",
-                  letterSpacing: "0.1em",
-                  boxShadow: `0 0 30px ${slide.accent}44`,
-                }}
-              >
-                <i className="fas fa-dumbbell"></i>
-                {slide.cta}
-              </Link>
-              <button
-                onClick={next}
-                className="px-8 py-4 rounded-lg text-base font-bold inline-flex items-center gap-2 transition-all hover:border-gray-400"
-                style={{
-                  border: "1px solid #2a2a2a",
-                  color: "white",
-                  background: "transparent",
-                  fontFamily: "Oswald, sans-serif",
-                  letterSpacing: "0.1em",
-                  cursor: "pointer",
-                }}
-              >
-                <i className="fas fa-arrow-right"></i>
-                SUIVANT
-              </button>
-            </div>
-
-            {/* Slide counter & dots */}
-            <div className="flex items-center gap-6">
-              <span style={{ color: "#4b5563", fontFamily: "Rajdhani, sans-serif", fontSize: "13px" }}>
-                <span style={{ color: slide.accent, fontWeight: 700, fontSize: "20px" }}>0{current + 1}</span>
-                {" "}/ 0{slides.length}
-              </span>
-              <div className="flex gap-2 items-center">
-                {slides.map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => goTo(i)}
-                    style={{
-                      height: "3px",
-                      width: i === current ? "32px" : "8px",
-                      borderRadius: "2px",
-                      background: i === current ? slide.accent : "#2a2a2a",
-                      border: "none",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      padding: 0,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* RIGHT — Big Icon Visual */}
-          <div className="hidden lg:flex w-full lg:w-5/12 px-4 justify-center items-center">
-            <div
-              key={`visual-${current}`}
-              className="relative flex items-center justify-center"
-              style={{ width: "380px", height: "380px", animation: "fadeScaleIn 0.6s ease forwards" }}
-            >
-              {/* Outer spinning ring */}
-              <div
-                className="absolute inset-0 rounded-full"
-                style={{
-                  border: `1px dashed ${slide.accent}30`,
-                  animation: "spin 20s linear infinite",
-                }}
-              />
-              {/* Middle ring */}
-              <div
-                className="absolute rounded-full"
-                style={{
-                  inset: "30px",
-                  background: `radial-gradient(circle, ${slide.accent}20 0%, transparent 70%)`,
-                  border: `1px solid ${slide.accent}20`,
-                }}
-              />
-              {/* Inner ring */}
-              <div
-                className="absolute rounded-full"
-                style={{
-                  inset: "80px",
-                  background: `radial-gradient(circle, ${slide.accent}35 0%, transparent 70%)`,
-                  border: `1px solid ${slide.accent}40`,
-                }}
-              />
-              {/* Center icon */}
-              <div
-                className="relative z-10 w-36 h-36 rounded-full flex items-center justify-center"
-                style={{
-                  background: `linear-gradient(135deg, ${slide.accent}30, ${slide.accent}10)`,
-                  border: `2px solid ${slide.accent}50`,
-                  boxShadow: `0 0 60px ${slide.accent}30`,
-                }}
-              >
-                <i className={`${slide.icon}`} style={{ fontSize: "4.5rem", color: slide.accent }} />
-              </div>
-
-              {/* Stat badge */}
-              <div
-                className="absolute bottom-8 right-0 px-4 py-3 rounded-xl flex flex-col items-center"
-                style={{
-                  background: "#111",
-                  border: `1px solid ${slide.accent}33`,
-                  boxShadow: `0 4px 20px rgba(0,0,0,0.6)`,
-                  minWidth: "90px",
-                }}
-              >
-                <span style={{ fontSize: "22px", fontWeight: 900, color: slide.accent, fontFamily: "Oswald, sans-serif" }}>
-                  {slide.stat.num}
-                </span>
-                <span style={{ fontSize: "10px", color: "#6b7280", fontFamily: "Rajdhani, sans-serif", letterSpacing: "0.08em" }}>
-                  {slide.stat.label}
-                </span>
-              </div>
-
-              {/* Floating badge top-left */}
-              <div
-                className="absolute top-8 left-0 px-3 py-2 rounded-lg flex items-center gap-2"
-                style={{
-                  background: "#111",
-                  border: "1px solid #2a2a2a",
-                  boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
-                }}
-              >
-                <i className="fas fa-map-marker-alt text-xs" style={{ color: slide.accent }} />
-                <span style={{ fontSize: "11px", color: "white", fontFamily: "Rajdhani, sans-serif" }}>Tunis N°1</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── ARROWS ── */}
-      <button
-        onClick={prev2}
-        className="absolute left-4 z-20 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:border-gray-400"
-        style={{
-          top: "50%",
-          transform: "translateY(-50%)",
-          background: "rgba(0,0,0,0.5)",
-          border: "1px solid #2a2a2a",
-          color: "white",
-          cursor: "pointer",
-          backdropFilter: "blur(4px)",
-        }}
-      >
-        <i className="fas fa-chevron-left" />
-      </button>
-      <button
-        onClick={next}
-        className="absolute right-4 z-20 w-12 h-12 rounded-full flex items-center justify-center transition-all hover:border-gray-400"
-        style={{
-          top: "50%",
-          transform: "translateY(-50%)",
-          background: "rgba(0,0,0,0.5)",
-          border: "1px solid #2a2a2a",
-          color: "white",
-          cursor: "pointer",
-          backdropFilter: "blur(4px)",
-        }}
-      >
-        <i className="fas fa-chevron-right" />
-      </button>
-
-      {/* ── PROGRESS BAR ── */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "#1a1a1a" }}>
-        <div
-          style={{
-            height: "100%",
-            width: `${progress}%`,
-            background: slide.accent,
-            transition: "background 0.4s ease",
-          }}
-        />
-      </div>
-
-      {/* ── SCROLL INDICATOR ── */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10">
-        <div className="flex flex-col items-center gap-2 animate-bounce">
-          <span className="text-xs" style={{ color: "#4b5563", fontFamily: "Rajdhani, sans-serif" }}>Défiler</span>
-          <i className="fas fa-chevron-down text-xs" style={{ color: slide.accent }} />
-        </div>
-      </div>
-
-      {/* ── ANIMATIONS ── */}
-      <style>{`
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-30px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes fadeScaleIn {
-          from { opacity: 0; transform: scale(0.85); }
-          to   { opacity: 1; transform: scale(1); }
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to   { transform: rotate(360deg); }
-        }
-      `}</style>
-    </section>
+    <button
+      onClick={onClick}
+      style={{
+        width: active ? 28 : 8,
+        height: 8,
+        borderRadius: 999,
+        border: "none",
+        background: active ? "#D62828" : "rgba(255,255,255,0.3)",
+        cursor: "pointer",
+      }}
+    />
   );
 }
 
-// ─── MAIN COMPONENT ───────────────────────────────────────────────────────────
-export default function Index() {
-  const [counter, setCounter] = useState({ membres: 0, coachs: 0, cours: 0, ans: 0 });
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-
-  useEffect(() => {
-    const targets = { membres: 1247, coachs: 15, cours: 50, ans: 8 };
-    const steps = 60;
-    let step = 0;
-    const timer = setInterval(() => {
-      step++;
-      const p = step / steps;
-      setCounter({
-        membres: Math.floor(targets.membres * p),
-        coachs: Math.floor(targets.coachs * p),
-        cours: Math.floor(targets.cours * p),
-        ans: Math.floor(targets.ans * p),
-      });
-      if (step >= steps) clearInterval(timer);
-    }, 2000 / steps);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const iv = setInterval(() => setActiveTestimonial((p) => (p + 1) % 3), 4000);
-    return () => clearInterval(iv);
-  }, []);
-
-  const testimonials = [
-    { name: "Mehdi B.", role: "Membre Premium", text: "En 4 mois avec GymAccess, j'ai perdu 12kg et gagné en confiance. Les coachs sont incroyables et les équipements top niveau.", rating: 5 },
-    { name: "Yasmine T.", role: "Membre Coaching", text: "Le suivi nutritionnel personnalisé a tout changé pour moi. Je recommande GymAccess à toute personne sérieuse dans sa démarche.", rating: 5 },
-    { name: "Karim S.", role: "Membre Standard", text: "Ambiance motivante, équipements modernes, staff professionnel. La meilleure salle de Tunis sans aucun doute.", rating: 5 },
-  ];
-
-  const features = [
-    { icon: "fas fa-dumbbell", title: "Équipements Premium", desc: "Plus de 200 machines de dernière génération pour tous vos exercices de musculation et cardio.", badge: "200+ machines" },
-    { icon: "fas fa-users", title: "Cours Collectifs", desc: "Yoga, CrossFit, Zumba, Pilates, Boxe — plus de 30 cours par semaine animés par des coachs certifiés.", badge: "30+ cours/sem" },
-    { icon: "fas fa-utensils", title: "Nutrition Sur-Mesure", desc: "Plans alimentaires personnalisés selon votre objectif, suivis par nos nutritionnistes certifiés.", badge: "Plans perso" },
-    { icon: "fas fa-spa", title: "Espace Bien-Être", desc: "Sauna, hammam et espace récupération pour vous régénérer et optimiser vos performances.", badge: "Premium" },
-    { icon: "fas fa-mobile-alt", title: "App Mobile", desc: "Suivez vos séances, vos progrès et réservez vos cours directement depuis votre smartphone.", badge: "Gratuit" },
-    { icon: "fas fa-clock", title: "Ouvert 7j/7", desc: "De 6h à 23h tous les jours, nous vous accueillons selon votre emploi du temps, sans exception.", badge: "6h - 23h" },
-  ];
-
-  const programs = [
-    { icon: "fas fa-fire", title: "Prise de Masse", color: "#e11d48", desc: "Programme intensif pour développer la masse musculaire avec suivi coach hebdomadaire.", duration: "12 semaines", level: "Intermédiaire" },
-    { icon: "fas fa-weight", title: "Perte de Poids", color: "#f97316", desc: "Combinaison cardio et musculation pour brûler les graisses efficacement et durablement.", duration: "8 semaines", level: "Tous niveaux" },
-    { icon: "fas fa-bolt", title: "CrossFit & HIIT", color: "#8b5cf6", desc: "Entraînements fonctionnels à haute intensité pour améliorer l'endurance et la force.", duration: "6 semaines", level: "Avancé" },
-    { icon: "fas fa-heart", title: "Remise en Forme", color: "#10b981", desc: "Programme doux et progressif pour retrouver la forme, idéal pour les débutants.", duration: "10 semaines", level: "Débutant" },
-  ];
+function HoverCard({ children }) {
+  const [hover, setHover] = React.useState(false);
 
   return (
-    <>
-      <IndexNavbar />
-      <main style={{ backgroundColor: "#0a0a0a" }}>
+    <div
+      style={{ ...styles.card, ...(hover ? styles.cardHover : {}) }}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      {children}
+    </div>
+  );
+}
 
-        {/* ===== HERO SLIDER ===== */}
-        <HeroSlider />
+export default function GymAccessLandingSimple() {
+  const [currentSlide, setCurrentSlide] = React.useState(0);
 
-        {/* ===== MARQUEE BANNER ===== */}
-        <div className="py-4 overflow-hidden" style={{ backgroundColor: "#e11d48" }}>
-          <div className="flex gap-12 animate-pulse" style={{ whiteSpace: "nowrap" }}>
-            {["MUSCULATION", "CARDIO", "YOGA", "CROSSFIT", "NUTRITION", "PILATES", "ZUMBA", "BOXING", "HIIT", "RECOVERY"].map((item, i) => (
-              <span key={i} className="inline-flex items-center gap-3 text-sm font-bold"
-                style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.15em" }}>
-                <i className="fas fa-star text-xs" style={{ opacity: 0.6 }}></i>
-                {item}
-              </span>
-            ))}
-          </div>
+  React.useEffect(() => {
+    const id = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 5000);
+
+    return () => clearInterval(id);
+  }, []);
+
+  const slide = slides[currentSlide];
+
+  const renderTitle = (title, accent) => {
+    const parts = title.split(accent);
+    if (parts.length < 2) return title;
+
+    return (
+      <>
+        {parts[0]}
+        <span style={{ color: "#D62828" }}>{accent}</span>
+        {parts.slice(1).join(accent)}
+      </>
+    );
+  };
+
+  return (
+    <div style={styles.page}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap"
+        rel="stylesheet"
+      />
+
+      <nav style={styles.nav}>
+        <div>
+          <p style={styles.logo}>
+            GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+          </p>
         </div>
 
-        {/* ===== STATS BAR ===== */}
-        <div className="py-10 px-4" style={{ backgroundColor: "#111111", borderBottom: "1px solid #2a2a2a" }}>
-          <div className="container mx-auto">
-            <div className="flex flex-wrap justify-center gap-12">
-              {[
-                { num: `${counter.membres}+`, label: "Membres actifs", icon: "fas fa-users" },
-                { num: `${counter.coachs}+`, label: "Coachs certifiés", icon: "fas fa-user-tie" },
-                { num: `${counter.cours}+`, label: "Cours / semaine", icon: "fas fa-calendar-check" },
-                { num: `${counter.ans}+`, label: "Ans d'expérience", icon: "fas fa-award" },
-              ].map((stat, i) => (
-                <div key={i} className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl flex items-center justify-center"
-                    style={{ background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.2)" }}>
-                    <i className={`${stat.icon} text-lg`} style={{ color: "#e11d48" }}></i>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-black" style={{ color: "#e11d48", fontFamily: "Oswald, sans-serif" }}>{stat.num}</div>
-                    <div className="text-xs uppercase" style={{ color: "#6b7280", fontFamily: "Rajdhani, sans-serif", letterSpacing: "0.1em" }}>{stat.label}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div style={styles.navLinks}>
+          <a href="#salle" style={styles.navLink}>Salle</a>
+          <a href="#services" style={styles.navLink}>Services</a>
+          <a href="#coachs" style={styles.navLink}>Coachs</a>
+          <Link to="/landing" style={styles.navLink}>
+            Nutrition
+          </Link>
+          <Link to="/newpage" style={styles.navLink}>
+            Abonnements
+          </Link>
+          <Link to="/auth/register" style={styles.navBtn}>
+            Nous rejoindre
+          </Link>
         </div>
+      </nav>
 
-        {/* ===== FEATURES SECTION ===== */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Pourquoi nous choisir</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                TOUT CE DONT VOUS AVEZ BESOIN
-              </h2>
-              <p className="mt-3 text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Une expérience fitness complète sous un même toit
-              </p>
-            </div>
-            <div className="flex flex-wrap -mx-4">
-              {features.map((f, i) => (
-                <div key={i} className="w-full lg:w-4/12 md:w-6/12 px-4 mb-8">
-                  <div className="p-6 h-full rounded-xl transition-all hover:border-red-900"
-                    style={{ backgroundColor: "#111111", border: "1px solid #2a2a2a" }}>
-                    <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4"
-                      style={{ background: "rgba(225,29,72,0.1)", border: "1px solid rgba(225,29,72,0.2)" }}>
-                      <i className={`${f.icon} text-2xl`} style={{ color: "#e11d48" }}></i>
-                    </div>
-                    <h3 className="text-lg font-bold mb-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.03em" }}>
-                      {f.title}
-                    </h3>
-                    <p className="text-sm mb-4" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", lineHeight: "1.7" }}>
-                      {f.desc}
-                    </p>
-                    <span className="text-xs font-bold px-3 py-1 rounded-full"
-                      style={{ background: "rgba(225,29,72,0.1)", color: "#e11d48", border: "1px solid rgba(225,29,72,0.2)", fontFamily: "Rajdhani, sans-serif" }}>
-                      {f.badge}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+      <section style={styles.hero}>
+        <div style={styles.heroBg(slide.image)} />
 
-        {/* ===== PROGRAMS SECTION ===== */}
-        <section className="py-20 px-4" style={{ backgroundColor: "#111111" }}>
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Programmes</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                NOS PROGRAMMES D'ENTRAÎNEMENT
-              </h2>
-              <p className="mt-3 text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Des plans structurés pour chaque objectif et niveau
-              </p>
-            </div>
-            <div className="flex flex-wrap -mx-4">
-              {programs.map((prog, i) => (
-                <div key={i} className="w-full lg:w-3/12 md:w-6/12 px-4 mb-8">
-                  <div className="p-6 h-full rounded-xl transition-all hover:scale-105"
-                    style={{ backgroundColor: "#1a1a1a", border: `1px solid ${prog.color}33` }}>
-                    <div className="w-14 h-14 rounded-xl flex items-center justify-center mb-4"
-                      style={{ background: `${prog.color}22`, border: `1px solid ${prog.color}44` }}>
-                      <i className={`${prog.icon} text-2xl`} style={{ color: prog.color }}></i>
-                    </div>
-                    <h3 className="text-xl font-bold mb-3" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.03em" }}>
-                      {prog.title}
-                    </h3>
-                    <p className="text-sm mb-4" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", lineHeight: "1.7" }}>
-                      {prog.desc}
-                    </p>
-                    <div className="flex gap-3 mb-4 flex-wrap">
-                      <span className="text-xs px-2 py-1 rounded"
-                        style={{ background: `${prog.color}11`, color: prog.color, border: `1px solid ${prog.color}33`, fontFamily: "Rajdhani, sans-serif" }}>
-                        <i className="fas fa-calendar mr-1"></i>{prog.duration}
-                      </span>
-                      <span className="text-xs px-2 py-1 rounded"
-                        style={{ background: "rgba(255,255,255,0.05)", color: "#9ca3af", border: "1px solid #2a2a2a", fontFamily: "Rajdhani, sans-serif" }}>
-                        <i className="fas fa-signal mr-1"></i>{prog.level}
-                      </span>
-                    </div>
-                    <Link to="/auth/register"
-                      className="text-xs font-bold transition-colors hover:text-red-300"
-                      style={{ color: prog.color, fontFamily: "Oswald, sans-serif", letterSpacing: "0.08em" }}>
-                      COMMENCER CE PROGRAMME →
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <div style={styles.heroGrid}>
+          <div>
+            <div style={styles.heroTag}>{slide.tag}</div>
+            <h1 style={styles.heroTitle}>{renderTitle(slide.title, slide.accent)}</h1>
+            <p style={styles.heroDesc}>{slide.desc}</p>
 
-        {/* ===== TESTIMONIALS SECTION ===== */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto">
-            <div className="text-center mb-14">
-              <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Témoignages</span>
-              <h2 className="text-4xl font-bold mt-2" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                ILS NOUS FONT CONFIANCE
-              </h2>
+            <div style={styles.heroButtons}>
+              <Link to="/newpage" style={styles.navBtn}>
+                Découvrir les abonnements
+              </Link>
+              <a href="#services" style={styles.btnSecondary}>Explorer les services</a>
             </div>
-            <div className="max-w-3xl mx-auto">
-              <div className="rounded-2xl p-8 text-center mb-6"
-                style={{ backgroundColor: "#111111", border: "1px solid #2a2a2a" }}>
-                <div className="flex justify-center gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <i key={i} className="fas fa-star" style={{ color: "#f59e0b", fontSize: "1rem" }}></i>
-                  ))}
-                </div>
-                <p className="text-base mb-6" style={{ color: "#d1d5db", fontFamily: "Rajdhani, sans-serif", lineHeight: "1.8", fontStyle: "italic" }}>
-                  "{testimonials[activeTestimonial].text}"
-                </p>
-                <div className="flex items-center justify-center gap-3">
-                  <div className="w-12 h-12 rounded-full flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)" }}>
-                    <i className="fas fa-user text-white"></i>
-                  </div>
-                  <div className="text-left">
-                    <div className="font-bold text-sm" style={{ color: "white", fontFamily: "Oswald, sans-serif" }}>
-                      {testimonials[activeTestimonial].name}
-                    </div>
-                    <div className="text-xs" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>
-                      {testimonials[activeTestimonial].role}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-center gap-2">
-                {testimonials.map((_, i) => (
-                  <button key={i} onClick={() => setActiveTestimonial(i)}
-                    style={{
-                      background: i === activeTestimonial ? "#e11d48" : "#2a2a2a",
-                      border: "none", cursor: "pointer",
-                      height: "8px",
-                      width: i === activeTestimonial ? "24px" : "8px",
-                      borderRadius: "4px",
-                      transition: "all 0.3s ease",
-                    }}
-                  />
+
+            <div style={styles.sliderControls}>
+              <button
+                style={styles.arrowBtn}
+                onClick={() =>
+                  setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
+                }
+              >
+                ←
+              </button>
+              <button
+                style={styles.arrowBtn}
+                onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
+              >
+                →
+              </button>
+
+              <div style={styles.dots}>
+                {slides.map((_, i) => (
+                  <Dot key={i} active={i === currentSlide} onClick={() => setCurrentSlide(i)} />
                 ))}
               </div>
             </div>
           </div>
-        </section>
 
-        {/* ===== HORAIRES SECTION ===== */}
-        <section className="py-20 px-4" style={{ backgroundColor: "#111111" }}>
-          <div className="container mx-auto">
-            <div className="flex flex-wrap -mx-4 items-center">
-              <div className="w-full lg:w-5/12 px-4 mb-10 lg:mb-0">
-                <span className="text-xs uppercase tracking-widest" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>Horaires</span>
-                <h2 className="text-4xl font-bold mt-2 mb-6" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                  TOUJOURS LÀ POUR VOUS
-                </h2>
-                <p className="text-sm mb-8" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif", lineHeight: "1.8" }}>
-                  Parce que votre emploi du temps ne doit jamais être un obstacle, GymAccess est ouvert 7 jours sur 7, de tôt le matin jusqu'au soir.
-                </p>
-                <Link to="/auth/register"
-                  className="px-8 py-4 rounded-lg text-sm font-bold inline-flex items-center gap-2 transition-all hover:opacity-90"
-                  style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em" }}>
-                  <i className="fas fa-calendar-plus"></i>
-                  RÉSERVER MA VISITE
-                </Link>
+          <div style={styles.statsColumn}>
+            {[
+              { label: "Coachs certifiés", value: "15+" },
+              { label: "Cours / semaine", value: "30+" },
+              { label: "Accès & nutrition", value: "24/7" },
+            ].map((item) => (
+              <div key={item.label} style={styles.statCard}>
+                <div style={styles.statLabel}>{item.label}</div>
+                <div style={styles.statValue}>{item.value}</div>
               </div>
-              <div className="w-full lg:w-7/12 px-4">
-                <div className="rounded-xl overflow-hidden" style={{ border: "1px solid #2a2a2a" }}>
-                  {[
-                    { day: "Lundi — Vendredi", hours: "06:00 — 23:00" },
-                    { day: "Samedi", hours: "07:00 — 22:00" },
-                    { day: "Dimanche", hours: "08:00 — 20:00" },
-                    { day: "Jours fériés", hours: "09:00 — 18:00" },
-                  ].map((item, i) => (
-                    <div key={i} className="flex items-center justify-between px-6 py-4"
-                      style={{ borderBottom: i < 3 ? "1px solid #2a2a2a" : "none", backgroundColor: i % 2 === 0 ? "#1a1a1a" : "#111111" }}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-2 h-2 rounded-full" style={{ background: "#22c55e" }}></div>
-                        <span className="font-bold text-sm" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>{item.day}</span>
-                      </div>
-                      <span className="text-sm font-bold" style={{ color: "#e11d48", fontFamily: "Rajdhani, sans-serif" }}>{item.hours}</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-4 p-4 rounded-xl flex items-center gap-3"
-                  style={{ background: "rgba(225,29,72,0.05)", border: "1px solid rgba(225,29,72,0.2)" }}>
-                  <i className="fas fa-map-marker-alt" style={{ color: "#e11d48" }}></i>
-                  <span className="text-sm" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                    Avenue Habib Bourguiba, Tunis — Parking gratuit disponible
-                  </span>
-                </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section style={styles.band}>
+        <div style={styles.bandGrid}>
+          {[
+            { value: "1200+", label: "Membres actifs" },
+            { value: "24/7", label: "Accès libre" },
+            { value: "5", label: "Zones d'entraînement" },
+            { value: "4", label: "Catalogues clés" },
+          ].map((item) => (
+            <div key={item.label}>
+              <div style={styles.statValue}>{item.value}</div>
+              <div style={styles.statLabel}>{item.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="salle" style={styles.section}>
+        <div style={styles.sectionGrid}>
+          <div>
+            <div style={styles.sectionTag}>Définir la salle</div>
+            <h2 style={styles.title}>UNE SALLE STRUCTURÉE POUR CHAQUE OBJECTIF</h2>
+            <p style={styles.text}>
+              GymAccess est une salle moderne qui regroupe l'entraînement libre,
+              le coaching encadré et la nutrition sportive dans un seul lieu cohérent,
+              lisible et motivant.
+            </p>
+
+            <div style={styles.cards2}>
+              <div style={styles.card}>
+                <div style={styles.badge}>Surface</div>
+                <div style={styles.cardTitle}>1 200 m²</div>
+              </div>
+              <div style={styles.card}>
+                <div style={styles.badge}>Zones</div>
+                <div style={styles.cardTitle}>5 espaces</div>
               </div>
             </div>
-          </div>
-        </section>
 
-        {/* ===== CTA SECTION ===== */}
-        <section className="py-24 px-4" style={{ background: "linear-gradient(135deg, #1a0510 0%, #0a0a0a 50%, #1a0510 100%)" }}>
-          <div className="container mx-auto text-center">
-            <div className="max-w-3xl mx-auto">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-8"
-                style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)", boxShadow: "0 0 60px rgba(225,29,72,0.5)" }}>
-                <i className="fas fa-dumbbell text-white text-3xl"></i>
-              </div>
-              <h2 className="text-5xl font-black mb-4" style={{ color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.05em" }}>
-                PRÊT(E) À COMMENCER?
-              </h2>
-              <p className="text-lg mb-8" style={{ color: "#9ca3af", fontFamily: "Rajdhani, sans-serif" }}>
-                Rejoignez plus de 1247 membres qui ont déjà transformé leur vie avec GymAccess.
-                Premier mois à <span style={{ color: "#e11d48", fontWeight: 700 }}>moitié prix.</span>
-              </p>
-              <div className="flex justify-center gap-4 flex-wrap">
-                <Link to="/auth/register"
-                  className="px-10 py-4 rounded-lg text-base font-bold inline-flex items-center gap-2 transition-all hover:opacity-90"
-                  style={{ background: "linear-gradient(135deg, #e11d48, #9f1239)", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em", boxShadow: "0 0 30px rgba(225,29,72,0.4)" }}>
-                  <i className="fas fa-fire"></i>
-                  REJOINDRE MAINTENANT
-                </Link>
-                <a href="tel:+21671000000"
-                  className="px-10 py-4 rounded-lg text-base font-bold inline-flex items-center gap-2 transition-all hover:border-red-500"
-                  style={{ border: "1px solid #2a2a2a", color: "white", fontFamily: "Oswald, sans-serif", letterSpacing: "0.1em" }}>
-                  <i className="fas fa-phone"></i>
-                  APPELER
-                </a>
-              </div>
+            <div style={styles.cards2}>
+              {facilityZones.map((zone) => (
+                <HoverCard key={zone.title}>
+                  <h3 style={styles.cardTitle}>{zone.title}</h3>
+                  <p style={styles.text}>{zone.desc}</p>
+                </HoverCard>
+              ))}
             </div>
           </div>
-        </section>
 
-        <Footer />
-      </main>
-    </>
+          <img
+            style={styles.image}
+            src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80"
+            alt="Salle premium"
+          />
+        </div>
+      </section>
+
+      <section id="services" style={styles.section}>
+        <div style={styles.sectionTag}>Services</div>
+        <h2 style={styles.title}>TOUT CE QU'IL FAUT POUR PROGRESSER DURABLEMENT</h2>
+
+        <div style={styles.cards4}>
+          {services.map((item) => (
+            <HoverCard key={item.title}>
+              <div style={{ fontSize: "2rem" }}>{item.icon}</div>
+              <h3 style={styles.cardTitle}>{item.title}</h3>
+              <p style={styles.text}>{item.desc}</p>
+            </HoverCard>
+          ))}
+        </div>
+      </section>
+
+      <section id="coachs" style={styles.section}>
+        <div style={styles.sectionGrid}>
+          <img
+            style={styles.image}
+            src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&q=80"
+            alt="Coachs sportifs"
+          />
+
+          <div>
+            <div style={styles.sectionTag}>Coachs</div>
+            <h2 style={styles.title}>DES EXPERTS PRÉSENTS À CHAQUE ÉTAPE</h2>
+            <p style={styles.text}>
+              Chaque adhérent peut être orienté vers un coach selon ses objectifs :
+              transformation physique, remise en forme, performance ou rééquilibrage.
+            </p>
+
+            <div style={{ display: "grid", gap: 16, marginTop: 24 }}>
+              {coaches.map((coach) => (
+                <HoverCard key={coach.name}>
+                  <h3 style={styles.cardTitle}>{coach.name}</h3>
+                  <div style={styles.badge}>{coach.specialty}</div>
+                  <p style={styles.text}>{coach.desc}</p>
+                </HoverCard>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="nutrition" style={styles.section}>
+        <div style={styles.sectionGrid}>
+          <div>
+            <div style={styles.sectionTag}>Programme alimentaire & catalogue</div>
+            <h2 style={styles.title}>UN CATALOGUE NUTRITION PENSÉ POUR LA PERFORMANCE</h2>
+            <p style={styles.text}>
+              Plans personnalisés, ajustements hebdomadaires et conseils pratiques
+              pour aligner assiette, récupération et performance.
+            </p>
+
+            <div style={{ display: "grid", gap: 12, marginTop: 24 }}>
+              {nutritionPrograms.map((item) => (
+                <div key={item} style={{ ...styles.card, padding: "18px 20px" }}>
+                  <span style={{ color: "#D62828", marginRight: 10 }}>✦</span>
+                  <span style={{ color: "#F1F1F1" }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <img
+            style={styles.image}
+            src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1200&q=80"
+            alt="Nutrition sportive"
+          />
+        </div>
+
+        <div style={styles.cards4}>
+          {nutritionCatalog.map((item) => (
+            <HoverCard key={item.title}>
+              <div style={styles.badge}>{item.badge}</div>
+              <h3 style={styles.cardTitle}>{item.title}</h3>
+              <p style={styles.text}>{item.desc}</p>
+            </HoverCard>
+          ))}
+        </div>
+      </section>
+
+      <section id="abonnements" style={styles.section}>
+        <div style={styles.sectionTag}>Catalogue abonnements</div>
+        <h2 style={styles.title}>
+          DES ABONNEMENTS ADAPTÉS À LA SALLE, AU COACHING ET AU BAR ALIMENTAIRE
+        </h2>
+
+        <div style={styles.cards3}>
+          {memberships.map((plan) => (
+            <div
+              key={plan.name}
+              style={{
+                ...styles.planCard,
+                ...(plan.featured ? styles.featuredPlan : {}),
+              }}
+            >
+              <div style={styles.badge}>{plan.badge}</div>
+              <h3 style={styles.cardTitle}>{plan.name}</h3>
+              <div style={styles.planPrice}>
+                <span style={{ color: "#D62828" }}>{plan.price}</span>
+                <span style={{ color: "#A0A0A0", fontSize: "1rem", fontFamily: "Barlow, sans-serif" }}>
+                  {plan.unit}
+                </span>
+              </div>
+
+              <ul style={styles.list}>
+                {plan.features.map((feature) => (
+                  <li key={feature}>▸ {feature}</li>
+                ))}
+              </ul>
+
+              <button style={plan.featured ? styles.btnPrimary : styles.btnSecondary}>
+                Choisir cette formule
+              </button>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="contact" style={styles.section}>
+        <div style={styles.sectionTag}>Contact</div>
+        <h2 style={styles.title}>PASSE À LA SALLE ET DÉMARRE FORT</h2>
+
+        <div style={styles.contactGrid}>
+          <p style={styles.text}>
+            Une question, une visite ou une envie d'inscription ?
+            Notre équipe t'oriente vers le bon abonnement, le bon coach
+            et le bon programme alimentaire.
+          </p>
+
+          <div style={styles.cards2}>
+            {[
+              ["Adresse", "123 Avenue des Champs-Élysées, Paris 75008"],
+              ["Téléphone", "+33 1 23 45 67 89"],
+              ["Horaires", "Ouvert 24h/24, 7j/7"],
+              ["Accueil", "Visite, essai et orientation programme sur demande"],
+            ].map(([label, value]) => (
+              <div key={label} style={styles.card}>
+                <div style={styles.badge}>{label}</div>
+                <div style={{ ...styles.text, color: "#F5F5F5" }}>{value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer style={styles.footer}>
+        <div style={styles.logo}>
+          GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+        </div>
+        <div>© 2026 GymAccess — Tous droits réservés</div>
+      </footer>
+    </div>
   );
 }

@@ -1,7 +1,26 @@
 import React from "react";
 import CardTable from "components/Cards/CardTable.js";
+import prototypes from "prop-types";
 
+import {getAllUsers} from "services/apiUser";
 export default function Tables() {
+  const [users, setUsers] = React.useState([]);
+
+  React.useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await getAllUsers();
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+
+
   return (
     <div className="flex flex-wrap mt-4">
       <div className="w-full mb-12 px-4">

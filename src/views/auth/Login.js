@@ -1,100 +1,240 @@
+// LOGIN.JS
+
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
+import { loginUser } from "../../services/apiUser";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");       // ← ajout
+  const [loading, setLoading] = useState(false); // ← ajout
+
+  const history = useHistory(); // ← ajout
+
+  const handleSubmit = async (e) => { // ← async ajouté
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await loginUser({ email, password }); // ← appel API
+      localStorage.setItem("token", res.data.token);    // ← sauvegarde token
+      history.push("/admin/dashboard");                  // ← redirect
+    } catch (err) {
+      setError(err.response?.data?.message || "Email ou mot de passe incorrect");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="container mx-auto px-4 h-full">
-      <div className="flex content-center items-center justify-center h-full" style={{ minHeight: '80vh' }}>
-        <div className="w-full lg:w-4/12 px-4">
-          <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-2xl rounded-2xl pb-8"
-            style={{ backgroundColor: '#111111', border: '1px solid #2a2a2a' }}>
-            
-            {/* Header */}
-            <div className="rounded-t mb-0 px-6 py-8 text-center" style={{ borderBottom: '1px solid #2a2a2a' }}>
-              <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)', boxShadow: '0 0 30px rgba(225,29,72,0.3)' }}>
-                <i className="fas fa-dumbbell text-white text-2xl"></i>
-              </div>
-              <h2 className="text-2xl font-bold" style={{ color: 'white', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.05em' }}>
-                CONNEXION
-              </h2>
-              <p className="text-sm mt-1" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
-                Accédez à votre espace membre
-              </p>
-            </div>
+    <div style={styles.page}>
+      <div style={styles.overlay}></div>
 
-            <div className="flex-auto px-6 lg:px-10 py-8 pt-6">
-              <form>
-                <div className="relative w-full mb-5">
-                  <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>
-                    Email
-                  </label>
-                  <div className="relative">
-                    <i className="fas fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-xs" style={{ color: '#6b7280' }}></i>
-                    <input
-                      type="email"
-                      className="pl-9 pr-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none transition-all duration-150"
-                      placeholder="votre@email.com"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }}
-                    />
-                  </div>
-                </div>
-                <div className="relative w-full mb-6">
-                  <label className="block uppercase text-xs font-bold mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.08em' }}>
-                    Mot de passe
-                  </label>
-                  <div className="relative">
-                    <i className="fas fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-xs" style={{ color: '#6b7280' }}></i>
-                    <input
-                      type="password"
-                      className="pl-9 pr-3 py-3 placeholder-gray-600 rounded text-sm w-full focus:outline-none transition-all duration-150"
-                      placeholder="••••••••"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      style={{ backgroundColor: '#1a1a1a', color: 'white', border: '1px solid #2a2a2a', fontFamily: 'Rajdhani, sans-serif' }}
-                    />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between mb-6">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" className="rounded" style={{ accentColor: '#e11d48' }} />
-                    <span className="text-xs" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>Se souvenir de moi</span>
-                  </label>
-                  <a href="#pablo" className="text-xs hover:text-red-400 transition-colors" style={{ color: '#e11d48', fontFamily: 'Rajdhani, sans-serif' }}>
-                    Mot de passe oublié?
-                  </a>
-                </div>
-                <div className="text-center mt-2">
-                  <Link
-                    to="/admin/dashboard"
-                    className="btn-gym text-white font-bold uppercase text-sm px-6 py-3 rounded shadow w-full block text-center"
-                    style={{ fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}
-                  >
-                    SE CONNECTER
-                  </Link>
-                </div>
-              </form>
-              <div className="flex flex-wrap mt-6 relative">
-                <div className="w-1/2">
-                  <Link to="/auth/register" className="text-xs hover:text-red-400 transition-colors" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
-                    Pas encore membre?
-                  </Link>
-                </div>
-                <div className="w-1/2 text-right">
-                  <Link to="/" className="text-xs hover:text-red-400 transition-colors" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
-                    Retour à l'accueil
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div style={styles.card}>
+        <div style={styles.iconWrap}>
+          <span style={styles.icon}>🔐</span>
         </div>
+
+        <h1 style={styles.title}>CONNEXION</h1>
+
+        <p style={styles.subtitle}>
+          Connectez-vous à votre espace GymAccess
+        </p>
+
+        {/* ← Message d'erreur ajouté */}
+        {error && (
+          <div style={styles.errorBox}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div>
+            <label style={styles.label}>EMAIL</label>
+
+            <input
+              type="email"
+              required
+              placeholder="votre@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+
+          <div>
+            <label style={styles.label}>MOT DE PASSE</label>
+
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+
+          {/* ← loading ajouté sur le bouton */}
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "CONNEXION..." : "SE CONNECTER"}
+          </button>
+        </form>
+
+        <div style={styles.links}>
+          <Link to="/auth/forget" style={styles.link}>
+            Mot de passe oublié ?
+          </Link>
+        </div>
+
+        <p style={styles.footer}>
+          Pas encore membre ?{" "}
+          <Link to="/auth/register" style={styles.linkRed}>
+            Créer un compte
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    width: "100%",
+    background: "#000",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+    padding: "2rem",
+    boxSizing: "border-box",
+  },
+
+  overlay: {
+    position: "absolute",
+    inset: 0,
+    background:
+      "radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)",
+  },
+
+  card: {
+    position: "relative",
+    zIndex: 2,
+    width: "100%",
+    maxWidth: "430px",
+    background: "#111",
+    border: "1px solid #222",
+    borderRadius: "18px",
+    padding: "2.5rem",
+    boxShadow: "0 20px 60px rgba(220,38,38,0.25)",
+  },
+
+  iconWrap: {
+    width: "70px",
+    height: "70px",
+    borderRadius: "50%",
+    background: "linear-gradient(135deg,#dc2626,#991b1b)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 1.5rem",
+  },
+
+  icon: {
+    fontSize: "30px",
+  },
+
+  title: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: "2rem",
+    fontWeight: 800,
+    letterSpacing: "0.2em",
+    marginBottom: "0.7rem",
+  },
+
+  subtitle: {
+    color: "#888",
+    textAlign: "center",
+    marginBottom: "2rem",
+  },
+
+  // ← style du message d'erreur ajouté
+  errorBox: {
+    background: "rgba(220,38,38,0.12)",
+    border: "1px solid rgba(220,38,38,0.4)",
+    color: "#f87171",
+    borderRadius: "8px",
+    padding: "0.75rem 1rem",
+    marginBottom: "1rem",
+    fontSize: "0.88rem",
+    textAlign: "center",
+  },
+
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.5rem",
+  },
+
+  label: {
+    display: "block",
+    color: "#aaa",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    marginBottom: "0.5rem",
+    letterSpacing: "0.15em",
+  },
+
+  input: {
+    width: "100%",
+    background: "#000",
+    border: "1px solid #333",
+    borderRadius: "10px",
+    padding: "1rem",
+    color: "#fff",
+    fontSize: "0.95rem",
+    outline: "none",
+    boxSizing: "border-box",
+  },
+
+  button: {
+    marginTop: "0.5rem",
+    background: "linear-gradient(135deg,#ef4444,#991b1b)",
+    border: "none",
+    color: "#fff",
+    padding: "1rem",
+    borderRadius: "10px",
+    fontWeight: 800,
+    fontSize: "0.95rem",
+    letterSpacing: "0.15em",
+    cursor: "pointer",
+    boxShadow: "0 10px 30px rgba(220,38,38,0.35)",
+  },
+
+  links: {
+    marginTop: "1rem",
+    textAlign: "right",
+  },
+
+  link: {
+    color: "#aaa",
+    textDecoration: "none",
+    fontSize: "0.9rem",
+  },
+
+  footer: {
+    textAlign: "center",
+    color: "#888",
+    marginTop: "2rem",
+  },
+
+  linkRed: {
+    color: "#ef4444",
+    textDecoration: "none",
+    fontWeight: 700,
+  },
+};

@@ -1,566 +1,664 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-// components
+const pricingPlans = [
+  {
+    name: "Essential",
+    price: "29€",
+    unit: "/mois",
+    oldPrice: "39€",
+    badge: "Entrée de gamme",
+    featured: false,
+    features: [
+      "Accès salle 24/7",
+      "Cardio + musculation",
+      "1 bilan de départ",
+      "Vestiaires + douches",
+    ],
+    popular: false,
+  },
+  {
+    name: "Performance",
+    price: "49€",
+    unit: "/mois",
+    oldPrice: "59€",
+    badge: "Le plus complet",
+    featured: true,
+    features: [
+      "Accès illimité 24/7",
+      "2 coachings/mois",
+      "Programme nutrition",
+      "Accès bar alimentaire",
+      "Suivi résultats",
+    ],
+    popular: true,
+  },
+  {
+    name: "Elite",
+    price: "79€",
+    unit: "/mois",
+    oldPrice: "99€",
+    badge: "Suivi premium",
+    featured: false,
+    features: [
+      "Coaching hebdomadaire",
+      "Plan alimentaire complet",
+      "Réductions bar 20%",
+      "Priorité planning",
+      "Séances privées",
+    ],
+    popular: false,
+  },
+];
 
-import Navbar from "components/Navbars/AuthNavbar.js";
-import Footer from "components/Footers/Footer.js";
+const benefits = [
+  {
+    icon: "✅",
+    title: "Accès 24/7",
+    desc: "Salle ouverte non-stop, 365 jours par an.",
+  },
+  {
+    icon: "🏋️",
+    title: "5 zones d'entraînement",
+    desc: "Musculation guidée, poids libres, cardio, HIIT, récupération.",
+  },
+  {
+    icon: "👥",
+    title: "Coachs certifiés",
+    desc: "15+ experts pour structurer votre progression.",
+  },
+  {
+    icon: "🥗",
+    title: "Bar nutrition",
+    desc: "Smoothies, bowls, snacks protéinés sur place.",
+  },
+];
 
-export default function Landing() {
+const faqItems = [
+  {
+    question: "Puis-je tester la salle avant de m'abonner ?",
+    answer: "Oui ! Venez pour une visite gratuite et un essai d'1h avec un coach.",
+  },
+  {
+    question: "Y a-t-il un engagement minimum ?",
+    answer: "Tous nos abonnements sont sans engagement. Résiliez quand vous voulez.",
+  },
+  {
+    question: "Le bar alimentaire est-il inclus ?",
+    answer: "Accès gratuit aux échantillons. Réductions dès Performance (10-20%).",
+  },
+  {
+    question: "Comment choisir le bon abonnement ?",
+    answer: "Prenez rendez-vous avec un coach pour un bilan personnalisé gratuit.",
+  },
+];
+
+const testimonials = [
+  {
+    name: "Sarah M.",
+    plan: "Performance",
+    quote: "J'ai perdu 8kg en 2 mois avec le coaching et les plans nutrition. Résultats concrets !",
+  },
+  {
+    name: "Karim B.",
+    plan: "Elite",
+    quote: "Le suivi hebdo change tout. Mes performances explosent depuis 3 mois.",
+  },
+  {
+    name: "Léa D.",
+    plan: "Essential",
+    quote: "Parfait pour débuter. Salle impeccable, horaires flexibles, tout ce qu'il faut.",
+  },
+];
+
+const styles = {
+  page: {
+    background: "#0A0A0A",
+    color: "#F5F5F5",
+    fontFamily: "Barlow, Arial, sans-serif",
+    minHeight: "100vh",
+  },
+  nav: {
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px 5%",
+    background: "rgba(10,10,10,0.92)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(214,40,40,0.22)",
+  },
+  logo: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2rem",
+    letterSpacing: "4px",
+    margin: 0,
+  },
+  navLinks: {
+    display: "flex",
+    gap: "24px",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  navLink: {
+    color: "#A3A3A3",
+    textDecoration: "none",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+  },
+  navBtn: {
+    background: "#D62828",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "12px 18px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    boxShadow: "0 10px 30px rgba(214,40,40,0.35)",
+  },
+  hero: {
+    minHeight: "90vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    textAlign: "center",
+    background: "linear-gradient(135deg, rgba(10,10,10,0.94) 0%, rgba(214,40,40,0.12) 100%)",
+    position: "relative",
+    overflow: "hidden",
+  },
+  heroContent: {
+    maxWidth: "800px",
+    padding: "0 5%",
+  },
+  heroTag: {
+    display: "inline-block",
+    border: "1px solid rgba(214,40,40,0.5)",
+    color: "#D62828",
+    padding: "7px 12px",
+    textTransform: "uppercase",
+    letterSpacing: "3px",
+    fontSize: "0.7rem",
+    marginBottom: "18px",
+    background: "rgba(17,17,17,0.55)",
+  },
+  heroTitle: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "clamp(3.8rem, 8vw, 6.5rem)",
+    lineHeight: 0.92,
+    letterSpacing: "2px",
+    margin: "0 0 24px",
+  },
+  heroDesc: {
+    color: "#C7C7C7",
+    fontSize: "1.2rem",
+    lineHeight: 1.75,
+    marginBottom: "36px",
+  },
+  heroButtons: {
+    display: "flex",
+    gap: "18px",
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+  btnPrimary: {
+    background: "#D62828",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "16px 28px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    boxShadow: "0 10px 30px rgba(214,40,40,0.35)",
+    border: "none",
+    cursor: "pointer",
+  },
+  btnSecondary: {
+    background: "transparent",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "16px 28px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.8rem",
+    fontWeight: 700,
+    border: "1px solid rgba(255,255,255,0.2)",
+    cursor: "pointer",
+  },
+  section: {
+    padding: "100px 5%",
+  },
+  sectionTag: {
+    color: "#D62828",
+    textTransform: "uppercase",
+    letterSpacing: "3px",
+    fontSize: "0.72rem",
+    marginBottom: "12px",
+  },
+  title: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "clamp(2.8rem, 6vw, 4.5rem)",
+    lineHeight: 1,
+    letterSpacing: "2px",
+    margin: "0 0 24px",
+    textAlign: "center",
+  },
+  text: {
+    color: "#B5B5B5",
+    lineHeight: 1.75,
+    fontSize: "1.05rem",
+    maxWidth: "720px",
+    margin: "0 auto 36px",
+  },
+  pricingGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "24px",
+    maxWidth: "1200px",
+    margin: "0 auto",
+  },
+  planCard: {
+    background: "#121212",
+    border: "1px solid #232323",
+    padding: "36px 28px",
+    display: "flex",
+    flexDirection: "column",
+    textAlign: "center",
+    position: "relative",
+    transition: "all 0.3s ease",
+  },
+  featuredPlan: {
+    background: "linear-gradient(135deg, #1b0505 0%, #111111 100%)",
+    border: "2px solid #D62828",
+    boxShadow: "0 0 50px rgba(214,40,40,0.25)",
+    transform: "scale(1.05)",
+  },
+  planPopular: {
+    position: "absolute",
+    top: "-12px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    background: "#D62828",
+    color: "#fff",
+    padding: "6px 16px",
+    borderRadius: "20px",
+    fontSize: "0.7rem",
+    fontWeight: 700,
+    letterSpacing: "1px",
+  },
+  badge: {
+    display: "inline-block",
+    color: "#D62828",
+    fontSize: "0.72rem",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    marginBottom: "12px",
+  },
+  planName: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.8rem",
+    letterSpacing: "1px",
+    margin: "0 0 16px",
+  },
+  planPrice: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "4rem",
+    letterSpacing: "3px",
+    margin: "0 0 12px",
+  },
+  oldPrice: {
+    position: "absolute",
+    right: "28px",
+    top: "36px",
+    fontSize: "0.85rem",
+    color: "#6B6B6B",
+    textDecoration: "line-through",
+  },
+  list: {
+    listStyle: "none",
+    padding: 0,
+    margin: "24px 0 32px",
+    flexGrow: 1,
+    display: "grid",
+    gap: "12px",
+    color: "#C4C4C4",
+  },
+  benefitsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "20px",
+    marginTop: "64px",
+  },
+  benefitCard: {
+    display: "flex",
+    gap: "16px",
+    alignItems: "flex-start",
+    padding: "24px",
+    background: "rgba(17,17,17,0.6)",
+    border: "1px solid rgba(214,40,40,0.12)",
+  },
+  faqGrid: {
+    display: "grid",
+    gap: "24px",
+    maxWidth: "800px",
+    margin: "0 auto",
+  },
+  faqItem: {
+    background: "#121212",
+    border: "1px solid #232323",
+    borderRadius: "8px",
+    overflow: "hidden",
+  },
+  faqQuestion: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.3rem",
+    padding: "24px 28px",
+    margin: 0,
+    background: "#1a1a1a",
+    cursor: "pointer",
+    borderBottom: "1px solid #232323",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  faqAnswer: {
+    padding: "0 28px 24px",
+    color: "#B5B5B5",
+    lineHeight: 1.7,
+    maxHeight: 0,
+    overflow: "hidden",
+    transition: "all 0.3s ease",
+  },
+  testimonialsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "20px",
+    marginTop: "48px",
+  },
+  testimonialCard: {
+    background: "#121212",
+    border: "1px solid rgba(214,40,40,0.15)",
+    padding: "32px 24px",
+    textAlign: "center",
+  },
+  contactGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "40px",
+    alignItems: "center",
+    maxWidth: "1000px",
+    margin: "0 auto",
+  },
+  footer: {
+    borderTop: "1px solid rgba(214,40,40,0.18)",
+    padding: "28px 5%",
+    color: "#8F8F8F",
+    display: "flex",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
+    gap: "12px",
+  },
+};
+
+function PricingCard({ plan, index }) {
+  const [hovered, setHovered] = React.useState(false);
+
   return (
-    <>
-      <Navbar transparent />
-      <main>
-        <div className="relative pt-16 pb-32 flex content-center items-center justify-center min-h-screen-75">
-          <div
-            className="absolute top-0 w-full h-full bg-center bg-cover"
-            style={{
-              backgroundImage:
-                "url('https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1267&q=80')",
-            }}
-          >
-            <span
-              id="blackOverlay"
-              className="w-full h-full absolute opacity-75 bg-black"
-            ></span>
-          </div>
-          <div className="container relative mx-auto">
-            <div className="items-center flex flex-wrap">
-              <div className="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
-                <div className="pr-12">
-                  <h1 className="text-white font-semibold text-5xl">
-                  NewPage
-                  </h1>
-                  <p className="mt-4 text-lg text-blueGray-200">
-                    This is a simple example of a Landing Page you can build
-                    using Notus React. It features multiple CSS components based
-                    on the Tailwind CSS design system.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            className="top-auto bottom-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden h-70-px"
-            style={{ transform: "translateZ(0)" }}
-          >
-            <svg
-              className="absolute bottom-0 overflow-hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
-            >
-              <polygon
-                className="text-blueGray-200 fill-current"
-                points="2560 0 2560 100 0 100"
-              ></polygon>
-            </svg>
-          </div>
+    <div
+      style={{
+        ...styles.planCard,
+        ...(plan.featured ? styles.featuredPlan : {}),
+        transform: hovered ? "translateY(-8px)" : "none",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {plan.popular && <div style={styles.planPopular}>Le plus populaire</div>}
+      
+      <div style={styles.oldPrice}>{plan.oldPrice}</div>
+      
+      <div style={styles.badge}>{plan.badge}</div>
+      <h3 style={styles.planName}>{plan.name}</h3>
+      
+      <div style={styles.planPrice}>
+        <span style={{ color: "#D62828" }}>{plan.price}</span>
+        <span style={{ 
+          color: "#A0A0A0", 
+          fontSize: "1.1rem", 
+          fontFamily: "Barlow, sans-serif",
+          display: "block",
+          fontWeight: 400
+        }}>
+          {plan.unit}
+        </span>
+      </div>
+
+      <ul style={styles.list}>
+        {plan.features.map((feature, i) => (
+          <li key={i}>▸ {feature}</li>
+        ))}
+      </ul>
+
+      <Link 
+        to="/auth/register" 
+        style={{
+          ...styles.btnPrimary,
+          background: hovered ? "#B82727" : "#D62828",
+        }}
+      >
+        Choisir {plan.name}
+      </Link>
+    </div>
+  );
+}
+
+function FaqItem({ item }) {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <div style={styles.faqItem}>
+      <h4 
+        style={styles.faqQuestion}
+        onClick={() => setOpen(!open)}
+      >
+        {item.question}
+        <span>{open ? "−" : "+"}</span>
+      </h4>
+      <div style={{
+        ...styles.faqAnswer,
+        maxHeight: open ? "500px" : "0px",
+        paddingTop: open ? "24px" : "0",
+      }}>
+        {item.answer}
+      </div>
+    </div>
+  );
+}
+
+export default function SubscriptionsPage() {
+  return (
+    <div style={styles.page}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap"
+        rel="stylesheet"
+      />
+
+      <nav style={styles.nav}>
+        <div>
+          <p style={styles.logo}>
+            GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+          </p>
         </div>
 
-        <section className="pb-20 bg-blueGray-200 -mt-24">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap">
-              <div className="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center">
-                <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-lg">
-                  <div className="px-4 py-5 flex-auto">
-                    <div className="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-red-400">
-                      <i className="fas fa-award"></i>
-                    </div>
-                    <h6 className="text-xl font-semibold">Awarded Agency</h6>
-                    <p className="mt-2 mb-4 text-blueGray-500">
-                      Divide details about your product or agency work into
-                      parts. A paragraph describing a feature will be enough.
-                    </p>
-                  </div>
-                </div>
-              </div>
+        <div style={styles.navLinks}>
+          <a href="/" style={styles.navLink}>Accueil</a>
+          <a href="/#salle" style={styles.navLink}>Salle</a>
+          <a href="/#services" style={styles.navLink}>Services</a>
+          <a href="/#coachs" style={styles.navLink}>Coachs</a>
+          <Link to="/landing" style={styles.navLink}>Nutrition</Link>
+        </div>
+      </nav>
 
-              <div className="w-full md:w-4/12 px-4 text-center">
-                <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-lg">
-                  <div className="px-4 py-5 flex-auto">
-                    <div className="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-lightBlue-400">
-                      <i className="fas fa-retweet"></i>
-                    </div>
-                    <h6 className="text-xl font-semibold">Free Revisions</h6>
-                    <p className="mt-2 mb-4 text-blueGray-500">
-                      Keep you user engaged by providing meaningful information.
-                      Remember that by this time, the user is curious.
-                    </p>
-                  </div>
-                </div>
-              </div>
+      <section style={styles.hero}>
+        <div style={styles.heroContent}>
+          <div style={styles.heroTag}>Tarifs transparents</div>
+          <h1 style={styles.heroTitle}>
+            CHOISISSEZ VOTRE<span style={{ color: "#D62828" }}> FORMULE</span>
+          </h1>
+          <p style={styles.heroDesc}>
+            Des abonnements adaptés à tous les niveaux et objectifs. 
+            Sans engagement, résultats garantis.
+          </p>
+          
+          <div style={styles.heroButtons}>
+            <Link to="#pricing" style={styles.btnPrimary}>Voir les tarifs</Link>
+            <Link to="#faq" style={styles.btnSecondary}>Questions fréquentes</Link>
+          </div>
+        </div>
+      </section>
 
-              <div className="pt-6 w-full md:w-4/12 px-4 text-center">
-                <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-lg">
-                  <div className="px-4 py-5 flex-auto">
-                    <div className="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-emerald-400">
-                      <i className="fas fa-fingerprint"></i>
-                    </div>
-                    <h6 className="text-xl font-semibold">Verified Company</h6>
-                    <p className="mt-2 mb-4 text-blueGray-500">
-                      Write a few lines about each one. A paragraph describing a
-                      feature will be enough. Keep you user engaged!
-                    </p>
-                  </div>
-                </div>
+      <section id="pricing" style={styles.section}>
+        <div style={styles.sectionTag}>Nos formules</div>
+        <h2 style={styles.title}>TROUVEZ L'ABONNEMENT QUI VOUS CORRESPOND</h2>
+        <p style={styles.text}>
+          Chacune de nos formules donne accès à la salle 24/7 et s'adapte 
+          à votre niveau, vos objectifs et votre budget.
+        </p>
+
+        <div style={styles.pricingGrid}>
+          {pricingPlans.map((plan, index) => (
+            <PricingCard key={plan.name} plan={plan} index={index} />
+          ))}
+        </div>
+      </section>
+
+      <section style={styles.section}>
+        <h2 style={styles.title}>CE QUE VOUS GAGNEZ AVEC GYMACCESS</h2>
+        
+        <div style={styles.benefitsGrid}>
+          {benefits.map((benefit, index) => (
+            <div key={index} style={styles.benefitCard}>
+              <div style={{ fontSize: "2.2rem", marginTop: "2px" }}>{benefit.icon}</div>
+              <div>
+                <h3 style={{
+                  ...styles.cardTitle,
+                  fontSize: "1.4rem",
+                  marginBottom: "8px",
+                }}>{benefit.title}</h3>
+                <p style={styles.text}>{benefit.desc}</p>
               </div>
             </div>
+          ))}
+        </div>
+      </section>
 
-            <div className="flex flex-wrap items-center mt-32">
-              <div className="w-full md:w-5/12 px-4 mr-auto ml-auto">
-                <div className="text-blueGray-500 p-3 text-center inline-flex items-center justify-center w-16 h-16 mb-6 shadow-lg rounded-full bg-white">
-                  <i className="fas fa-user-friends text-xl"></i>
-                </div>
-                <h3 className="text-3xl mb-2 font-semibold leading-normal">
-                  Working with us is a pleasure
-                </h3>
-                <p className="text-lg font-light leading-relaxed mt-4 mb-4 text-blueGray-600">
-                  Don't let your uses guess by attaching tooltips and popoves to
-                  any element. Just make sure you enable them first via
-                  JavaScript.
-                </p>
-                <p className="text-lg font-light leading-relaxed mt-0 mb-4 text-blueGray-600">
-                  The kit comes with three pre-built pages to help you get
-                  started faster. You can change the text and images and you're
-                  good to go. Just make sure you enable them first via
-                  JavaScript.
-                </p>
-                <Link to="/" className="font-bold text-blueGray-700 mt-8">
-                  Check Notus React!
-                </Link>
-              </div>
+      <section id="faq" style={styles.section}>
+        <div style={styles.sectionTag}>FAQ</div>
+        <h2 style={styles.title}>TOUT CE QU'IL FAUT SAVOIR</h2>
+        <p style={styles.text}>
+          Questions fréquentes sur les abonnements, les modalités 
+          et le déroulement de votre expérience GymAccess.
+        </p>
 
-              <div className="w-full md:w-4/12 px-4 mr-auto ml-auto">
-                <div className="relative flex flex-col min-w-0 break-words bg-white w-full mb-6 shadow-lg rounded-lg bg-lightBlue-500">
-                  <img
-                    alt="..."
-                    src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1051&q=80"
-                    className="w-full align-middle rounded-t-lg"
-                  />
-                  <blockquote className="relative p-8 mb-4">
-                    <svg
-                      preserveAspectRatio="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 583 95"
-                      className="absolute left-0 w-full block h-95-px -top-94-px"
-                    >
-                      <polygon
-                        points="-30,95 583,95 583,65"
-                        className="text-lightBlue-500 fill-current"
-                      ></polygon>
-                    </svg>
-                    <h4 className="text-xl font-bold text-white">
-                      Top Notch Services
-                    </h4>
-                    <p className="text-md font-light mt-2 text-white">
-                      The Arctic Ocean freezes every winter and much of the
-                      sea-ice then thaws every summer, and that process will
-                      continue whatever happens.
-                    </p>
-                  </blockquote>
-                </div>
+        <div style={styles.faqGrid}>
+          {faqItems.map((item, index) => (
+            <FaqItem key={index} item={item} />
+          ))}
+        </div>
+      </section>
+
+      <section style={styles.section}>
+        <h2 style={styles.title}>CE QUE DISENT NOS MEMBRES</h2>
+        
+        <div style={styles.testimonialsGrid}>
+          {testimonials.map((testimonial, index) => (
+            <div key={index} style={styles.testimonialCard}>
+              <p style={{
+                ...styles.text,
+                fontStyle: "italic",
+                fontSize: "1.05rem",
+                marginBottom: "24px",
+                lineHeight: 1.6,
+              }}>
+                "{testimonial.quote}"
+              </p>
+              <div style={{ color: "#D62828", fontSize: "0.85rem", marginBottom: "4px" }}>
+                {testimonial.plan}
               </div>
+              <div style={{ color: "#9A9A9A", fontSize: "0.9rem" }}>
+                {testimonial.name}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section style={styles.section}>
+        <div style={styles.contactGrid}>
+          <div>
+            <div style={styles.sectionTag}>Prêt à commencer ?</div>
+            <h2 style={{
+              ...styles.title,
+              textAlign: "left",
+              fontSize: "clamp(2.5rem, 5vw, 3.8rem)",
+            }}>
+              VOTRE PREMIER ENTRAÎNEMENT<br />
+              <span style={{ color: "#D62828" }}>EST OFFERT</span>
+            </h2>
+            <p style={styles.text}>
+              Prenez rendez-vous dès maintenant pour une visite complète, 
+              un bilan personnalisé et le choix de votre formule idéale.
+            </p>
+            <div style={{ display: "flex", gap: "16px", marginTop: "24px", flexWrap: "wrap" }}>
+              <Link to="/auth/register" style={styles.btnPrimary}>S'inscrire</Link>
             </div>
           </div>
-        </section>
-
-        <section className="relative py-20">
-          <div
-            className="bottom-auto top-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden -mt-20 h-20"
-            style={{ transform: "translateZ(0)" }}
-          >
-            <svg
-              className="absolute bottom-0 overflow-hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
-            >
-              <polygon
-                className="text-white fill-current"
-                points="2560 0 2560 100 0 100"
-              ></polygon>
-            </svg>
-          </div>
-
-          <div className="container mx-auto px-4">
-            <div className="items-center flex flex-wrap">
-              <div className="w-full md:w-4/12 ml-auto mr-auto px-4">
-                <img
-                  alt="..."
-                  className="max-w-full rounded-lg shadow-lg"
-                  src="https://images.unsplash.com/photo-1555212697-194d092e3b8f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80"
-                />
-              </div>
-              <div className="w-full md:w-5/12 ml-auto mr-auto px-4">
-                <div className="md:pr-12">
-                  <div className="text-lightBlue-600 p-3 text-center inline-flex items-center justify-center w-16 h-16 mb-6 shadow-lg rounded-full bg-lightBlue-300">
-                    <i className="fas fa-rocket text-xl"></i>
-                  </div>
-                  <h3 className="text-3xl font-semibold">A growing company</h3>
-                  <p className="mt-4 text-lg leading-relaxed text-blueGray-500">
-                    The extension comes with three pre-built pages to help you
-                    get started faster. You can change the text and images and
-                    you're good to go.
-                  </p>
-                  <ul className="list-none mt-6">
-                    <li className="py-2">
-                      <div className="flex items-center">
-                        <div>
-                          <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200 mr-3">
-                            <i className="fas fa-fingerprint"></i>
-                          </span>
-                        </div>
-                        <div>
-                          <h4 className="text-blueGray-500">
-                            Carefully crafted components
-                          </h4>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="py-2">
-                      <div className="flex items-center">
-                        <div>
-                          <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200 mr-3">
-                            <i className="fab fa-html5"></i>
-                          </span>
-                        </div>
-                        <div>
-                          <h4 className="text-blueGray-500">
-                            Amazing page examples
-                          </h4>
-                        </div>
-                      </div>
-                    </li>
-                    <li className="py-2">
-                      <div className="flex items-center">
-                        <div>
-                          <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-lightBlue-600 bg-lightBlue-200 mr-3">
-                            <i className="far fa-paper-plane"></i>
-                          </span>
-                        </div>
-                        <div>
-                          <h4 className="text-blueGray-500">
-                            Dynamic components
-                          </h4>
-                        </div>
-                      </div>
-                    </li>
-                  </ul>
+          
+          <div style={{
+            background: "#121212",
+            border: "1px solid #232323",
+            padding: "40px",
+            borderRadius: "12px",
+          }}>
+            <h3 style={{
+              ...styles.cardTitle,
+              fontSize: "1.6rem",
+              marginBottom: "24px",
+            }}>
+              Contact rapide
+            </h3>
+            <div style={{ display: "grid", gap: "16px" }}>
+              {[
+                ["📍 Adresse", "123 Avenue des Champs-Élysées, Paris 75008"],
+                ["📞 Téléphone", "+33 1 23 45 67 89"],
+                ["⏰ Essai gratuit", "Disponible 7j/7"],
+              ].map(([icon, text]) => (
+                <div key={text} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <span style={{ fontSize: "1.4rem" }}>{icon.split(" ")[0]}</span>
+                  <span style={styles.text}>{text}</span>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="pt-20 pb-48">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center text-center mb-24">
-              <div className="w-full lg:w-6/12 px-4">
-                <h2 className="text-4xl font-semibold">Here are our heroes</h2>
-                <p className="text-lg leading-relaxed m-4 text-blueGray-500">
-                  According to the National Oceanic and Atmospheric
-                  Administration, Ted, Scambos, NSIDClead scentist, puts the
-                  potentially record maximum.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap">
-              <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-                <div className="px-6">
-                  <img
-                    alt="..."
-                    src={require("assets/img/team-1-800x800.jpg").default}
-                    className="shadow-lg rounded-full mx-auto max-w-120-px"
-                  />
-                  <div className="pt-6 text-center">
-                    <h5 className="text-xl font-bold">Ryan Tompson</h5>
-                    <p className="mt-1 text-sm text-blueGray-400 uppercase font-semibold">
-                      Web Developer
-                    </p>
-                    <div className="mt-6">
-                      <button
-                        className="bg-lightBlue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-twitter"></i>
-                      </button>
-                      <button
-                        className="bg-lightBlue-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-facebook-f"></i>
-                      </button>
-                      <button
-                        className="bg-pink-500 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-dribbble"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-                <div className="px-6">
-                  <img
-                    alt="..."
-                    src={require("assets/img/team-2-800x800.jpg").default}
-                    className="shadow-lg rounded-full mx-auto max-w-120-px"
-                  />
-                  <div className="pt-6 text-center">
-                    <h5 className="text-xl font-bold">Romina Hadid</h5>
-                    <p className="mt-1 text-sm text-blueGray-400 uppercase font-semibold">
-                      Marketing Specialist
-                    </p>
-                    <div className="mt-6">
-                      <button
-                        className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-google"></i>
-                      </button>
-                      <button
-                        className="bg-lightBlue-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-facebook-f"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-                <div className="px-6">
-                  <img
-                    alt="..."
-                    src={require("assets/img/team-3-800x800.jpg").default}
-                    className="shadow-lg rounded-full mx-auto max-w-120-px"
-                  />
-                  <div className="pt-6 text-center">
-                    <h5 className="text-xl font-bold">Alexa Smith</h5>
-                    <p className="mt-1 text-sm text-blueGray-400 uppercase font-semibold">
-                      UI/UX Designer
-                    </p>
-                    <div className="mt-6">
-                      <button
-                        className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-google"></i>
-                      </button>
-                      <button
-                        className="bg-lightBlue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-twitter"></i>
-                      </button>
-                      <button
-                        className="bg-blueGray-700 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-instagram"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-                <div className="px-6">
-                  <img
-                    alt="..."
-                    src={require("assets/img/team-4-470x470.png").default}
-                    className="shadow-lg rounded-full mx-auto max-w-120-px"
-                  />
-                  <div className="pt-6 text-center">
-                    <h5 className="text-xl font-bold">Jenna Kardi</h5>
-                    <p className="mt-1 text-sm text-blueGray-400 uppercase font-semibold">
-                      Founder and CEO
-                    </p>
-                    <div className="mt-6">
-                      <button
-                        className="bg-pink-500 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-dribbble"></i>
-                      </button>
-                      <button
-                        className="bg-red-600 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-google"></i>
-                      </button>
-                      <button
-                        className="bg-lightBlue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-twitter"></i>
-                      </button>
-                      <button
-                        className="bg-blueGray-700 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1"
-                        type="button"
-                      >
-                        <i className="fab fa-instagram"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="pb-20 relative block bg-blueGray-800">
-          <div
-            className="bottom-auto top-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden -mt-20 h-20"
-            style={{ transform: "translateZ(0)" }}
-          >
-            <svg
-              className="absolute bottom-0 overflow-hidden"
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-              version="1.1"
-              viewBox="0 0 2560 100"
-              x="0"
-              y="0"
-            >
-              <polygon
-                className="text-blueGray-800 fill-current"
-                points="2560 0 2560 100 0 100"
-              ></polygon>
-            </svg>
-          </div>
-
-          <div className="container mx-auto px-4 lg:pt-24 lg:pb-64">
-            <div className="flex flex-wrap text-center justify-center">
-              <div className="w-full lg:w-6/12 px-4">
-                <h2 className="text-4xl font-semibold text-white">
-                  Build something
-                </h2>
-                <p className="text-lg leading-relaxed mt-4 mb-4 text-blueGray-400">
-                  Put the potentially record low maximum sea ice extent tihs
-                  year down to low ice. According to the National Oceanic and
-                  Atmospheric Administration, Ted, Scambos.
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap mt-12 justify-center">
-              <div className="w-full lg:w-3/12 px-4 text-center">
-                <div className="text-blueGray-800 p-3 w-12 h-12 shadow-lg rounded-full bg-white inline-flex items-center justify-center">
-                  <i className="fas fa-medal text-xl"></i>
-                </div>
-                <h6 className="text-xl mt-5 font-semibold text-white">
-                  Excelent Services
-                </h6>
-                <p className="mt-2 mb-4 text-blueGray-400">
-                  Some quick example text to build on the card title and make up
-                  the bulk of the card's content.
-                </p>
-              </div>
-              <div className="w-full lg:w-3/12 px-4 text-center">
-                <div className="text-blueGray-800 p-3 w-12 h-12 shadow-lg rounded-full bg-white inline-flex items-center justify-center">
-                  <i className="fas fa-poll text-xl"></i>
-                </div>
-                <h5 className="text-xl mt-5 font-semibold text-white">
-                  Grow your market
-                </h5>
-                <p className="mt-2 mb-4 text-blueGray-400">
-                  Some quick example text to build on the card title and make up
-                  the bulk of the card's content.
-                </p>
-              </div>
-              <div className="w-full lg:w-3/12 px-4 text-center">
-                <div className="text-blueGray-800 p-3 w-12 h-12 shadow-lg rounded-full bg-white inline-flex items-center justify-center">
-                  <i className="fas fa-lightbulb text-xl"></i>
-                </div>
-                <h5 className="text-xl mt-5 font-semibold text-white">
-                  Launch time
-                </h5>
-                <p className="mt-2 mb-4 text-blueGray-400">
-                  Some quick example text to build on the card title and make up
-                  the bulk of the card's content.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-        <section className="relative block py-24 lg:pt-0 bg-blueGray-800">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center lg:-mt-64 -mt-48">
-              <div className="w-full lg:w-6/12 px-4">
-                <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded-lg bg-blueGray-200">
-                  <div className="flex-auto p-5 lg:p-10">
-                    <h4 className="text-2xl font-semibold">
-                      Want to work with us?
-                    </h4>
-                    <p className="leading-relaxed mt-1 mb-4 text-blueGray-500">
-                      Complete this form and we will get back to you in 24
-                      hours.
-                    </p>
-                    <div className="relative w-full mb-3 mt-8">
-                      <label
-                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                        htmlFor="full-name"
-                      >
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                        placeholder="Full Name"
-                      />
-                    </div>
-
-                    <div className="relative w-full mb-3">
-                      <label
-                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                        htmlFor="email"
-                      >
-                        Email
-                      </label>
-                      <input
-                        type="email"
-                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full ease-linear transition-all duration-150"
-                        placeholder="Email"
-                      />
-                    </div>
-
-                    <div className="relative w-full mb-3">
-                      <label
-                        className="block uppercase text-blueGray-600 text-xs font-bold mb-2"
-                        htmlFor="message"
-                      >
-                        Message
-                      </label>
-                      <textarea
-                        rows="4"
-                        cols="80"
-                        className="border-0 px-3 py-3 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-sm shadow focus:outline-none focus:ring w-full"
-                        placeholder="Type a message..."
-                      />
-                    </div>
-                    <div className="text-center mt-6">
-                      <button
-                        className="bg-blueGray-800 text-white active:bg-blueGray-600 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-                        type="button"
-                      >
-                        Send Message
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+      <footer style={styles.footer}>
+        <div style={styles.logo}>
+          GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+        </div>
+        <div>© 2026 GymAccess — Tous droits réservés</div>
+      </footer>
+    </div>
   );
 }
