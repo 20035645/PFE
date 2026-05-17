@@ -8,5 +8,6 @@ router.get('/getSeancesByProgramme/:programmeId', seanceController.getSeancesByP
 router.post('/addSeance', seanceController.addSeance);
 router.post('/inscrireMembre/:seanceId', seanceController.inscrireMembre);
 router.delete('/deleteSeance/:seanceId', seanceController.deleteSeance);
+router.get('/getSeancesByMembre/:membreId', seanceController.getSeancesByMembre);
 
 module.exports = router;

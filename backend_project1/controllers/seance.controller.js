@@ -102,3 +102,17 @@ module.exports.inscrireMembre = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+module.exports.getSeancesByMembre = async (req, res) => {
+    try {
+        const { membreId } = req.params;
+        const seances = await Seance.find({ membres: membreId })
+            .populate('coach', 'name')
+            .populate('programme', 'nom')
+            .sort({ date: -1 })
+            .limit(10);
+        res.status(200).json(seances);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};

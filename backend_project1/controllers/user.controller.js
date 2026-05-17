@@ -89,52 +89,35 @@ module.exports.login = async (req, res) => {
     }
 };
 
+// Dans user.controller.js — remplace la fonction register par celle-ci :
+
 module.exports.register = async (req, res) => {
-
     try {
-
         const {
-            name,
-            email,
-            password,
-            role,
-            numTelephone,
-            age,
-            objectif,
-            specialite,
-            experience,
-            tarif
+            name, email, password, role,
+            numTelephone, age, poids, taille,  // ← poids et taille ajoutés
+            objectif, specialite, experience, tarif
         } = req.body;
 
         const existingUser = await userModel.findOne({ email });
-
         if (existingUser) {
-            return res.status(400).json({
-                error: 'Email already in use'
-            });
+            return res.status(400).json({ error: 'Email already in use' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new userModel({
-            name,
-            email,
+            name, email,
             password: hashedPassword,
-            role,
-            numTelephone,
-            age,
-            objectif,
-            specialite,
-            experience,
-            tarif
+            role, numTelephone,
+            age, poids, taille,   // ← poids et taille ajoutés
+            objectif, specialite, experience, tarif
         });
 
         await newUser.save();
 
         const token = createToken(newUser._id);
-
         const userObj = newUser.toObject();
-
         delete userObj.password;
 
         res.status(201).json({
@@ -144,12 +127,8 @@ module.exports.register = async (req, res) => {
         });
 
     } catch (error) {
-
         console.error("REGISTER ERROR:", error);
-
-        res.status(500).json({
-            error: error.message
-        });
+        res.status(500).json({ error: error.message });
     }
 };
 

@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
     statut: { type: String, enum: ['actif', 'inactif', 'suspendu'], default: 'actif' },
     numTelephone: { type: String },
     age: { type: Number },
+    poids: { type: Number },   // ← nouveau
+    taille: { type: Number },  // ← nouveau
     objectif: { type: String },
     coachAssigned: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 
@@ -28,11 +30,13 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true });
 
-/* /*userSchema.pre('save', async function () {
+/* pre('save') commenté pour éviter le double hashing
+userSchema.pre('save', async function () {
     if (!this.isModified('password')) return;
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
-});*/
+});
+*/
 
 userSchema.statics.Login = async function (email, password) {
     const user = await this.findOne({ email });

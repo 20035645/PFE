@@ -7,5 +7,6 @@ router.get('/getProgressionById/:progressionId', progressionController.getProgre
 router.post('/addProgression', progressionController.addProgression);
 router.delete('/deleteProgression/:progressionId', progressionController.deleteProgression);
 router.put('/updateProgression/:progressionId', progressionController.updateProgression);
+router.get('/getProgressionsByMembre/:membreId', progressionController.getProgressionsByMembre);
 
 module.exports = router;
