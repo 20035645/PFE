@@ -520,10 +520,7 @@ export default function SubscriptionsPage() {
             Sans engagement, résultats garantis.
           </p>
           
-          <div style={styles.heroButtons}>
-            <Link to="#pricing" style={styles.btnPrimary}>Voir les tarifs</Link>
-            <Link to="#faq" style={styles.btnSecondary}>Questions fréquentes</Link>
-          </div>
+
         </div>
       </section>
 

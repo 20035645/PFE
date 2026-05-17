@@ -536,6 +536,9 @@ export default function GymAccessLandingSimple() {
           <Link to="/newpage" style={styles.navLink}>
             Abonnements
           </Link>
+          <Link to="/auth/login" style={{ ...styles.navBtn, background: "transparent", border: "1px solid rgba(214,40,40,0.6)", boxShadow: "none" }}>
+            Se connecter
+          </Link>
           <Link to="/auth/register" style={styles.navBtn}>
             Nous rejoindre
           </Link>
@@ -735,43 +738,7 @@ export default function GymAccessLandingSimple() {
         </div>
       </section>
 
-      <section id="abonnements" style={styles.section}>
-        <div style={styles.sectionTag}>Catalogue abonnements</div>
-        <h2 style={styles.title}>
-          DES ABONNEMENTS ADAPTÉS À LA SALLE, AU COACHING ET AU BAR ALIMENTAIRE
-        </h2>
 
-        <div style={styles.cards3}>
-          {memberships.map((plan) => (
-            <div
-              key={plan.name}
-              style={{
-                ...styles.planCard,
-                ...(plan.featured ? styles.featuredPlan : {}),
-              }}
-            >
-              <div style={styles.badge}>{plan.badge}</div>
-              <h3 style={styles.cardTitle}>{plan.name}</h3>
-              <div style={styles.planPrice}>
-                <span style={{ color: "#D62828" }}>{plan.price}</span>
-                <span style={{ color: "#A0A0A0", fontSize: "1rem", fontFamily: "Barlow, sans-serif" }}>
-                  {plan.unit}
-                </span>
-              </div>
-
-              <ul style={styles.list}>
-                {plan.features.map((feature) => (
-                  <li key={feature}>▸ {feature}</li>
-                ))}
-              </ul>
-
-              <button style={plan.featured ? styles.btnPrimary : styles.btnSecondary}>
-                Choisir cette formule
-              </button>
-            </div>
-          ))}
-        </div>
-      </section>
 
       <section id="contact" style={styles.section}>
         <div style={styles.sectionTag}>Contact</div>

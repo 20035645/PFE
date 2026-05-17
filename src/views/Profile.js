@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
+
 
 // ─── EXACT SAME STYLES FROM INDEX.JS ───────────────────────────────────────
 const sharedStyles = {
@@ -308,36 +310,260 @@ const profileCSS = `
     transition: opacity .25s, background .25s;
   }
   .pc:hover { opacity: 0.65; background: rgba(214,40,40,0.1); }
+
+  /* ── NUTRITION SECTION ── */
+  .nutri-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 16px;
+  }
+  .nutri-card {
+    background: #0A0A0A; border: 1px solid rgba(214,40,40,0.12);
+    padding: 14px 16px; position: relative; overflow: hidden;
+  }
+  .nutri-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #D62828, transparent);
+  }
+  .nutri-label {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: #4A4A4A; display: block; margin-bottom: 4px;
+  }
+  .nutri-value {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.9rem;
+    color: #F5F5F5; line-height: 1;
+  }
+  .nutri-unit { font-size: 0.75rem; color: #666; margin-left: 4px; }
+
+  .nutri-macros {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px;
+  }
+  .macro-item {
+    background: #0A0A0A; border: 1px solid rgba(255,255,255,0.04);
+    padding: 10px 12px; text-align: center;
+  }
+  .macro-name {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; color: #4A4A4A; display: block;
+  }
+  .macro-val {
+    font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem;
+    display: block; margin-top: 2px;
+  }
+  .macro-val.prot { color: #ef4444; }
+  .macro-val.carb { color: #f59e0b; }
+  .macro-val.fat  { color: #3b82f6; }
+  .macro-sub { font-size: 0.65rem; color: #444; }
+
+  .nutri-bmi {
+    margin-top: 14px; padding: 12px 16px;
+    background: #0A0A0A; border: 1px solid rgba(214,40,40,0.12);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .bmi-left {}
+  .bmi-label { font-size: 0.62rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #4A4A4A; }
+  .bmi-val { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: #F5F5F5; }
+  .bmi-status {
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; padding: 3px 10px; border-radius: 2px;
+  }
+  .bmi-normal { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+  .bmi-over   { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+  .bmi-under  { background: rgba(59,130,246,0.1); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
+
+  /* ── LOGOUT BUTTON ── */
+  .logout-zone {
+    margin-top: 32px; padding: 24px 0;
+    border-top: 1px solid rgba(214,40,40,0.12);
+    display: flex; justify-content: center;
+  }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid rgba(214,40,40,0.4);
+    color: #D62828;
+    font-family: Barlow, sans-serif;
+    font-weight: 700; font-size: 0.75rem;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    padding: 13px 32px; cursor: pointer;
+    border-radius: 2px; transition: all .25s;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .btn-logout:hover {
+    background: rgba(214,40,40,0.08);
+    border-color: #D62828;
+    box-shadow: 0 0 20px rgba(214,40,40,0.2);
+  }
 `;
 
 const activities = [
-  { icon: "🏋️", title: "Séance Musculation — Pectoraux", time: "Aujourd'hui, 08:30", tag: "Terminé"  },
-  { icon: "🔥", title: "HIIT Cardio — 45 min",           time: "Hier, 18:00",        tag: "Terminé"  },
-  { icon: "🥗", title: "Plan Nutrition mis à jour",       time: "Il y a 2 jours",     tag: "Nutrition"},
-  { icon: "📊", title: "Bilan mensuel complété",          time: "Il y a 4 jours",     tag: "Bilan"    },
+  { icon: "🏋️", title: "Séance Musculation — Pectoraux", time: "Aujourd'hui, 08:30", tag: "Terminé" },
+  { icon: "🔥", title: "HIIT Cardio — 45 min", time: "Hier, 18:00", tag: "Terminé" },
+  { icon: "🥗", title: "Plan Nutrition mis à jour", time: "Il y a 2 jours", tag: "Nutrition" },
+  { icon: "📊", title: "Bilan mensuel complété", time: "Il y a 4 jours", tag: "Bilan" },
 ];
 
 const progresses = [
   { name: "Endurance", pct: 78 },
-  { name: "Force",     pct: 65 },
+  { name: "Force", pct: 65 },
   { name: "Souplesse", pct: 45 },
   { name: "Nutrition", pct: 88 },
 ];
 
 const infoItems = [
-  { icon: "📅", label: "Membre depuis",  value: "Janvier 2023"   },
-  { icon: "🎯", label: "Objectif",       value: "Prise de masse" },
+  { icon: "📅", label: "Membre depuis", value: "Janvier 2023" },
+  { icon: "🎯", label: "Objectif", value: "Prise de masse" },
   { icon: "👨‍🏫", label: "Coach assigné", value: "Mehdi Trabelsi" },
-  { icon: "📍", label: "Localisation",   value: "Tunis, Tunisie" },
+  { icon: "📍", label: "Localisation", value: "Tunis, Tunisie" },
 ];
 
+// ── Nutrition calculator helpers ──────────────────────────────────────────────
+function calcBMR(poids, taille, age, genre = "homme") {
+  // Mifflin-St Jeor
+  if (genre === "homme") return Math.round(10 * poids + 6.25 * taille - 5 * age + 5);
+  return Math.round(10 * poids + 6.25 * taille - 5 * age - 161);
+}
+
+function calcTDEE(bmr, activite = "modere") {
+  const factors = { sedentaire: 1.2, leger: 1.375, modere: 1.55, intense: 1.725, tres_intense: 1.9 };
+  return Math.round(bmr * (factors[activite] || 1.55));
+}
+
+function calcBMI(poids, taille) {
+  const h = taille / 100;
+  return (poids / (h * h)).toFixed(1);
+}
+
+function getBMIStatus(bmi) {
+  if (bmi < 18.5) return { label: "Insuffisance", cls: "bmi-under" };
+  if (bmi < 25)   return { label: "Normal", cls: "bmi-normal" };
+  if (bmi < 30)   return { label: "Surpoids", cls: "bmi-over" };
+  return { label: "Obésité", cls: "bmi-over" };
+}
+
+// Macros répartition selon objectif
+function calcMacros(calories, objectif = "prise de masse") {
+  let prot, carb, fat;
+  if (objectif.toLowerCase().includes("masse")) {
+    prot = Math.round((calories * 0.30) / 4);
+    carb = Math.round((calories * 0.45) / 4);
+    fat  = Math.round((calories * 0.25) / 9);
+  } else if (objectif.toLowerCase().includes("perte") || objectif.toLowerCase().includes("séch")) {
+    prot = Math.round((calories * 0.40) / 4);
+    carb = Math.round((calories * 0.30) / 4);
+    fat  = Math.round((calories * 0.30) / 9);
+  } else {
+    prot = Math.round((calories * 0.30) / 4);
+    carb = Math.round((calories * 0.40) / 4);
+    fat  = Math.round((calories * 0.30) / 9);
+  }
+  return { prot, carb, fat };
+}
+
+// ── Nutrition Section Component ───────────────────────────────────────────────
+function NutritionSection({ user }) {
+  // Valeurs par défaut si non renseignées dans le profil
+  const poids  = user?.poids  || 75;
+  const taille = user?.taille || 175;
+  const age    = user?.age    || 25;
+  const genre  = user?.genre  || "homme";
+  const objectif = user?.objectif || "Prise de masse";
+
+  const bmr     = calcBMR(poids, taille, age, genre);
+  const tdee    = calcTDEE(bmr);
+  // Ajustement selon objectif
+  const calCible = objectif.toLowerCase().includes("masse")
+    ? tdee + 300
+    : objectif.toLowerCase().includes("perte") || objectif.toLowerCase().includes("séch")
+      ? tdee - 400
+      : tdee;
+
+  const macros = calcMacros(calCible, objectif);
+  const bmi    = calcBMI(poids, taille);
+  const bmiStatus = getBMIStatus(parseFloat(bmi));
+
+  return (
+    <div className="sc">
+      <div className="sc-header">
+        <span className="sc-title"><span className="sc-bar" />Nutrition & Bilan Corporel</span>
+      </div>
+      <div className="sc-body">
+
+        {/* Poids / Taille / Âge */}
+        <div className="nutri-grid">
+          <div className="nutri-card">
+            <span className="nutri-label">Poids</span>
+            <span className="nutri-value">{poids}<span className="nutri-unit">kg</span></span>
+          </div>
+          <div className="nutri-card">
+            <span className="nutri-label">Taille</span>
+            <span className="nutri-value">{taille}<span className="nutri-unit">cm</span></span>
+          </div>
+          <div className="nutri-card">
+            <span className="nutri-label">Âge</span>
+            <span className="nutri-value">{age}<span className="nutri-unit">ans</span></span>
+          </div>
+          <div className="nutri-card">
+            <span className="nutri-label">Calories cibles / jour</span>
+            <span className="nutri-value" style={{ color: "#D62828" }}>{calCible}<span className="nutri-unit">kcal</span></span>
+          </div>
+        </div>
+
+        {/* Macros */}
+        <div style={{ marginTop: "6px" }}>
+          <span style={{ fontSize: "0.65rem", fontWeight: 700, letterSpacing: "2px", textTransform: "uppercase", color: "#444" }}>
+            Répartition des macronutriments
+          </span>
+        </div>
+        <div className="nutri-macros">
+          <div className="macro-item">
+            <span className="macro-name">Protéines</span>
+            <span className="macro-val prot">{macros.prot}g</span>
+            <span className="macro-sub">30%</span>
+          </div>
+          <div className="macro-item">
+            <span className="macro-name">Glucides</span>
+            <span className="macro-val carb">{macros.carb}g</span>
+            <span className="macro-sub">45%</span>
+          </div>
+          <div className="macro-item">
+            <span className="macro-name">Lipides</span>
+            <span className="macro-val fat">{macros.fat}g</span>
+            <span className="macro-sub">25%</span>
+          </div>
+        </div>
+
+        {/* BMI */}
+        <div className="nutri-bmi">
+          <div className="bmi-left">
+            <div className="bmi-label">Indice de Masse Corporelle (IMC)</div>
+            <div className="bmi-val">{bmi}</div>
+          </div>
+          <span className={`bmi-status ${bmiStatus.cls}`}>{bmiStatus.label}</span>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
 export default function Profile() {
-  const [showFull,   setShowFull]   = useState(false);
-  const [connected,  setConnected]  = useState(false);
+
+  const [showFull, setShowFull] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) setUser(storedUser);
+  }, []);
+
+  const history = useHistory();
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    history.push("/");
+  };
 
   return (
     <div style={sharedStyles.page}>
-      {/* Fonts — same import as index.js */}
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       <link
@@ -346,9 +572,7 @@ export default function Profile() {
       />
       <style>{profileCSS}</style>
 
-      {/* ══════════════════════════════════════════
-          NAVBAR — copie exacte de index.js
-      ══════════════════════════════════════════ */}
+      {/* NAVBAR */}
       <nav style={sharedStyles.nav}>
         <div>
           <p style={sharedStyles.logo}>
@@ -356,18 +580,16 @@ export default function Profile() {
           </p>
         </div>
         <div style={sharedStyles.navLinks}>
-          <a href="#salle"       style={sharedStyles.navLink}>Salle</a>
-          <a href="#services"    style={sharedStyles.navLink}>Services</a>
-          <a href="#coachs"      style={sharedStyles.navLink}>Coachs</a>
-          <a href="#nutrition"   style={sharedStyles.navLink}>Nutrition</a>
-          <a href="#abonnements" style={sharedStyles.navLink}>Abonnements</a>
-          <a href="#contact"     style={sharedStyles.navBtn}>Nous rejoindre</a>
+          <a href="/#salle" style={sharedStyles.navLink}>Salle</a>
+          <a href="/#services" style={sharedStyles.navLink}>Services</a>
+          <a href="/#coachs" style={sharedStyles.navLink}>Coachs</a>
+          <a href="/#nutrition" style={sharedStyles.navLink}>Nutrition</a>
+          <a href="/#abonnements" style={sharedStyles.navLink}>Abonnements</a>
+          <a href="/#contact" style={sharedStyles.navBtn}>Nous rejoindre</a>
         </div>
       </nav>
 
-      {/* ══════════════════════════════════════════
-          HERO BANNER
-      ══════════════════════════════════════════ */}
+      {/* HERO BANNER */}
       <section className="profile-hero">
         <img
           className="profile-hero-img"
@@ -383,21 +605,17 @@ export default function Profile() {
         </svg>
       </section>
 
-      {/* ══════════════════════════════════════════
-          PROFILE BODY
-      ══════════════════════════════════════════ */}
+      {/* PROFILE BODY */}
       <div className="profile-body">
         <div className="profile-container">
 
           {/* PROFILE CARD */}
           <div className="profile-card">
 
-            {/* TOP : stats | avatar | connect */}
+            {/* TOP */}
             <div className="profile-top">
-
-              {/* Stats — left */}
               <div className="profile-stats">
-                {[["22","Amis"],["10","Photos"],["89","Commentaires"]].map(([n,l]) => (
+                {[["22", "Amis"], ["10", "Photos"], ["89", "Commentaires"]].map(([n, l]) => (
                   <div className="stat-item" key={l}>
                     <span className="stat-num">{n}</span>
                     <span className="stat-lbl">{l}</span>
@@ -405,13 +623,12 @@ export default function Profile() {
                 ))}
               </div>
 
-              {/* Avatar — center */}
               <div className="av-center">
                 <div className="av-wrap">
                   <div className="av-frame">
                     <img
                       src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&auto=format&fit=crop&q=80"
-                      alt="Jenna Stones"
+                      alt={user?.name}
                     />
                   </div>
                   <span className="av-badge">Premium</span>
@@ -422,38 +639,25 @@ export default function Profile() {
                 </div>
               </div>
 
-              {/* Connect — right */}
-              <div className="pconn">
-                <button className="btn-msg">Message</button>
-                <button
-                  style={{
-                    ...sharedStyles.btnPrimary,
-                    ...(connected
-                      ? { background: "#2a2a2a", color: "#666", boxShadow: "none" }
-                      : {}),
-                  }}
-                  onClick={() => setConnected(c => !c)}
-                >
-                  {connected ? "✓ Connecté" : "Connect"}
-                </button>
-              </div>
+
             </div>
 
             {/* IDENTITY */}
             <div className="profile-identity">
-              <h1 className="profile-name">Jenna Stones</h1>
+              <h1 className="profile-name">{user?.name || "Membre GymAccess"}</h1>
+              <p style={{ color: "#777", marginTop: "10px" }}>{user?.email}</p>
               <div className="profile-loc">
                 <span className="pin">▸</span>
-                Los Angeles, Californie
+                Tunis, Tunisie
               </div>
               <div className="profile-meta">
                 <div className="meta-item">
-                  <span className="meta-icon">💼</span>
-                  Solution Manager — Creative Tim Officer
+                  <span className="meta-icon">🎯</span>
+                  {user?.objectif || "Prise de masse"}
                 </div>
                 <div className="meta-item">
-                  <span className="meta-icon">🏛️</span>
-                  University of Computer Science
+                  <span className="meta-icon">📞</span>
+                  {user?.numTelephone || "—"}
                 </div>
               </div>
             </div>
@@ -462,8 +666,8 @@ export default function Profile() {
             <div className="profile-bio">
               <p>
                 {showFull
-                  ? "Artiste aux multiples facettes, Jenna compose, interprète et enregistre sa propre musique, lui conférant une chaleur intime portée par une structure rythmique solide. Une présence artistique d'une envergure considérable, toujours en quête de dépassement et d'authenticité dans chaque projet."
-                  : "Artiste aux multiples facettes, Jenna compose, interprète et enregistre sa propre musique, lui conférant une chaleur intime portée par une structure rythmique solide. Une artiste d'une envergure considérable."}
+                  ? "Passionné de fitness et de performance, ce membre s'entraîne avec discipline pour atteindre ses objectifs. Chaque séance est une opportunité de se surpasser et de progresser vers la meilleure version de soi-même."
+                  : "Passionné de fitness et de performance, ce membre s'entraîne avec discipline pour atteindre ses objectifs."}
               </p>
               <button className="show-more" onClick={() => setShowFull(v => !v)}>
                 {showFull ? "Voir moins ←" : "Voir plus →"}
@@ -476,9 +680,10 @@ export default function Profile() {
 
             {/* LEFT */}
             <div>
+              {/* Activité Récente */}
               <div className="sc">
                 <div className="sc-header">
-                  <span className="sc-title"><span className="sc-bar"/>Activité Récente</span>
+                  <span className="sc-title"><span className="sc-bar" />Activité Récente</span>
                   <button className="sc-link">Tout voir →</button>
                 </div>
                 <div className="sc-body">
@@ -497,9 +702,13 @@ export default function Profile() {
                 </div>
               </div>
 
+              {/* ── NUTRITION (nouvelle section) ── */}
+              <NutritionSection user={user} />
+
+              {/* Progression */}
               <div className="sc">
                 <div className="sc-header">
-                  <span className="sc-title"><span className="sc-bar"/>Progression</span>
+                  <span className="sc-title"><span className="sc-bar" />Progression</span>
                   <button className="sc-link">Détails →</button>
                 </div>
                 <div className="sc-body">
@@ -522,11 +731,11 @@ export default function Profile() {
             <div>
               <div className="sc">
                 <div className="sc-header">
-                  <span className="sc-title"><span className="sc-bar"/>Informations</span>
+                  <span className="sc-title"><span className="sc-bar" />Informations</span>
                 </div>
                 <div className="sc-body">
                   <div className="abo-tag">
-                    <span className="abo-dot"/>
+                    <span className="abo-dot" />
                     <span>Abonnement Performance</span>
                   </div>
                   {infoItems.map((item, i) => (
@@ -543,12 +752,12 @@ export default function Profile() {
 
               <div className="sc">
                 <div className="sc-header">
-                  <span className="sc-title"><span className="sc-bar"/>Photos</span>
+                  <span className="sc-title"><span className="sc-bar" />Photos</span>
                   <button className="sc-link">10 photos →</button>
                 </div>
                 <div className="sc-body" style={{ padding: "14px" }}>
                   <div className="pgrid">
-                    {["🏋️","💪","🔥","🥗","🏃","🎯","⚡","📊","🏆"].map((e, i) => (
+                    {["🏋️", "💪", "🔥", "🥗", "🏃", "🎯", "⚡", "📊", "🏆"].map((e, i) => (
                       <div className="pc" key={i}>{e}</div>
                     ))}
                   </div>
@@ -556,12 +765,19 @@ export default function Profile() {
               </div>
             </div>
           </div>
+
+          {/* ── BOUTON SE DÉCONNECTER ── */}
+          <div className="logout-zone">
+            <button className="btn-logout" onClick={handleLogout}>
+              <span>→</span>
+              Se déconnecter
+            </button>
+          </div>
+
         </div>
       </div>
 
-      {/* ══════════════════════════════════════════
-          FOOTER — copie exacte de index.js
-      ══════════════════════════════════════════ */}
+      {/* FOOTER */}
       <footer style={sharedStyles.footer}>
         <div style={sharedStyles.logo}>
           GYM<span style={{ color: "#D62828" }}>ACCESS</span>

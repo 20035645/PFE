@@ -12,17 +12,28 @@ export default function Login() {
 
   const history = useHistory(); // ← ajout
 
-  const handleSubmit = async (e) => { // ← async ajouté
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      const res = await loginUser({ email, password }); // ← appel API
-      localStorage.setItem("token", res.data.token);    // ← sauvegarde token
-      history.push("/admin/dashboard");                  // ← redirect
+      const res = await loginUser({ email, password });
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      const role = res.data.user.role;
+
+      // Redirige selon le rôle
+      if (role === "admin") {
+        history.push("/admin/dashboard");
+      } else {
+        history.push("/profile"); // ← membre → profil
+      }
+
     } catch (err) {
-      setError(err.response?.data?.message || "Email ou mot de passe incorrect");
+      setError(err.response?.data?.error || err.response?.data?.message || "Erreur de connexion");
     } finally {
       setLoading(false);
     }

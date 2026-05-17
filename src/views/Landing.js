@@ -264,7 +264,7 @@ export default function NutritionPage() {
           <h1 className="hero-title">MANGE MIEUX.<br /><em>PERFORME PLUS.</em></h1>
           <p className="hero-sub">Calcule tes besoins exacts en calories, découvre ton plan repas personnalisé et suis les conseils de nos experts nutritionnistes certifiés.</p>
           <div style={{ color: "red", marginTop: "20px" }}>
-            {backendMessage}
+            
           </div>
           <div className="hero-btns">
             <button className="btn-red" onClick={() => scroll("calc")}>Calculer mes calories →</button>
