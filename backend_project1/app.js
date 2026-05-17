@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -12,13 +14,13 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users.routes');
 var memberRouter = require('./routes/member.routes');
 var paymentRouter = require('./routes/payment.routes');
-var gymClassRouter = require('./routes/gymclass.routes');
+var programmeRouter = require('./routes/programme.routes');
 var coachRouter = require('./routes/coach.routes');
 var abonnementRouter = require('./routes/abonnement.routes');
-var fitnessprofileRouter = require('./routes/fitnessprofile.routes');
-var accesslogRouter = require('./routes/accesslog.routes');
+var progressionRouter = require('./routes/progression.routes');
+var seanceRouter = require('./routes/seance.routes');
 
-require('dotenv').config();
+
 
 var app = express();
 
@@ -43,13 +45,21 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/members', memberRouter);
 app.use('/payments', paymentRouter);
-app.use('/gymclasses', gymClassRouter);
+app.use('/programme', programmeRouter);
 app.use('/coaches', coachRouter);
 app.use('/abonnements', abonnementRouter);
-app.use('/fitnessprofiles', fitnessprofileRouter);
-app.use('/accesslogs', accesslogRouter);
+app.use('/progressions', progressionRouter);
+app.use('/seances', seanceRouter);
+
+
 
 // catch 404 and forward to error handler
+app.get("/api/test", (req, res) => {
+  res.json({
+    message: "Backend connecté"
+  });
+});
+
 app.use(function(req, res, next) {
   next(createError(404));
 });
@@ -70,3 +80,7 @@ server.listen(process.env.PORT, () => {
     connectToMongoDB();
     console.log(`Server is running on port ${process.env.PORT}`);
 });
+
+
+
+
