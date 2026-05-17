@@ -29,3 +29,13 @@ export async function addUser(userData) {
 export async function updateUser(id, userData) {
   return await axios.put(`${API_URL}/updateUser/${id}`, userData);
 }
+
+// ── Séances ──
+export async function getSeancesByMembre(membreId) {
+  return await axios.get(`http://localhost:5000/seances/getSeancesByMembre/${membreId}`);
+}
+
+// ── Progressions ──
+export async function getProgressionsByMembre(membreId) {
+  return await axios.get(`http://localhost:5000/progressions/getProgressionsByMembre/${membreId}`);
+}

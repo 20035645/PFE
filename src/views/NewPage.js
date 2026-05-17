@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 
 const pricingPlans = [
   {
-    name: "Essential",
-    price: "29€",
+    name: "STANDARD",
+    price: "39DT",
     unit: "/mois",
-    oldPrice: "39€",
+    oldPrice: "59DT",
     badge: "Entrée de gamme",
     featured: false,
     features: [
@@ -18,10 +18,10 @@ const pricingPlans = [
     popular: false,
   },
   {
-    name: "Performance",
-    price: "49€",
+    name: "PREMIUM",
+    price: "69DT",
     unit: "/mois",
-    oldPrice: "59€",
+    oldPrice: "89DT",
     badge: "Le plus complet",
     featured: true,
     features: [
@@ -34,10 +34,10 @@ const pricingPlans = [
     popular: true,
   },
   {
-    name: "Elite",
-    price: "79€",
+    name: "COACHING",
+    price: "99DT",
     unit: "/mois",
-    oldPrice: "99€",
+    oldPrice: "119DT",
     badge: "Suivi premium",
     featured: false,
     features: [
@@ -95,17 +95,17 @@ const faqItems = [
 
 const testimonials = [
   {
-    name: "Sarah M.",
+    name: "Amine M.",
     plan: "Performance",
     quote: "J'ai perdu 8kg en 2 mois avec le coaching et les plans nutrition. Résultats concrets !",
   },
   {
-    name: "Karim B.",
+    name: "Nour H.",
     plan: "Elite",
     quote: "Le suivi hebdo change tout. Mes performances explosent depuis 3 mois.",
   },
   {
-    name: "Léa D.",
+    name: "Abderrahmen B.",
     plan: "Essential",
     quote: "Parfait pour débuter. Salle impeccable, horaires flexibles, tout ce qu'il faut.",
   },
@@ -636,9 +636,9 @@ export default function SubscriptionsPage() {
             </h3>
             <div style={{ display: "grid", gap: "16px" }}>
               {[
-                ["📍 Adresse", "123 Avenue des Champs-Élysées, Paris 75008"],
-                ["📞 Téléphone", "+33 1 23 45 67 89"],
-                ["⏰ Essai gratuit", "Disponible 7j/7"],
+                ["📍 Adresse", "Tunis City Center, 1er étage, Tunis"],
+                ["📞 Téléphone", "+216 73 555 555"],
+                ["⏰ Essai gratuit", "Ouvert 24h/24, 7j/7"],
               ].map(([icon, text]) => (
                 <div key={text} style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <span style={{ fontSize: "1.4rem" }}>{icon.split(" ")[0]}</span>

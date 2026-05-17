@@ -117,10 +117,161 @@ body{background:var(--black);color:#F5F5F5;font-family:'Barlow',sans-serif;}
 .baritem-desc{font-size:.78rem;color:#777;line-height:1.6;}
 .baritem-price{font-family:'Bebas Neue';font-size:1.5rem;color:var(--red);letter-spacing:2px;margin-top:10px;}
 
-.cta-band{background:rgba(214,40,40,.07);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:60px 5%;text-align:center;}
-.cta-title{font-family:'Bebas Neue';font-size:clamp(2.5rem,5vw,4.5rem);letter-spacing:3px;margin-bottom:14px;}
-.cta-sub{color:#A0A0A0;font-size:1rem;line-height:1.8;max-width:500px;margin:0 auto 28px;}
-.cta-btns{display:flex;gap:14px;justify-content:center;}
+.transform-sec{
+    position:relative;
+    padding:100px 5%;
+    background:#0A0A0A;
+    overflow:hidden;
+    border-top:1px solid rgba(214,40,40,.15);
+    border-bottom:1px solid rgba(214,40,40,.15);
+}
+
+.transform-overlay{
+    position:absolute;
+    inset:0;
+    background:
+    radial-gradient(circle at center,
+    rgba(214,40,40,.12),
+    transparent 70%);
+}
+
+.transform-content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+}
+
+.transform-title{
+    font-family:'Bebas Neue';
+    font-size:clamp(3rem,7vw,6rem);
+    line-height:.9;
+    letter-spacing:3px;
+    margin-bottom:20px;
+}
+
+.transform-title span{
+    color:#D62828;
+}
+
+.transform-sub{
+    max-width:650px;
+    margin:0 auto 50px;
+    color:#888;
+    line-height:1.8;
+    font-size:1rem;
+}
+
+.transform-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:40px;
+}
+
+.t-box{
+    background:#111;
+    border:1px solid rgba(214,40,40,.15);
+    padding:35px 20px;
+    transition:.3s;
+}
+
+.t-box:hover{
+    transform:translateY(-4px);
+    border-color:rgba(214,40,40,.4);
+}
+
+.t-num{
+    font-family:'Bebas Neue';
+    font-size:3rem;
+    color:#D62828;
+    letter-spacing:3px;
+    line-height:1;
+}
+
+.t-lbl{
+    margin-top:8px;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:#666;
+}
+
+.mindset-sec{
+    position:relative;
+
+    padding:120px 5%;
+
+    background:
+    radial-gradient(circle at center,
+    rgba(214,40,40,.08),
+    transparent 70%);
+
+    border-top:1px solid rgba(214,40,40,.12);
+    border-bottom:1px solid rgba(214,40,40,.12);
+
+    overflow:hidden;
+}
+
+.mindset-content{
+    max-width:850px;
+    margin:auto;
+    text-align:center;
+}
+
+.mindset-top{
+    color:#2F374B;
+
+    font-size:.75rem;
+
+    letter-spacing:4px;
+
+    text-transform:uppercase;
+
+    margin-bottom:20px;
+}
+
+.mindset-title{
+    font-family:'Bebas Neue';
+    font-size:clamp(4rem,9vw,7rem);
+    line-height:.9;
+    letter-spacing:4px;
+    margin-bottom:30px;
+
+    color:#D62828;
+    text-shadow:0 0 30px rgba(0,0,0,.35);
+}
+
+
+.mindset-text{
+    color:#9A9A9A;
+
+    font-size:1.05rem;
+
+    line-height:2;
+
+    max-width:700px;
+
+    margin:auto;
+}
+
+.mindset-line{
+    width:120px;
+    height:2px;
+
+    background:#D62828;
+
+    margin:40px auto;
+}
+
+.mindset-bottom{
+    color:#666;
+
+    text-transform:uppercase;
+
+    letter-spacing:3px;
+
+    font-size:.78rem;
+}
 
 .footer{border-top:1px solid var(--border);padding:24px 5%;background:#080808;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
 .footer-logo{font-family:'Bebas Neue';font-size:1.5rem;letter-spacing:3px;}
@@ -246,8 +397,6 @@ export default function NutritionPage() {
 
           <a href="#repas">Repas</a>
 
-          <a href="#coachs">Coachs</a>
-
           <a href="#conseils">Conseils</a>
 
           <a href="#bar">Bar</a>
@@ -264,11 +413,10 @@ export default function NutritionPage() {
           <h1 className="hero-title">MANGE MIEUX.<br /><em>PERFORME PLUS.</em></h1>
           <p className="hero-sub">Calcule tes besoins exacts en calories, découvre ton plan repas personnalisé et suis les conseils de nos experts nutritionnistes certifiés.</p>
           <div style={{ color: "red", marginTop: "20px" }}>
-            
+
           </div>
           <div className="hero-btns">
             <button className="btn-red" onClick={() => scroll("calc")}>Calculer mes calories →</button>
-            <button className="btn-ghost" onClick={() => scroll("coachs")}>Voir les coachs</button>
           </div>
           <div className="hero-stats">
             <div><div className="hstat-val">850+</div><div className="hstat-lbl">Plans créés</div></div>
@@ -350,7 +498,7 @@ export default function NutritionPage() {
       {/* PLANS */}
       <section id="plans" className="sec sec-dark">
         <div className="sec-label">Programmes</div>
-        <h2 className="sec-title">PLANS NUTRITIONNELS<br />PERSONNALISÉS</h2>
+        <h2 className="sec-title">PLANS NUTRITIONNELS<br /></h2>
         <p className="sec-sub">Trois approches adaptées à ton objectif, rédigées par nos coachs nutrition certifiés.</p>
         <div className="plans-grid">
           {[
@@ -364,7 +512,7 @@ export default function NutritionPage() {
               <div className="plan-price">{p.cal}</div>
               <div className="plan-period">calories / jour · {p.period}</div>
               <ul className="plan-feats">{p.feats.map(f => <li key={f}><span>→</span>{f}</li>)}</ul>
-              <button className="plan-btn">Choisir ce plan</button>
+              
             </div>
           ))}
         </div>
@@ -402,26 +550,7 @@ export default function NutritionPage() {
         </div>
       </section>
 
-      {/* COACHS */}
-      <section id="coachs" className="sec sec-dark">
-        <div className="sec-label">Experts</div>
-        <h2 className="sec-title">NOS COACHS<br />NUTRITION</h2>
-        <div className="coaches-grid">
-          {COACHES.map(c => (
-            <div key={c.name} className="coach-c">
-              <div className="coach-avatar">{c.initials}</div>
-              <div className="coach-name">{c.name}</div>
-              <div className="coach-spec">{c.spec}</div>
-              <div className="coach-stats">
-                <div className="cstat"><div className="cstat-v">{c.years}</div><div className="cstat-l">Ans exp.</div></div>
-                <div className="cstat"><div className="cstat-v">{c.clients}</div><div className="cstat-l">Clients</div></div>
-              </div>
-              <div style={{ fontSize: ".72rem", color: "#555", textAlign: "center", marginBottom: "12px" }}>★★★★★ {c.rating}</div>
-              <button className="coach-book">Réserver</button>
-            </div>
-          ))}
-        </div>
-      </section>
+
 
       {/* CONSEILS */}
       <section id="conseils" className="sec">
@@ -453,15 +582,36 @@ export default function NutritionPage() {
         </div>
       </section>
 
-      {/* CTA */}
-      <div className="cta-band">
-        <div className="sec-label" style={{ textAlign: "center" }}>Passe à l'action</div>
-        <div className="cta-title">PRÊT À TRANSFORMER<br />TON ALIMENTATION ?</div>
-        <p className="cta-sub">Réserve une consultation gratuite de 30 min avec l'un de nos coachs nutrition certifiés.</p>
-        <div className="cta-btns">
-          <button className="btn-red">Consultation gratuite →</button>
+      <section className="mindset-sec">
+
+        <div className="mindset-content">
+
+          <div className="mindset-top">
+            ELITE MEMBERS
+          </div>
+
+          <h2 className="mindset-title">
+            BUILT BY<br />
+            DISCIPLINE.
+          </h2>
+
+          <p className="mindset-text">
+            Chez GymAccess, la transformation ne repose pas sur la motivation temporaire.
+            Elle repose sur la discipline, la constance et un mode de vie pensé pour performer chaque jour.
+          </p>
+
+          <div className="mindset-line"></div>
+
+          <p className="mindset-bottom">
+            Nutrition intelligente. Entraînement structuré.
+            Résultats visibles.
+          </p>
+
         </div>
-      </div>
+
+      </section>
+
+
 
       {/* FOOTER IDENTIQUE À INDEX.JS */}
       <footer className="footer">

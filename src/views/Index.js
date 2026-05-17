@@ -82,7 +82,7 @@ const coaches = [
     desc: "Programmes de force, prise de masse et structuration de cycles d'entraînement.",
   },
   {
-    name: "Clara",
+    name: "Bilel",
     specialty: "Mobilité & recomposition corporelle",
     desc: "Rééquilibrage global, posture, tonicité et progression durable.",
   },
@@ -753,8 +753,8 @@ export default function GymAccessLandingSimple() {
 
           <div style={styles.cards2}>
             {[
-              ["Adresse", "123 Avenue des Champs-Élysées, Paris 75008"],
-              ["Téléphone", "+33 1 23 45 67 89"],
+              ["Adresse", "Tunis City Center, 1er étage, Tunis"],
+              ["Téléphone", "+216 73 555 555"],
               ["Horaires", "Ouvert 24h/24, 7j/7"],
               ["Accueil", "Visite, essai et orientation programme sur demande"],
             ].map(([label, value]) => (
