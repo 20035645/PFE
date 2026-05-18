@@ -166,14 +166,23 @@ const styles = {
     minHeight: "90vh",
     display: "flex",
     alignItems: "center",
-    justifyContent: "center",
-    textAlign: "center",
-    background: "linear-gradient(135deg, rgba(10,10,10,0.94) 0%, rgba(214,40,40,0.12) 100%)",
+    justifyContent: "flex-start",
     position: "relative",
     overflow: "hidden",
+    backgroundImage: "url('https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=1800&q=85')",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+  },
+  heroOverlay: {
+    position: "absolute",
+    inset: 0,
+    background: "linear-gradient(to right, rgba(10,10,10,0.88) 40%, rgba(10,10,10,0.45) 100%)",
+    zIndex: 1,
   },
   heroContent: {
-    maxWidth: "800px",
+    position: "relative",
+    zIndex: 2,
+    maxWidth: "620px",
     padding: "0 5%",
   },
   heroTag: {
@@ -193,17 +202,19 @@ const styles = {
     lineHeight: 0.92,
     letterSpacing: "2px",
     margin: "0 0 24px",
+    textAlign: "left",
   },
   heroDesc: {
     color: "#C7C7C7",
     fontSize: "1.2rem",
     lineHeight: 1.75,
     marginBottom: "36px",
+    textAlign: "left",
   },
   heroButtons: {
     display: "flex",
     gap: "18px",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     flexWrap: "wrap",
   },
   btnPrimary: {
@@ -416,7 +427,7 @@ function PricingCard({ plan, index }) {
       style={{
         ...styles.planCard,
         ...(plan.featured ? styles.featuredPlan : {}),
-        transform: hovered ? "translateY(-8px)" : "none",
+        transform: hovered ? "translateY(-8px)" : plan.featured ? "scale(1.05)" : "none",
       }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -509,18 +520,22 @@ export default function SubscriptionsPage() {
         </div>
       </nav>
 
+      {/* ── HERO with background image ── */}
       <section style={styles.hero}>
+        <div style={styles.heroOverlay} />
         <div style={styles.heroContent}>
           <div style={styles.heroTag}>Tarifs transparents</div>
           <h1 style={styles.heroTitle}>
-            CHOISISSEZ VOTRE<span style={{ color: "#D62828" }}> FORMULE</span>
+            CHOISISSEZ VOTRE<br />
+            <span style={{ color: "#D62828" }}>FORMULE</span>
           </h1>
           <p style={styles.heroDesc}>
             Des abonnements adaptés à tous les niveaux et objectifs. 
             Sans engagement, résultats garantis.
           </p>
-          
-
+          <div style={styles.heroButtons}>
+            <a href="#pricing" style={styles.btnPrimary}>Voir les formules →</a>
+          </div>
         </div>
       </section>
 
@@ -548,7 +563,6 @@ export default function SubscriptionsPage() {
               <div style={{ fontSize: "2.2rem", marginTop: "2px" }}>{benefit.icon}</div>
               <div>
                 <h3 style={{
-                  ...styles.cardTitle,
                   fontSize: "1.4rem",
                   marginBottom: "8px",
                 }}>{benefit.title}</h3>
@@ -628,7 +642,6 @@ export default function SubscriptionsPage() {
             borderRadius: "12px",
           }}>
             <h3 style={{
-              ...styles.cardTitle,
               fontSize: "1.6rem",
               marginBottom: "24px",
             }}>

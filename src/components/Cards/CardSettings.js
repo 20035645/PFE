@@ -7,7 +7,7 @@ export default function CardSettings() {
       <div className="rounded-t mb-0 px-6 py-6" style={{ borderBottom: '1px solid #2a2a2a' }}>
         <div className="text-center flex justify-between items-center">
           <h6 className="text-blueGray-700 text-xl font-bold" style={{ color: 'white', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.05em' }}>
-            Mon Compte
+            Compte du membre
           </h6>
           <button
             className="btn-gym text-white font-bold uppercase text-xs px-4 py-2 rounded shadow outline-none focus:outline-none"

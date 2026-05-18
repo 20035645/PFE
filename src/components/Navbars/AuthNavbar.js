@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const styles = {
   nav: {
@@ -69,13 +70,18 @@ export default function Navbar() {
 
           <a href="/#coachs" style={styles.navLink}>Coachs</a>
 
-          <a href="/#nutrition" style={styles.navLink}>Nutrition</a>
+          <Link to="/landing" style={styles.navLink}>
+            Nutrition
+          </Link>
 
-          <a href="/#abonnements" style={styles.navLink}>Abonnements</a>
+          <Link to="/newpage" style={styles.navLink}>
+            Abonnements
+          </Link>
 
-          <a href="/#contact" style={styles.navBtn}>
+          <Link to="/auth/register" style={styles.navBtn}>
             Nous rejoindre
-          </a>
+          </Link>
+
         </div>
       </nav>
     </>

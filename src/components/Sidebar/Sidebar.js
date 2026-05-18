@@ -224,7 +224,6 @@ export default function Sidebar() {
           <div style={styles.sectionLabel}>Pages</div>
           <ul style={{ padding: 0, margin: 0 }}>
             <NavItem to="/" icon="fas fa-dumbbell" label="Salle de sport" />
-            <NavItem to="/profile" icon="fas fa-user" label="Profil" />
             <NavItem to="/auth/login" icon="fas fa-sign-in-alt" label="Connexion" />
             <NavItem to="/auth/register" icon="fas fa-user-plus" label="Inscription" />
           </ul>

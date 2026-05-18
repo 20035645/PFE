@@ -349,7 +349,7 @@ export default function NutritionPage() {
   const [objectif, setObjectif] = useState("maintien");
   const [result, setResult] = useState({ cal: 2456, bmr: 1876, p: 184, g: 307, l: 82, imc: 24.5, imcTxt: "Normal" });
   const [mealTab, setMealTab] = useState("seche");
-  const [backendMessage, setBackendMessage] = useState("");
+  const [setBackendMessage] = useState("");
 
   const scroll = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 

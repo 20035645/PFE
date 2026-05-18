@@ -615,7 +615,7 @@ export default function Profile() {
             {/* TOP */}
             <div className="profile-top">
               <div className="profile-stats">
-                {[["22", "Amis"], ["10", "Photos"], ["89", "Commentaires"]].map(([n, l]) => (
+                {[["22", "Amis"], ["10", "Photos"]].map(([n, l]) => (
                   <div className="stat-item" key={l}>
                     <span className="stat-num">{n}</span>
                     <span className="stat-lbl">{l}</span>
@@ -632,10 +632,6 @@ export default function Profile() {
                     />
                   </div>
                   <span className="av-badge">Premium</span>
-                </div>
-                <div className="av-status">
-                  <span className="sdot" />
-                  Actif aujourd'hui
                 </div>
               </div>
 

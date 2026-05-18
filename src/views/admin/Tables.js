@@ -1,80 +1,131 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CardTable from "components/Cards/CardTable.js";
-import prototypes from "prop-types";
+import { getAllUsers } from "services/apiUser";
 
-import {getAllUsers} from "services/apiUser";
 export default function Tables() {
-  const [users, setUsers] = React.useState([]);
+  const [stats, setStats] = useState({ actifs: 0 });
 
-  React.useEffect(() => {
-    async function fetchUsers() {
+  useEffect(() => {
+    async function fetchData() {
       try {
-        const response = await getAllUsers();
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
+        const res = await getAllUsers();
+        const membres = res.data.filter((u) => u.role === "membre");
+        setStats({
+          actifs: membres.filter((m) => m.statut === "actif").length,
+        });
+      } catch (err) {
+        console.error("Erreur:", err);
       }
     }
-
-    fetchUsers();
+    fetchData();
   }, []);
 
-
-
   return (
-    <div className="flex flex-wrap mt-4">
-      <div className="w-full mb-12 px-4">
+    <div style={{ padding: "1.5rem" }}>
+
+      {/* ── Table Membres ── */}
+      <div className="w-full mb-8">
         <CardTable />
       </div>
-      <div className="w-full mb-12 px-4">
-        {/* Recent Entries Table */}
-        <div className="relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded"
-          style={{ backgroundColor: '#111111', border: '1px solid #2a2a2a' }}>
-          <div className="rounded-t mb-0 px-4 py-3" style={{ borderBottom: '1px solid #2a2a2a' }}>
-            <div className="flex flex-wrap items-center justify-between">
-              <h3 className="font-semibold text-lg" style={{ color: 'white', fontFamily: 'Oswald, sans-serif' }}>
-                Présences du Jour
-              </h3>
-              <span className="text-xs px-3 py-1 rounded-full" style={{ background: 'rgba(225,29,72,0.1)', color: '#e11d48', border: '1px solid rgba(225,29,72,0.2)', fontFamily: 'Rajdhani, sans-serif' }}>
-                89 entrées aujourd'hui
-              </span>
-            </div>
-          </div>
-          <div className="block w-full overflow-x-auto">
-            <table className="items-center w-full border-collapse">
-              <thead>
-                <tr>
-                  {["Heure", "Membre", "Activité", "Coach", "Durée"].map((h, i) => (
-                    <th key={i} className="px-6 py-3 text-xs uppercase border-l-0 border-r-0 text-left"
-                      style={{ borderBottom: '1px solid #2a2a2a', color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em', backgroundColor: '#1a1a1a' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  { time: "09:15", member: "Ahmed C.", activity: "Musculation", coach: "Coach Nabil", duration: "1h30" },
-                  { time: "09:30", member: "Sonia M.", activity: "Yoga", coach: "Coach Sarra", duration: "1h00" },
-                  { time: "10:00", member: "Mehdi T.", activity: "CrossFit", coach: "Coach Amine", duration: "1h15" },
-                  { time: "10:15", member: "Leila B.", activity: "Cardio", coach: "-", duration: "45min" },
-                  { time: "10:45", member: "Karim F.", activity: "Musculation", coach: "Coach Nabil", duration: "2h00" },
-                ].map((entry, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid #1a1a1a' }}>
-                    <td className="px-6 py-3 text-xs" style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', fontWeight: 600 }}>{entry.time}</td>
-                    <td className="px-6 py-3 text-xs" style={{ color: 'white', fontFamily: 'Rajdhani, sans-serif', fontWeight: 600 }}>{entry.member}</td>
-                    <td className="px-6 py-3 text-xs">
-                      <span className="px-2 py-1 rounded text-xs" style={{ background: 'rgba(225,29,72,0.1)', color: '#e11d48', border: '1px solid rgba(225,29,72,0.2)', fontFamily: 'Rajdhani, sans-serif' }}>
-                        {entry.activity}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3 text-xs" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>{entry.coach}</td>
-                    <td className="px-6 py-3 text-xs" style={{ color: '#34d399', fontFamily: 'Oswald, sans-serif' }}>{entry.duration}</td>
-                  </tr>
+
+      {/* ── Présences du Jour ── */}
+      <div style={{
+        backgroundColor: "#111111",
+        border: "1px solid #2a2a2a",
+        borderRadius: "12px",
+        marginTop: "1.5rem"
+      }}>
+        <div style={{
+          padding: "1rem 1.5rem",
+          borderBottom: "1px solid #2a2a2a",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center"
+        }}>
+          <h3 style={{
+            color: "white",
+            fontFamily: "Oswald, sans-serif",
+            fontSize: "1.1rem",
+            fontWeight: 700,
+            margin: 0
+          }}>
+            Présences du Jour
+          </h3>
+          <span style={{
+            background: "rgba(225,29,72,0.1)",
+            color: "#e11d48",
+            border: "1px solid rgba(225,29,72,0.2)",
+            padding: "0.2rem 0.75rem",
+            borderRadius: "999px",
+            fontSize: "0.75rem",
+            fontWeight: 700
+          }}>
+            {stats.actifs} actifs aujourd'hui
+          </span>
+        </div>
+
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+            <thead>
+              <tr>
+                {["Heure", "Membre", "Activité", "Coach", "Durée"].map((h, i) => (
+                  <th key={i} style={{
+                    padding: "0.75rem 1.25rem",
+                    textAlign: "left",
+                    fontSize: "0.72rem",
+                    color: "#9ca3af",
+                    fontWeight: 700,
+                    letterSpacing: "0.1em",
+                    borderBottom: "1px solid #2a2a2a",
+                    backgroundColor: "#1a1a1a",
+                    textTransform: "uppercase"
+                  }}>
+                    {h}
+                  </th>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </tr>
+            </thead>
+            <tbody>
+              {[
+                { time: "09:15", member: "Ahmed C.",  activity: "Musculation", coach: "Coach Nabil", duration: "1h30" },
+                { time: "09:30", member: "Sonia M.",  activity: "Yoga",        coach: "Coach Sarra", duration: "1h00" },
+                { time: "10:00", member: "Mehdi T.",  activity: "CrossFit",    coach: "Coach Amine", duration: "1h15" },
+                { time: "10:15", member: "Leila B.",  activity: "Cardio",      coach: "-",           duration: "45min" },
+                { time: "10:45", member: "Karim F.",  activity: "Musculation", coach: "Coach Nabil", duration: "2h00" },
+              ].map((entry, i) => (
+                <tr key={i} style={{
+                  borderBottom: "1px solid #1a1a1a",
+                  background: i % 2 === 0 ? "transparent" : "#0a0a0a"
+                }}>
+                  <td style={{ padding: "0.85rem 1.25rem", color: "#e11d48", fontWeight: 700, fontSize: "0.85rem" }}>
+                    {entry.time}
+                  </td>
+                  <td style={{ padding: "0.85rem 1.25rem", color: "white", fontWeight: 600, fontSize: "0.85rem" }}>
+                    {entry.member}
+                  </td>
+                  <td style={{ padding: "0.85rem 1.25rem" }}>
+                    <span style={{
+                      background: "rgba(225,29,72,0.1)",
+                      color: "#e11d48",
+                      border: "1px solid rgba(225,29,72,0.2)",
+                      padding: "0.2rem 0.6rem",
+                      borderRadius: "6px",
+                      fontSize: "0.75rem",
+                      fontWeight: 600
+                    }}>
+                      {entry.activity}
+                    </span>
+                  </td>
+                  <td style={{ padding: "0.85rem 1.25rem", color: "#9ca3af", fontSize: "0.85rem" }}>
+                    {entry.coach}
+                  </td>
+                  <td style={{ padding: "0.85rem 1.25rem", color: "#34d399", fontWeight: 700, fontSize: "0.85rem" }}>
+                    {entry.duration}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
