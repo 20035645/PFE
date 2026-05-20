@@ -1,0 +1,12 @@
+[33m037fd17[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m Update admin table and frontend changes
+[33m4d1f712[m Update nutrition and pricing sections
+[33m8a57216[m feat: login, register, profile avec nutrition et déconnexion
+[33mb990cfa[m mise à jour frontend
+[33mede687c[m Sauvegarde GymAccess
+[33me6b3952[m[33m ([m[1;31mtemplate/main[m[33m, [m[1;31mtemplate/HEAD[m[33m)[m Update CardTable.js
+[33m5aad33c[m Update CardTable.js
+[33m5ea3c8e[m deleteUser
+[33mde5e8aa[m fetchUsers
+[33ma118099[m Update Index.js
+[33m303f0fd[m séance 3
+[33mc9ff558[m Initial commit

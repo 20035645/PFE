@@ -1,162 +1,96 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <>
-      <footer className="relative bg-blueGray-200 pt-8 pb-6">
-        <div
-          className="bottom-auto top-0 left-0 right-0 w-full absolute pointer-events-none overflow-hidden -mt-20 h-20"
-          style={{ transform: "translateZ(0)" }}
-        >
-          <svg
-            className="absolute bottom-0 overflow-hidden"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="none"
-            version="1.1"
-            viewBox="0 0 2560 100"
-            x="0"
-            y="0"
-          >
-            <polygon
-              className="text-blueGray-200 fill-current"
-              points="2560 0 2560 100 0 100"
-            ></polygon>
-          </svg>
-        </div>
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap text-center lg:text-left">
-            <div className="w-full lg:w-6/12 px-4">
-              <h4 className="text-3xl font-semibold">Let's keep in touch!</h4>
-              <h5 className="text-lg mt-0 mb-2 text-blueGray-600">
-                Find us on any of these platforms, we respond 1-2 business days.
-              </h5>
-              <div className="mt-6 lg:mb-0 mb-6">
-                <button
-                  className="bg-white text-lightBlue-400 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2"
-                  type="button"
-                >
-                  <i className="fab fa-twitter"></i>
-                </button>
-                <button
-                  className="bg-white text-lightBlue-600 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2"
-                  type="button"
-                >
-                  <i className="fab fa-facebook-square"></i>
-                </button>
-                <button
-                  className="bg-white text-pink-400 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2"
-                  type="button"
-                >
-                  <i className="fab fa-dribbble"></i>
-                </button>
-                <button
-                  className="bg-white text-blueGray-800 shadow-lg font-normal h-10 w-10 items-center justify-center align-center rounded-full outline-none focus:outline-none mr-2"
-                  type="button"
-                >
-                  <i className="fab fa-github"></i>
-                </button>
+    <footer style={{ backgroundColor: '#111111', borderTop: '1px solid #2a2a2a' }}>
+      <div className="container mx-auto px-4">
+        <div className="flex flex-wrap text-left lg:text-left">
+          <div className="w-full lg:w-6/12 px-4 py-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-8 h-8 rounded flex items-center justify-center"
+                style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
+                <i className="fas fa-dumbbell text-white text-sm"></i>
               </div>
+              <span style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.3rem', fontWeight: 700, color: 'white', letterSpacing: '0.1em' }}>
+                GYM<span style={{ color: '#e11d48' }}>ACCESS</span>
+              </span>
             </div>
-            <div className="w-full lg:w-6/12 px-4">
-              <div className="flex flex-wrap items-top mb-6">
-                <div className="w-full lg:w-4/12 px-4 ml-auto">
-                  <span className="block uppercase text-blueGray-500 text-sm font-semibold mb-2">
-                    Useful Links
-                  </span>
-                  <ul className="list-unstyled">
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://www.creative-tim.com/presentation?ref=nr-footer"
-                      >
-                        About Us
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://blog.creative-tim.com?ref=nr-footer"
-                      >
-                        Blog
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://www.github.com/creativetimofficial?ref=nr-footer"
-                      >
-                        Github
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://www.creative-tim.com/bootstrap-themes/free?ref=nr-footer"
-                      >
-                        Free Products
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <div className="w-full lg:w-4/12 px-4">
-                  <span className="block uppercase text-blueGray-500 text-sm font-semibold mb-2">
-                    Other Resources
-                  </span>
-                  <ul className="list-unstyled">
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://github.com/creativetimofficial/notus-react/blob/main/LICENSE.md?ref=nr-footer"
-                      >
-                        MIT License
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://creative-tim.com/terms?ref=nr-footer"
-                      >
-                        Terms & Conditions
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://creative-tim.com/privacy?ref=nr-footer"
-                      >
-                        Privacy Policy
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        className="text-blueGray-600 hover:text-blueGray-800 font-semibold block pb-2 text-sm"
-                        href="https://creative-tim.com/contact-us?ref=nr-footer"
-                      >
-                        Contact Us
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-          <hr className="my-6 border-blueGray-300" />
-          <div className="flex flex-wrap items-center md:justify-between justify-center">
-            <div className="w-full md:w-4/12 px-4 mx-auto text-center">
-              <div className="text-sm text-blueGray-500 font-semibold py-1">
-                Copyright © {new Date().getFullYear()} Notus React by{" "}
-                <a
-                  href="https://www.creative-tim.com?ref=nr-footer"
-                  className="text-blueGray-500 hover:text-blueGray-800"
-                >
-                  Creative Tim
+            <p className="text-sm mb-2" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif', lineHeight: '1.8' }}>
+              Votre salle de sport premium à Tunis. <br />
+              Équipements modernes, coachs certifiés, nutrition optimisée.
+            </p>
+            <div className="flex gap-3 mt-4">
+              {[
+                { icon: 'fab fa-facebook', href: 'https://facebook.com' },
+                { icon: 'fab fa-instagram', href: 'https://instagram.com' },
+                { icon: 'fab fa-twitter', href: 'https://twitter.com' },
+                { icon: 'fab fa-youtube', href: 'https://youtube.com' },
+              ].map((item, i) => (
+                <a key={i} href={item.href} target="_blank" rel="noreferrer"
+                  className="w-9 h-9 rounded-full flex items-center justify-center transition-all hover:scale-110"
+                  style={{ background: 'rgba(225,29,72,0.1)', border: '1px solid rgba(225,29,72,0.2)', color: '#e11d48' }}>
+                  <i className={`${item.icon} text-sm`}></i>
                 </a>
-                .
+              ))}
+            </div>
+          </div>
+          <div className="w-full lg:w-6/12 px-4 py-8">
+            <div className="flex flex-wrap items-top">
+              <div className="w-full lg:w-4/12 px-4 ml-auto">
+                <span className="block uppercase text-sm font-semibold mb-4"
+                  style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}>
+                  Navigation
+                </span>
+                <ul className="list-unstyled">
+                  {[
+                    { label: "Accueil", to: "/" },
+                    { label: "Abonnements", to: "/landing" },
+                    { label: "Coachs", to: "/landing" },
+                    { label: "Nutrition", to: "/landing" },
+                    { label: "Contact", to: "/landing" },
+                  ].map((item, i) => (
+                    <li key={i}>
+                      <Link to={item.to} className="block pb-2 text-sm hover:text-red-400 transition-colors"
+                        style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
+                        {item.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="w-full lg:w-4/12 px-4">
+                <span className="block uppercase text-sm font-semibold mb-4"
+                  style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}>
+                  Contact
+                </span>
+                <ul className="list-unstyled">
+                  <li className="pb-2 text-sm" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
+                    <i className="fas fa-map-marker-alt mr-2" style={{ color: '#e11d48' }}></i>Tunis, Tunisie
+                  </li>
+                  <li className="pb-2 text-sm" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
+                    <i className="fas fa-phone mr-2" style={{ color: '#e11d48' }}></i>+216 71 XXX XXX
+                  </li>
+                  <li className="pb-2 text-sm" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
+                    <i className="fas fa-envelope mr-2" style={{ color: '#e11d48' }}></i>contact@gymaccess.tn
+                  </li>
+                  <li className="pb-2 text-sm" style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}>
+                    <i className="fas fa-clock mr-2" style={{ color: '#e11d48' }}></i>6h00 - 23h00, 7j/7
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
-      </footer>
-    </>
+        <hr style={{ borderColor: '#2a2a2a' }} />
+        <div className="flex flex-wrap items-center md:justify-between justify-center py-4">
+          <div className="w-full md:w-4/12 px-4 mx-auto text-center">
+            <div className="text-sm font-semibold py-1" style={{ color: '#6b7280', fontFamily: 'Rajdhani, sans-serif' }}>
+              © {new Date().getFullYear()} GymAccess. Tous droits réservés.
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
   );
 }

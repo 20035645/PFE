@@ -54,4 +54,4 @@ userSchema.statics.Register = async function (userData) {
     return newUser;
 };
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema, 'membres');

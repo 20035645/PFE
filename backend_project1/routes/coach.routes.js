@@ -7,6 +7,5 @@ router.get('/getCoachById/:coachId', coachcontroller.getCoachById);      // getC
 router.post('/addCoach', coachcontroller.addCoach);                       // addcoach ❌ → addCoach ✅
 router.delete('/deleteCoach/:coachId', coachcontroller.deleteCoach);
 router.put('/updateCoach/:coachId', coachcontroller.UpdateCoach);
-router.post('/addCoachWithPhoto', coachcontroller.addCoachWithPhoto);     // uploadefile supprimé ❌
 
 module.exports = router;

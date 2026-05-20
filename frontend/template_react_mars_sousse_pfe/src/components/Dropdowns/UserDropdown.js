@@ -1,88 +1,49 @@
-import React from "react";
+import React, { useState, useRef } from "react";
+import { Link } from "react-router-dom";
 import { createPopper } from "@popperjs/core";
 
-const UserDropdown = () => {
-  // dropdown props
-  const [dropdownPopoverShow, setDropdownPopoverShow] = React.useState(false);
-  const btnDropdownRef = React.createRef();
-  const popoverDropdownRef = React.createRef();
-  const openDropdownPopover = () => {
-    createPopper(btnDropdownRef.current, popoverDropdownRef.current, {
-      placement: "bottom-start",
-    });
+export default function UserDropdown() {
+  const [dropdownPopoverShow, setDropdownPopoverShow] = useState(false);
+  const btnRef = useRef(null);
+  const popoverRef = useRef(null);
+
+  const openDropdown = () => {
+    createPopper(btnRef.current, popoverRef.current, { placement: "bottom-end" });
     setDropdownPopoverShow(true);
   };
-  const closeDropdownPopover = () => {
-    setDropdownPopoverShow(false);
-  };
+  const closeDropdown = () => setDropdownPopoverShow(false);
+
   return (
     <>
-      <a
-        className="text-blueGray-500 block"
-        href="#pablo"
-        ref={btnDropdownRef}
-        onClick={(e) => {
-          e.preventDefault();
-          dropdownPopoverShow ? closeDropdownPopover() : openDropdownPopover();
-        }}
+      <button
+        className="flex items-center gap-2 px-3 py-2 rounded transition-colors"
+        style={{ background: 'rgba(225,29,72,0.1)', border: '1px solid rgba(225,29,72,0.2)', cursor: 'pointer' }}
+        ref={btnRef}
+        onClick={() => dropdownPopoverShow ? closeDropdown() : openDropdown()}
       >
-        <div className="items-center flex">
-          <span className="w-12 h-12 text-sm text-white bg-blueGray-200 inline-flex items-center justify-center rounded-full">
-            <img
-              alt="..."
-              className="w-full rounded-full align-middle border-none shadow-lg"
-              src={require("assets/img/team-1-800x800.jpg").default}
-            />
-          </span>
+        <div className="w-7 h-7 rounded-full flex items-center justify-center"
+          style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
+          <i className="fas fa-user text-white" style={{ fontSize: '0.7rem' }}></i>
         </div>
-      </a>
+        <span className="hidden md:block text-xs text-white" style={{ fontFamily: 'Rajdhani, sans-serif' }}>Admin</span>
+      </button>
       <div
-        ref={popoverDropdownRef}
-        className={
-          (dropdownPopoverShow ? "block " : "hidden ") +
-          "bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow-lg min-w-48"
-        }
+        ref={popoverRef}
+        className={`${dropdownPopoverShow ? "block " : "hidden "}rounded shadow-xl z-50 py-2`}
+        style={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a', minWidth: '160px' }}
       >
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Action
-        </a>
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Another action
-        </a>
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Something else here
-        </a>
-        <div className="h-0 my-2 border border-solid border-blueGray-100" />
-        <a
-          href="#pablo"
-          className={
-            "text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-          }
-          onClick={(e) => e.preventDefault()}
-        >
-          Seprated link
-        </a>
+        {[
+          { label: "Déconnexion", icon: "fas fa-sign-out-alt", to: "/auth/login" },
+        ].map((item, i) => (
+          <Link key={i} to={item.to}
+            className="flex items-center gap-3 px-4 py-2 text-xs hover:text-red-400 transition-colors"
+            style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}
+            onClick={closeDropdown}>
+            <i className={`${item.icon} w-4`} style={{ color: i === 2 ? '#e11d48' : 'inherit' }}></i>
+            {item.label}
+          </Link>
+        ))}
       </div>
     </>
   );
-};
-
-export default UserDropdown;
+}

@@ -1,68 +1,62 @@
-/*eslint-disable*/
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
-// components
+import IndexDropdown from "components/Dropdowns/IndexDropdown.js";
 
+export default function IndexNavbar() {
+  const [navbarOpen, setNavbarOpen] = useState(false);
 
-export default function Navbar(props) {
-  const [navbarOpen, setNavbarOpen] = React.useState(false);
   return (
     <>
-      <nav className="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg bg-white shadow">
+      <nav
+        className="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between px-6 py-3"
+        style={{ backgroundColor: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #2a2a2a' }}
+      >
         <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
           <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-            <Link
-              to="/"
-              className="text-blueGray-700 text-sm font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase"
-            >
-              GYM ACCESS
+            <Link to="/" className="flex items-center gap-2 leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase font-bold">
+              <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
+                <i className="fas fa-dumbbell text-white text-sm"></i>
+              </div>
+              <span style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.3rem', fontWeight: 700, color: 'white', letterSpacing: '0.1em' }}>
+                GYM<span style={{ color: '#e11d48' }}>ACCESS</span>
+              </span>
             </Link>
             <button
-              className="cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"
+              className="cursor-pointer text-gray-400 lg:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-transparent block outline-none focus:outline-none"
               type="button"
               onClick={() => setNavbarOpen(!navbarOpen)}
             >
               <i className="fas fa-bars"></i>
             </button>
           </div>
-          <div
-            className={
-              "lg:flex flex-grow items-center bg-white lg:bg-opacity-0 lg:shadow-none" +
-              (navbarOpen ? " block" : " hidden")
-            }
-            id="example-navbar-warning"
-          >
-            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-              <li className="flex items-center">
-                <a className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold" href="/abonnements">
-                  Acceuil
+          <div className={`lg:flex flex-grow items-center${navbarOpen ? " flex" : " hidden"}`} id="example-navbar-warning">
+            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto items-center gap-1">
+              <li className="nav-item">
+                <a href="#nutrition" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
+                  Nutrition
                 </a>
               </li>
-
-              <li className="flex items-center">
-              </li>
-              <li className="flex items-center">
-                <a className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold" href="/cours">
-                  Cours
-                </a>
-              </li>
-
-              <li className="flex items-center">
-                <a className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold" href="/abonnements">
+              <li className="nav-item">
+                <a href="#abonnements" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
                   Abonnements
                 </a>
               </li>
-
-              <li className="flex items-center">
-                <a className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold" href="/contact">
-                  Contact
+              <li className="nav-item">
+                <a href="#coachs" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
+                  Coachs
                 </a>
               </li>
-
-              <li className="flex items-center">
-                <a href="/login" className="bg-lightBlue-500 text-white text-xs font-bold uppercase px-4 py-2 rounded shadow hover:shadow-lg lg:mr-1 lg:mb-0 ml-3 mb-3">
-                  Espace Membre
-                </a>
+              <li className="nav-item">
+                <IndexDropdown />
+              </li>
+              <li className="nav-item">
+                <Link
+                  to="/auth/register"
+                  className="btn-gym px-6 py-2 rounded text-sm font-bold inline-block"
+                  style={{ fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}
+                >
+                  REJOINDRE
+                </Link>
               </li>
             </ul>
           </div>

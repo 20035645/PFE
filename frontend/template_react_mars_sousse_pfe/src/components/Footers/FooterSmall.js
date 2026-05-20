@@ -1,68 +1,36 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
-export default function FooterSmall(props) {
+export default function FooterSmall({ absolute }) {
   return (
-    <>
-      <footer
-        className={
-          (props.absolute
-            ? "absolute w-full bottom-0 bg-blueGray-800"
-            : "relative") + " pb-6"
-        }
-      >
-        <div className="container mx-auto px-4">
-          <hr className="mb-6 border-b-1 border-blueGray-600" />
-          <div className="flex flex-wrap items-center md:justify-between justify-center">
-            <div className="w-full md:w-4/12 px-4">
-              <div className="text-sm text-blueGray-500 font-semibold py-1 text-center md:text-left">
-                Copyright © {new Date().getFullYear()}{" "}
-                <a
-                  href="https://www.creative-tim.com?ref=nr-footer-small"
-                  className="text-white hover:text-blueGray-300 text-sm font-semibold py-1"
-                >
-                  Creative Tim
-                </a>
-              </div>
-            </div>
-            <div className="w-full md:w-8/12 px-4">
-              <ul className="flex flex-wrap list-none md:justify-end  justify-center">
-                <li>
-                  <a
-                    href="https://www.creative-tim.com?ref=nr-footer-small"
-                    className="text-white hover:text-blueGray-300 text-sm font-semibold block py-1 px-3"
-                  >
-                    Creative Tim
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://www.creative-tim.com/presentation?ref=nr-footer-small"
-                    className="text-white hover:text-blueGray-300 text-sm font-semibold block py-1 px-3"
-                  >
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="http://blog.creative-tim.com?ref=nr-footer-small"
-                    className="text-white hover:text-blueGray-300 text-sm font-semibold block py-1 px-3"
-                  >
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a
-                    href="https://github.com/creativetimofficial/notus-react/blob/main/LICENSE.md?ref=nr-footer-small"
-                    className="text-white hover:text-blueGray-300 text-sm font-semibold block py-1 px-3"
-                  >
-                    MIT License
-                  </a>
-                </li>
-              </ul>
+    <footer className={`${absolute ? "absolute" : "relative"} w-full bottom-0 pb-6`}>
+      <div className="container mx-auto px-4">
+        <hr style={{ borderColor: '#2a2a2a' }} />
+        <div className="flex flex-wrap items-center md:justify-between justify-center pt-4">
+          <div className="w-full md:w-4/12 px-4">
+            <div className="text-sm text-center md:text-left font-semibold"
+              style={{ color: '#6b7280', fontFamily: 'Rajdhani, sans-serif' }}>
+              © {new Date().getFullYear()} GymAccess
             </div>
           </div>
+          <div className="w-full md:w-8/12 px-4">
+            <ul className="flex flex-wrap list-none md:justify-end justify-center gap-4">
+              <li>
+                <Link to="/" className="text-xs font-semibold hover:text-red-400 transition-colors"
+                  style={{ color: '#6b7280', fontFamily: 'Rajdhani, sans-serif' }}>
+                  Accueil
+                </Link>
+              </li>
+              <li>
+                <Link to="/confidentialite" className="text-xs font-semibold hover:text-red-400 transition-colors"
+                  style={{ color: '#6b7280', fontFamily: 'Rajdhani, sans-serif' }}>
+                  Confidentialité
+                </Link>
+              </li>
+            </ul>
+          </div>
         </div>
-      </footer>
-    </>
+      </div>
+    </footer>
   );
 }

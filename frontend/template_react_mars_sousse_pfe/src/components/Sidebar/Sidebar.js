@@ -1,336 +1,275 @@
-/*eslint-disable*/
-import React from "react";
-import { Link } from "react-router-dom";
-
-import NotificationDropdown from "components/Dropdowns/NotificationDropdown.js";
+import React, { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import UserDropdown from "components/Dropdowns/UserDropdown.js";
 
+const styles = {
+  nav: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    bottom: 0,
+    width: "256px",
+    background: "#111111",
+    borderRight: "1px solid rgba(214,40,40,0.18)",
+    display: "flex",
+    flexDirection: "column",
+    zIndex: 40,
+    fontFamily: "'Barlow', Arial, sans-serif",
+    overflowY: "auto",
+  },
+  header: {
+    padding: "20px 20px 16px",
+    borderBottom: "1px solid rgba(214,40,40,0.15)",
+    background: "rgba(10,10,10,0.6)",
+    flexShrink: 0,
+  },
+  logoWrap: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    textDecoration: "none",
+  },
+  logoIcon: {
+    width: "34px",
+    height: "34px",
+    background: "#D62828",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  logoText: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.55rem",
+    letterSpacing: "4px",
+    color: "#F5F5F5",
+    lineHeight: 1,
+  },
+  body: {
+    flex: 1,
+    padding: "8px 0",
+    overflowY: "auto",
+  },
+  sectionLabel: {
+    padding: "18px 20px 8px",
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "0.72rem",
+    letterSpacing: "3px",
+    color: "#D62828",
+    textTransform: "uppercase",
+  },
+  divider: {
+    border: "none",
+    borderTop: "1px solid rgba(214,40,40,0.13)",
+    margin: "6px 0",
+  },
+  statsCard: {
+    margin: "12px 14px 16px",
+    padding: "14px 16px",
+    background: "rgba(214,40,40,0.07)",
+    border: "1px solid rgba(214,40,40,0.22)",
+  },
+  statsLabel: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "0.72rem",
+    letterSpacing: "2px",
+    color: "#D62828",
+    marginBottom: "10px",
+  },
+  statsRow: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  statItem: { textAlign: "center" },
+  statValue: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "1.5rem",
+    color: "#F5F5F5",
+    letterSpacing: "1px",
+    lineHeight: 1,
+  },
+  statDesc: {
+    fontSize: "0.65rem",
+    color: "#666",
+    textTransform: "uppercase",
+    letterSpacing: "1px",
+    marginTop: "2px",
+  },
+  footer: {
+    padding: "14px 20px",
+    borderTop: "1px solid rgba(214,40,40,0.15)",
+    background: "rgba(10,10,10,0.4)",
+    flexShrink: 0,
+  },
+  userRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+  },
+  avatar: {
+    width: "32px",
+    height: "32px",
+    background: "#D62828",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "0.9rem",
+    color: "#fff",
+    letterSpacing: "1px",
+    flexShrink: 0,
+  },
+};
+
+function NavItem({ to, icon, label }) {
+  const location = useLocation();
+  const active = location.pathname === to;
+
+  return (
+    <li style={{ listStyle: "none" }}>
+      <Link
+        to={to}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "12px",
+          padding: "10px 20px",
+          color: active ? "#D62828" : "#7A7A7A",
+          textDecoration: "none",
+          fontSize: "0.75rem",
+          fontWeight: 700,
+          textTransform: "uppercase",
+          letterSpacing: "2px",
+          background: active ? "rgba(214,40,40,0.1)" : "transparent",
+          borderLeft: active ? "2px solid #D62828" : "2px solid transparent",
+          transition: "all 0.15s ease",
+        }}
+      >
+        <i className={`${icon} text-sm`} style={{ width: "16px", textAlign: "center", opacity: active ? 1 : 0.6 }} />
+        {label}
+      </Link>
+    </li>
+  );
+}
+
 export default function Sidebar() {
-  const [collapseShow, setCollapseShow] = React.useState("hidden");
+  const [collapseShow, setCollapseShow] = useState(false);
+
   return (
     <>
-      <nav className="md:left-0 md:block md:fixed md:top-0 md:bottom-0 md:overflow-y-auto md:flex-row md:flex-nowrap md:overflow-hidden shadow-xl bg-white flex flex-wrap items-center justify-between relative md:w-64 z-10 py-4 px-6">
-        <div className="md:flex-col md:items-stretch md:min-h-full md:flex-nowrap px-0 flex flex-wrap items-center justify-between w-full mx-auto">
-          {/* Toggler */}
-          <button
-            className="cursor-pointer text-black opacity-50 md:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-solid border-transparent"
-            type="button"
-            onClick={() => setCollapseShow("bg-white m-2 py-3 px-6")}
-          >
-            <i className="fas fa-bars"></i>
-          </button>
-          {/* Brand */}
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700;800&family=Bebas+Neue&display=swap"
+        rel="stylesheet"
+      />
+
+      {/* Mobile toggle */}
+      <button
+        onClick={() => setCollapseShow(!collapseShow)}
+        style={{
+          position: "fixed",
+          top: "16px",
+          left: "16px",
+          zIndex: 50,
+          display: "none", // géré via CSS media query dans votre setup
+          background: "rgba(17,17,17,0.9)",
+          border: "1px solid rgba(214,40,40,0.3)",
+          color: "#F5F5F5",
+          padding: "8px 12px",
+          cursor: "pointer",
+        }}
+        className="md:hidden"
+      >
+        <i className="fas fa-bars" />
+      </button>
+
+      <nav style={styles.nav} className={`md:flex ${collapseShow ? "flex" : "hidden md:flex"}`}>
+
+        {/* Header / Logo */}
+        <div style={styles.header}>
           <Link
-            className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
             to="/"
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+            }}
           >
-            Notus React
+            <div
+              style={{
+                fontFamily: "'Bebas Neue', sans-serif",
+                fontSize: "2rem",
+                letterSpacing: "4px",
+                color: "#F5F5F5",
+                lineHeight: 1,
+              }}
+            >
+              GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+            </div>
           </Link>
-          {/* User */}
-          <ul className="md:hidden items-center flex flex-wrap list-none">
-            <li className="inline-block relative">
-              <NotificationDropdown />
-            </li>
-            <li className="inline-block relative">
-              <UserDropdown />
-            </li>
+        </div>
+
+        {/* Body */}
+        <div style={styles.body}>
+
+          <div style={styles.sectionLabel}>Administration</div>
+          <ul style={{ padding: 0, margin: 0 }}>
+            <NavItem to="/admin/dashboard" icon="fas fa-chart-bar" label="Dashboard" />
+            <NavItem to="/admin/settings" icon="fas fa-cog" label="Paramètres" />
+            
+            <NavItem to="/admin/tables" icon="fas fa-users" label="Membres" />
+            <NavItem to="/admin/maps" icon="fas fa-map-marked-alt" label="Localisation" />
           </ul>
-          {/* Collapse */}
-          <div
-            className={
-              "md:flex md:flex-col md:items-stretch md:opacity-100 md:relative md:mt-4 md:shadow-none shadow absolute top-0 left-0 right-0 z-40 overflow-y-auto overflow-x-hidden h-auto items-center flex-1 rounded " +
-              collapseShow
-            }
-          >
-            {/* Collapse header */}
-            <div className="md:min-w-full md:hidden block pb-4 mb-4 border-b border-solid border-blueGray-200">
-              <div className="flex flex-wrap">
-                <div className="w-6/12">
-                  <Link
-                    className="md:block text-left md:pb-2 text-blueGray-600 mr-0 inline-block whitespace-nowrap text-sm uppercase font-bold p-4 px-0"
-                    to="/"
-                  >
-                    Notus React
-                  </Link>
-                </div>
-                <div className="w-6/12 flex justify-end">
-                  <button
-                    type="button"
-                    className="cursor-pointer text-black opacity-50 md:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-solid border-transparent"
-                    onClick={() => setCollapseShow("hidden")}
-                  >
-                    <i className="fas fa-times"></i>
-                  </button>
-                </div>
+
+          <hr style={styles.divider} />
+          <div style={styles.sectionLabel}>Pages</div>
+          <ul style={{ padding: 0, margin: 0 }}>
+            <NavItem to="/" icon="fas fa-dumbbell" label="Salle de sport" />
+            <NavItem to="/auth/login" icon="fas fa-sign-in-alt" label="Connexion" />
+            <NavItem to="/auth/register" icon="fas fa-user-plus" label="Inscription" />
+          </ul>
+
+          <hr style={styles.divider} />
+
+          {/* Quick stats */}
+          <div style={styles.statsCard}>
+            <div style={styles.statsLabel}>Aujourd'hui</div>
+            <div style={styles.statsRow}>
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>247</div>
+                <div style={styles.statDesc}>Membres</div>
+              </div>
+              <div style={{ width: "1px", background: "rgba(214,40,40,0.2)", alignSelf: "stretch" }} />
+              <div style={styles.statItem}>
+                <div style={{ ...styles.statValue, color: "#D62828" }}>89</div>
+                <div style={styles.statDesc}>Actifs</div>
+              </div>
+              <div style={{ width: "1px", background: "rgba(214,40,40,0.2)", alignSelf: "stretch" }} />
+              <div style={styles.statItem}>
+                <div style={styles.statValue}>12</div>
+                <div style={styles.statDesc}>Séances</div>
               </div>
             </div>
-            {/* Form */}
-            <form className="mt-6 mb-4 md:hidden">
-              <div className="mb-3 pt-0">
-                <input
-                  type="text"
-                  placeholder="Search"
-                  className="border-0 px-3 py-2 h-12 border border-solid  border-blueGray-500 placeholder-blueGray-300 text-blueGray-600 bg-white rounded text-base leading-snug shadow-none outline-none focus:outline-none w-full font-normal"
-                />
+          </div>
+
+        </div>
+
+        {/* Footer utilisateur */}
+        <div style={styles.footer}>
+          <div style={styles.userRow}>
+            <div style={styles.avatar}>AD</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, color: "#F5F5F5", textTransform: "uppercase", letterSpacing: "1px" }}>
+                Admin
               </div>
-            </form>
-
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" />
-            {/* Heading */}
-            <h6 className="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-              Admin Layout Pages
-            </h6>
-            {/* Navigation */}
-
-            <ul className="md:flex-col md:min-w-full flex flex-col list-none">
-              <li className="items-center">
-                <Link
-                  className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (window.location.href.indexOf("/admin/dashboard") !== -1
-                      ? "text-lightBlue-500 hover:text-lightBlue-600"
-                      : "text-blueGray-700 hover:text-blueGray-500")
-                  }
-                  to="/admin/dashboard"
-                >
-                  <i
-                    className={
-                      "fas fa-tv mr-2 text-sm " +
-                      (window.location.href.indexOf("/admin/dashboard") !== -1
-                        ? "opacity-75"
-                        : "text-blueGray-300")
-                    }
-                  ></i>{" "}
-                  Dashboard
-                </Link>
-              </li>
-
-              <li className="items-center">
-                <Link
-                  className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (window.location.href.indexOf("/admin/settings") !== -1
-                      ? "text-lightBlue-500 hover:text-lightBlue-600"
-                      : "text-blueGray-700 hover:text-blueGray-500")
-                  }
-                  to="/admin/settings"
-                >
-                  <i
-                    className={
-                      "fas fa-tools mr-2 text-sm " +
-                      (window.location.href.indexOf("/admin/settings") !== -1
-                        ? "opacity-75"
-                        : "text-blueGray-300")
-                    }
-                  ></i>{" "}
-                  Settings
-                </Link>
-              </li>
-
-              <li className="items-center">
-                <Link
-                  className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (window.location.href.indexOf("/admin/tables") !== -1
-                      ? "text-lightBlue-500 hover:text-lightBlue-600"
-                      : "text-blueGray-700 hover:text-blueGray-500")
-                  }
-                  to="/admin/tables"
-                >
-                  <i
-                    className={
-                      "fas fa-table mr-2 text-sm " +
-                      (window.location.href.indexOf("/admin/tables") !== -1
-                        ? "opacity-75"
-                        : "text-blueGray-300")
-                    }
-                  ></i>{" "}
-                  Tables
-                </Link>
-              </li>
-
-              <li className="items-center">
-                <Link
-                  className={
-                    "text-xs uppercase py-3 font-bold block " +
-                    (window.location.href.indexOf("/admin/maps") !== -1
-                      ? "text-lightBlue-500 hover:text-lightBlue-600"
-                      : "text-blueGray-700 hover:text-blueGray-500")
-                  }
-                  to="/admin/maps"
-                >
-                  <i
-                    className={
-                      "fas fa-map-marked mr-2 text-sm " +
-                      (window.location.href.indexOf("/admin/maps") !== -1
-                        ? "opacity-75"
-                        : "text-blueGray-300")
-                    }
-                  ></i>{" "}
-                  Maps
-                </Link>
-              </li>
-            </ul>
-
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" />
-            {/* Heading */}
-            <h6 className="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-              Auth Layout Pages
-            </h6>
-            {/* Navigation */}
-
-            <ul className="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
-              <li className="items-center">
-                <Link
-                  className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-                  to="/auth/login"
-                >
-                  <i className="fas fa-fingerprint text-blueGray-400 mr-2 text-sm"></i>{" "}
-                  Login
-                </Link>
-              </li>
-
-              <li className="items-center">
-                <Link
-                  className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-                  to="/auth/register"
-                >
-                  <i className="fas fa-clipboard-list text-blueGray-300 mr-2 text-sm"></i>{" "}
-                  Register
-                </Link>
-              </li>
-            </ul>
-
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" />
-            {/* Heading */}
-            <h6 className="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-              No Layout Pages
-            </h6>
-            {/* Navigation */}
-
-            <ul className="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
-              <li className="items-center">
-                <Link
-                  className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-                  to="/landing"
-                >
-                  <i className="fas fa-newspaper text-blueGray-400 mr-2 text-sm"></i>{" "}
-                  Landing Page
-                </Link>
-              </li>
-
-              <li className="items-center">
-                <Link
-                  className="text-blueGray-700 hover:text-blueGray-500 text-xs uppercase py-3 font-bold block"
-                  to="/profile"
-                >
-                  <i className="fas fa-user-circle text-blueGray-400 mr-2 text-sm"></i>{" "}
-                  Profile Page
-                </Link>
-              </li>
-            </ul>
-
-            {/* Divider */}
-            <hr className="my-4 md:min-w-full" />
-            {/* Heading */}
-            <h6 className="md:min-w-full text-blueGray-500 text-xs uppercase font-bold block pt-1 pb-4 no-underline">
-              Documentation
-            </h6>
-            {/* Navigation */}
-            <ul className="md:flex-col md:min-w-full flex flex-col list-none md:mb-4">
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/react/colors/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fas fa-paint-brush mr-2 text-blueGray-300 text-base"></i>
-                  Styles
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/react/alerts/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fab fa-css3-alt mr-2 text-blueGray-300 text-base"></i>
-                  CSS Components
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/angular/overview/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fab fa-angular mr-2 text-blueGray-300 text-base"></i>
-                  Angular
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/js/overview/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fab fa-js-square mr-2 text-blueGray-300 text-base"></i>
-                  Javascript
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/nextjs/overview/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fab fa-react mr-2 text-blueGray-300 text-base"></i>
-                  NextJS
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/react/overview/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fab fa-react mr-2 text-blueGray-300 text-base"></i>
-                  React
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/svelte/overview/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fas fa-link mr-2 text-blueGray-300 text-base"></i>
-                  Svelte
-                </a>
-              </li>
-
-              <li className="inline-flex">
-                <a
-                  href="https://www.creative-tim.com/learning-lab/tailwind/vue/overview/notus"
-                  target="_blank"
-                  className="text-blueGray-700 hover:text-blueGray-500 text-sm block mb-4 no-underline font-semibold"
-                >
-                  <i className="fab fa-vuejs mr-2 text-blueGray-300 text-base"></i>
-                  VueJS
-                </a>
-              </li>
-            </ul>
+              <div style={{ fontSize: "0.65rem", color: "#555", textTransform: "uppercase", letterSpacing: "1px", marginTop: "2px" }}>
+                Administrateur
+              </div>
+            </div>
+            <UserDropdown />
           </div>
         </div>
+
       </nav>
     </>
   );

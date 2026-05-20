@@ -74,19 +74,34 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
+
     try {
+
         const { email, password } = req.body;
-        const user = await userModel.Login(email, password); 
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
+
+        // Login déjà vérifie email + password
+        const user = await userModel.Login(email, password);
+
         const token = createToken(user._id);
+
         const userObj = user.toObject();
+
         delete userObj.password;
-        res.status(200).json({ message: 'Login successful', user: userObj, token });
+
+        res.status(200).json({
+            message: 'Login successful',
+            user: userObj,
+            token
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+
+        res.status(500).json({
+            error: error.message
+        });
+
     }
+
 };
 
 // Dans user.controller.js — remplace la fonction register par celle-ci :
