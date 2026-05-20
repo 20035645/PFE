@@ -1,447 +1,232 @@
+// src/views/coach/CoachDashboard.js
+// ─── Dashboard Coach — connecté aux vrais endpoints backend ──────────────────
+// React Router v5  |  React 17/18  |  Pas de Next.js
+// ─────────────────────────────────────────────────────────────────────────────
 import React from "react";
-import { Link } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { coachAPI, programmeAPI, seanceAPI, progressionAPI, memberAPI } from "../../services/apiBooks";
 
-// ─── Shared design tokens (mirrors landing page) ────────────────────────────
-const RED = "#D62828";
-const BG = "#0A0A0A";
-const CARD_BG = "#121212";
-const CARD_BORDER = "#232323";
-const TEXT_MUTED = "#B5B5B5";
-const TEXT_DIM = "#9A9A9A";
+// ─── Design tokens ───────────────────────────────────────────────────────────
+const RED          = "#D62828";
+const BG           = "#0A0A0A"; 
+const CARD_BG      = "#121212";
+const CARD_BORDER  = "#232323";
+const TEXT_MUTED   = "#B5B5B5";
+const TEXT_DIM     = "#9A9A9A";
+const AVATAR_COLORS = ["#D62828","#7c3aed","#0891b2","#059669","#d97706","#be185d","#0f766e"];
 
-const styles = {
-  page: {
-    background: BG,
-    color: "#F5F5F5",
-    fontFamily: "Barlow, Arial, sans-serif",
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-  },
-  // ── Navbar (identical to landing) ──────────────────────────────────────────
-  nav: {
-    position: "sticky",
-    top: 0,
-    zIndex: 50,
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "18px 5%",
-    background: "rgba(10,10,10,0.92)",
-    backdropFilter: "blur(12px)",
-    borderBottom: `1px solid rgba(214,40,40,0.22)`,
-  },
-  logo: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "2rem",
-    letterSpacing: "4px",
-    margin: 0,
-  },
-  navLinks: {
-    display: "flex",
-    gap: "24px",
-    alignItems: "center",
-    flexWrap: "wrap",
-  },
-  navLink: {
-    color: "#A3A3A3",
-    textDecoration: "none",
-    textTransform: "uppercase",
-    letterSpacing: "2px",
-    fontSize: "0.75rem",
-    fontWeight: 700,
-  },
-  navLinkActive: {
-    color: RED,
-    textDecoration: "none",
-    textTransform: "uppercase",
-    letterSpacing: "2px",
-    fontSize: "0.75rem",
-    fontWeight: 700,
-  },
-  navBtn: {
-    background: RED,
-    color: "#fff",
-    textDecoration: "none",
-    padding: "12px 18px",
-    borderRadius: "2px",
-    textTransform: "uppercase",
-    letterSpacing: "2px",
-    fontSize: "0.72rem",
-    fontWeight: 700,
-    boxShadow: `0 10px 30px rgba(214,40,40,0.35)`,
-    cursor: "pointer",
-    border: "none",
-  },
-  // ── Layout ─────────────────────────────────────────────────────────────────
-  wrapper: {
-    display: "flex",
-    flex: 1,
-  },
-  // ── Sidebar ────────────────────────────────────────────────────────────────
-  sidebar: {
-    width: "240px",
-    minHeight: "calc(100vh - 68px)",
-    background: "#0D0D0D",
-    borderRight: `1px solid rgba(214,40,40,0.16)`,
-    padding: "32px 0",
-    display: "flex",
-    flexDirection: "column",
-    gap: 0,
-    flexShrink: 0,
-  },
-  sidebarSection: {
-    padding: "0 20px",
-    marginBottom: "8px",
-  },
-  sidebarLabel: {
-    color: "#4A4A4A",
-    fontSize: "0.62rem",
-    letterSpacing: "3px",
-    textTransform: "uppercase",
-    padding: "16px 20px 8px",
-    fontWeight: 700,
-  },
-  sidebarItem: (active) => ({
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "12px 20px",
-    cursor: "pointer",
-    background: active ? "rgba(214,40,40,0.1)" : "transparent",
-    borderLeft: active ? `3px solid ${RED}` : "3px solid transparent",
-    color: active ? "#F5F5F5" : TEXT_MUTED,
-    fontSize: "0.82rem",
-    fontWeight: active ? 700 : 500,
-    letterSpacing: "0.5px",
-    userSelect: "none",
-    transition: "all 0.15s",
-  }),
-  sidebarIcon: {
-    fontSize: "1rem",
-    width: "20px",
-    textAlign: "center",
-  },
-  // ── Main content ───────────────────────────────────────────────────────────
-  main: {
-    flex: 1,
-    padding: "36px 40px",
-    overflowY: "auto",
-  },
-  pageHeader: {
-    marginBottom: "32px",
-  },
-  tag: {
-    color: RED,
-    textTransform: "uppercase",
-    letterSpacing: "3px",
-    fontSize: "0.72rem",
-    marginBottom: "8px",
-  },
-  pageTitle: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "2.8rem",
-    letterSpacing: "2px",
-    lineHeight: 1,
-    margin: 0,
-  },
-  // ── Stat cards row ─────────────────────────────────────────────────────────
-  statsRow: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "16px",
-    marginBottom: "28px",
-  },
-  statCard: {
-    background: "#111111",
-    border: `1px solid rgba(214,40,40,0.16)`,
-    padding: "22px",
-  },
-  statValue: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "2.8rem",
-    color: RED,
-    letterSpacing: "3px",
-    margin: "6px 0 0",
-    lineHeight: 1,
-  },
-  statLabel: {
-    color: TEXT_DIM,
-    textTransform: "uppercase",
-    letterSpacing: "2px",
-    fontSize: "0.68rem",
-  },
-  statDelta: (positive) => ({
-    fontSize: "0.72rem",
-    color: positive ? "#4ade80" : "#f87171",
-    marginTop: "4px",
-  }),
-  // ── Generic grid helpers ───────────────────────────────────────────────────
-  grid2: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "20px",
-    marginBottom: "20px",
-  },
-  grid3: {
-    display: "grid",
-    gridTemplateColumns: "repeat(3, 1fr)",
-    gap: "16px",
-    marginBottom: "20px",
-  },
-  // ── Panel ──────────────────────────────────────────────────────────────────
-  panel: {
-    background: CARD_BG,
-    border: `1px solid ${CARD_BORDER}`,
-    padding: "24px",
-  },
-  panelTitle: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "1.35rem",
-    letterSpacing: "1px",
-    margin: "0 0 18px",
-  },
-  panelHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "18px",
-  },
-  badge: (color) => ({
-    display: "inline-block",
-    background: color === "red" ? "rgba(214,40,40,0.15)" : color === "green" ? "rgba(74,222,128,0.12)" : "rgba(251,191,36,0.12)",
-    color: color === "red" ? RED : color === "green" ? "#4ade80" : "#fbbf24",
-    fontSize: "0.62rem",
-    letterSpacing: "2px",
-    textTransform: "uppercase",
-    padding: "4px 8px",
-    borderRadius: "2px",
-    fontWeight: 700,
-  }),
-  // ── Table ──────────────────────────────────────────────────────────────────
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
-  },
-  th: {
-    color: TEXT_DIM,
-    fontSize: "0.62rem",
-    letterSpacing: "2px",
-    textTransform: "uppercase",
-    textAlign: "left",
-    paddingBottom: "10px",
-    borderBottom: `1px solid #1E1E1E`,
-    fontWeight: 700,
-  },
-  td: {
-    padding: "13px 0",
-    borderBottom: `1px solid #181818`,
-    fontSize: "0.88rem",
-    color: "#DEDEDE",
-    verticalAlign: "middle",
-  },
-  // ── Progress bar ───────────────────────────────────────────────────────────
-  progressTrack: {
-    background: "#1E1E1E",
-    height: "6px",
-    borderRadius: "3px",
-    overflow: "hidden",
-    width: "100%",
-    margin: "6px 0",
-  },
-  progressFill: (pct) => ({
-    width: `${pct}%`,
-    height: "100%",
-    background: `linear-gradient(90deg, ${RED}, #ff6b6b)`,
-    borderRadius: "3px",
-  }),
-  // ── Avatar ─────────────────────────────────────────────────────────────────
-  avatar: (color) => ({
-    width: "36px",
-    height: "36px",
-    borderRadius: "50%",
-    background: color,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "1rem",
-    color: "#fff",
-    flexShrink: 0,
-  }),
-  // ── Séance card ────────────────────────────────────────────────────────────
-  seanceCard: {
-    background: "#111",
-    border: `1px solid #1E1E1E`,
-    padding: "14px 16px",
-    marginBottom: "10px",
-    display: "flex",
-    alignItems: "center",
-    gap: "14px",
-  },
-  timePill: {
-    background: "rgba(214,40,40,0.12)",
-    color: RED,
-    fontSize: "0.72rem",
-    fontWeight: 700,
-    letterSpacing: "1px",
-    padding: "6px 10px",
-    flexShrink: 0,
-    minWidth: "60px",
-    textAlign: "center",
-  },
-  // ── Activity feed ──────────────────────────────────────────────────────────
-  feedItem: {
-    display: "flex",
-    gap: "12px",
-    padding: "12px 0",
-    borderBottom: "1px solid #181818",
-    alignItems: "flex-start",
-  },
-  feedDot: {
-    width: "8px",
-    height: "8px",
-    background: RED,
-    borderRadius: "50%",
-    flexShrink: 0,
-    marginTop: "5px",
-  },
-  // ── Footer (identical to landing) ─────────────────────────────────────────
-  footer: {
-    borderTop: `1px solid rgba(214,40,40,0.18)`,
-    padding: "28px 5%",
-    color: "#8F8F8F",
-    display: "flex",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-    gap: "12px",
-    background: BG,
-  },
+// ─── Styles ──────────────────────────────────────────────────────────────────
+const S = {
+  page:       { background: BG, color: "#F5F5F5", fontFamily: "Barlow, Arial, sans-serif", minHeight: "100vh", display: "flex", flexDirection: "column" },
+  nav:        { position: "sticky", top: 0, zIndex: 50, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 5%", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(214,40,40,0.22)" },
+  logo:       { fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", letterSpacing: "4px", margin: 0, textDecoration: "none", color: "#F5F5F5" },
+  navLink:    { color: "#A3A3A3", textDecoration: "none", textTransform: "uppercase", letterSpacing: "2px", fontSize: "0.75rem", fontWeight: 700 },
+  navBtn:     { background: RED, color: "#fff", padding: "10px 18px", border: "none", textTransform: "uppercase", letterSpacing: "2px", fontSize: "0.72rem", fontWeight: 700, cursor: "pointer", boxShadow: "0 10px 30px rgba(214,40,40,0.35)", borderRadius: "2px" },
+  wrapper:    { display: "flex", flex: 1 },
+  sidebar:    { width: "240px", minHeight: "calc(100vh - 68px)", background: "#0D0D0D", borderRight: "1px solid rgba(214,40,40,0.16)", padding: "32px 0", display: "flex", flexDirection: "column", flexShrink: 0 },
+  sideLabel:  { color: "#4A4A4A", fontSize: "0.62rem", letterSpacing: "3px", textTransform: "uppercase", padding: "16px 20px 8px", fontWeight: 700 },
+  main:       { flex: 1, padding: "36px 40px", overflowY: "auto" },
+  pageTag:    { color: RED, textTransform: "uppercase", letterSpacing: "3px", fontSize: "0.72rem", marginBottom: "8px" },
+  pageTitle:  { fontFamily: "'Bebas Neue', sans-serif", fontSize: "2.8rem", letterSpacing: "2px", lineHeight: 1, margin: "0 0 28px" },
+  statsRow:   { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px", marginBottom: "28px" },
+  statCard:   { background: "#111", border: "1px solid rgba(214,40,40,0.16)", padding: "22px" },
+  statVal:    { fontFamily: "'Bebas Neue', sans-serif", fontSize: "2.8rem", color: RED, letterSpacing: "3px", margin: "6px 0 0", lineHeight: 1 },
+  statLbl:    { color: TEXT_DIM, textTransform: "uppercase", letterSpacing: "2px", fontSize: "0.68rem" },
+  panel:      { background: CARD_BG, border: `1px solid ${CARD_BORDER}`, padding: "24px", marginBottom: "20px" },
+  panelTitle: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.35rem", letterSpacing: "1px", margin: "0 0 18px" },
+  panelHdr:   { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" },
+  grid2:      { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" },
+  grid3:      { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" },
+  table:      { width: "100%", borderCollapse: "collapse" },
+  th:         { color: TEXT_DIM, fontSize: "0.62rem", letterSpacing: "2px", textTransform: "uppercase", textAlign: "left", paddingBottom: "10px", borderBottom: "1px solid #1E1E1E", fontWeight: 700 },
+  td:         { padding: "13px 0", borderBottom: "1px solid #181818", fontSize: "0.88rem", color: "#DEDEDE", verticalAlign: "middle" },
+  track:      { background: "#1E1E1E", height: "6px", borderRadius: "3px", overflow: "hidden", width: "100%", margin: "6px 0" },
+  seanceCard: { background: "#111", border: "1px solid #1E1E1E", padding: "14px 16px", marginBottom: "10px", display: "flex", alignItems: "center", gap: "14px" },
+  timePill:   { background: "rgba(214,40,40,0.12)", color: RED, fontSize: "0.72rem", fontWeight: 700, letterSpacing: "1px", padding: "6px 10px", flexShrink: 0, minWidth: "60px", textAlign: "center" },
+  input:      { background: "#0D0D0D", border: "1px solid #2A2A2A", color: "#F5F5F5", padding: "12px 14px", fontSize: "0.88rem", width: "100%", boxSizing: "border-box", outline: "none", fontFamily: "Barlow, Arial, sans-serif", borderRadius: "2px" },
+  footer:     { borderTop: "1px solid rgba(214,40,40,0.18)", padding: "28px 5%", color: "#8F8F8F", display: "flex", justifyContent: "space-between", background: BG },
 };
 
-// ─── Data ────────────────────────────────────────────────────────────────────
-const clients = [
-  { name: "Sami Ben Ali", goal: "Prise de masse", progress: 72, sessions: 18, status: "active", avatar: "#D62828" },
-  { name: "Leila Mansouri", goal: "Sèche & cardio", progress: 55, sessions: 12, status: "active", avatar: "#7c3aed" },
-  { name: "Karim Jebali", goal: "Remise en forme", progress: 30, sessions: 5, status: "warning", avatar: "#0891b2" },
-  { name: "Amira Trabelsi", goal: "Transformation", progress: 88, sessions: 24, status: "active", avatar: "#059669" },
-  { name: "Youssef Khaled", goal: "Performance", progress: 61, sessions: 16, status: "active", avatar: "#d97706" },
-];
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+const bdg = (color) => ({
+  display: "inline-block",
+  background: color === "red" ? "rgba(214,40,40,0.15)" : color === "green" ? "rgba(74,222,128,0.12)" : "rgba(251,191,36,0.12)",
+  color: color === "red" ? RED : color === "green" ? "#4ade80" : "#fbbf24",
+  fontSize: "0.62rem", letterSpacing: "2px", textTransform: "uppercase",
+  padding: "4px 8px", borderRadius: "2px", fontWeight: 700,
+});
 
-const todaySeances = [
-  { time: "08:00", client: "Sami Ben Ali", type: "Musculation", duration: "60 min" },
-  { time: "10:30", client: "Leila Mansouri", type: "Cardio HIIT", duration: "45 min" },
-  { time: "12:00", client: "Amira Trabelsi", type: "Bilan mensuel", duration: "30 min" },
-  { time: "15:00", client: "Karim Jebali", type: "Remise en forme", duration: "60 min" },
-  { time: "17:30", client: "Youssef Khaled", type: "Performance", duration: "75 min" },
-];
+const avt   = (color) => ({ width: "36px", height: "36px", borderRadius: "50%", background: color || RED, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: "#fff", flexShrink: 0 });
+const fmtDate = (d) => d ? new Date(d).toLocaleDateString("fr-FR") : "—";
+const label = (t) => <div style={{ ...S.statLbl, marginBottom: "6px" }}>{t}</div>;
 
-const programs = [
-  { name: "Force & Masse 8 semaines", clients: 3, progress: 65, type: "Musculation" },
-  { name: "Cardio Brûle-Graisse", clients: 2, progress: 40, type: "Cardio" },
-  { name: "Remise en Forme Progressive", clients: 1, progress: 30, type: "Général" },
-];
+// ─── Spinner ─────────────────────────────────────────────────────────────────
+function Spinner() {
+  return (
+    <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
+      <div style={{ width: "36px", height: "36px", border: `3px solid #222`, borderTop: `3px solid ${RED}`, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
+  );
+}
 
-const activityFeed = [
-  { text: "Sami Ben Ali a complété la séance du jour", time: "Il y a 2h" },
-  { text: "Nouveau bilan envoyé à Leila Mansouri", time: "Il y a 4h" },
-  { text: "Programme 'Force & Masse' mis à jour", time: "Hier, 18:30" },
-  { text: "Karim Jebali a manqué 2 séances cette semaine", time: "Hier, 10:00" },
-  { text: "Amira Trabelsi a atteint son objectif intermédiaire", time: "Lundi" },
-];
+// ─── Error banner ─────────────────────────────────────────────────────────────
+function ErrBanner({ msg, onClose }) {
+  if (!msg) return null;
+  return (
+    <div style={{ background: "rgba(214,40,40,0.12)", border: "1px solid rgba(214,40,40,0.4)", color: "#fca5a5", padding: "12px 16px", marginBottom: "16px", display: "flex", justifyContent: "space-between", fontSize: "0.85rem", borderRadius: "2px" }}>
+      {msg}
+      <span style={{ cursor: "pointer", marginLeft: "12px" }} onClick={onClose}>✕</span>
+    </div>
+  );
+}
 
-// ─── Sub-components ───────────────────────────────────────────────────────────
-function SidebarItem({ icon, label, active, onClick }) {
-  const [hover, setHover] = React.useState(false);
+// ─── Modal ───────────────────────────────────────────────────────────────────
+function Modal({ onClose, title, children }) {
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ background: "#111", border: "1px solid rgba(214,40,40,0.3)", padding: "36px", width: "540px", maxWidth: "94vw", maxHeight: "90vh", overflowY: "auto", position: "relative", borderRadius: "2px" }}>
+        <button onClick={onClose} style={{ position: "absolute", top: 16, right: 16, background: "transparent", border: "none", color: TEXT_MUTED, fontSize: "1.3rem", cursor: "pointer" }}>✕</button>
+        {title && <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "2px", marginBottom: "22px" }}>{title}</div>}
+        {children}
+      </div>
+    </div>
+  );
+}
+
+// ─── Sidebar item ─────────────────────────────────────────────────────────────
+function SidebarItem({ icon, label, active, onClick, danger }) {
+  const [hov, setHov] = React.useState(false);
   return (
     <div
-      style={{
-        ...styles.sidebarItem(active),
-        ...(hover && !active ? { color: "#F5F5F5", background: "rgba(255,255,255,0.04)" } : {}),
-      }}
+      style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 20px", cursor: "pointer", background: active ? "rgba(214,40,40,0.1)" : hov ? "rgba(255,255,255,0.04)" : "transparent", borderLeft: active ? `3px solid ${RED}` : "3px solid transparent", color: danger ? "#f87171" : active ? "#F5F5F5" : hov ? "#F5F5F5" : TEXT_MUTED, fontSize: "0.82rem", fontWeight: active ? 700 : 500, transition: "all 0.15s", userSelect: "none" }}
       onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
     >
-      <span style={styles.sidebarIcon}>{icon}</span>
+      <span style={{ fontSize: "1rem", width: "20px", textAlign: "center" }}>{icon}</span>
       {label}
     </div>
   );
 }
 
+// ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ value, label, delta, positive }) {
   return (
-    <div style={styles.statCard}>
-      <div style={styles.statLabel}>{label}</div>
-      <div style={styles.statValue}>{value}</div>
-      {delta && <div style={styles.statDelta(positive)}>{delta}</div>}
+    <div style={S.statCard}>
+      <div style={S.statLbl}>{label}</div>
+      <div style={S.statVal}>{value ?? "—"}</div>
+      {delta && <div style={{ fontSize: "0.72rem", color: positive ? "#4ade80" : "#f87171", marginTop: "4px" }}>{delta}</div>}
     </div>
   );
 }
 
-// ─── Views ────────────────────────────────────────────────────────────────────
-function DashboardHome() {
+// ══════════════════════════════════════════════════════════════════════════════
+// VIEW 1 — Vue d'ensemble
+// ══════════════════════════════════════════════════════════════════════════════
+function DashboardHome({ coachId }) {
+  const [data, setData] = React.useState({ coaches: 0, programmes: [], seances: [], progressions: [] });
+  const [load, setLoad] = React.useState(true);
+  const [err,  setErr]  = React.useState("");
+
+  React.useEffect(() => {
+    Promise.all([
+      programmeAPI.getAll(),
+      seanceAPI.getAll(),
+      progressionAPI.getAll(),
+      coachAPI.getAll(),
+    ])
+      .then(([programmes, seances, progressions, coaches]) => {
+        setData({ coaches: coaches.length, programmes, seances, progressions });
+      })
+      .catch(e => setErr(e.message))
+      .finally(() => setLoad(false));
+  }, []);
+
+  if (load) return <Spinner />;
+
+  // Séances d'aujourd'hui
+  const today = new Date().toISOString().split("T")[0];
+  const todaySeances = data.seances.filter(s => s.date && s.date.startsWith(today));
+
+  // Progression moyenne (basée sur poids/taille → on affiche le nombre total)
+
+
+
   return (
     <>
-      <div style={styles.pageHeader}>
-        <div style={styles.tag}>Coach Dashboard</div>
-        <h1 style={styles.pageTitle}>VUE D'ENSEMBLE</h1>
+      <div style={S.pageTag}>Coach Dashboard</div>
+      <h1 style={S.pageTitle}>VUE D'ENSEMBLE</h1>
+      <ErrBanner msg={err} onClose={() => setErr("")} />
+
+      <div style={S.statsRow}>
+        <StatCard value={data.coaches}           label="Coaches actifs" />
+        <StatCard value={todaySeances.length}    label="Séances aujourd'hui" />
+        <StatCard value={data.programmes.length} label="Programmes actifs" />
+        <StatCard value={data.progressions.length} label="Progressions enregistrées" positive />
       </div>
 
-      <div style={styles.statsRow}>
-        <StatCard value="5" label="Clients actifs" delta="↑ +1 ce mois" positive />
-        <StatCard value="5" label="Séances aujourd'hui" delta="↑ +2 vs semaine passée" positive />
-        <StatCard value="3" label="Programmes actifs" />
-        <StatCard value="63%" label="Progression moyenne" delta="↑ +8% ce mois" positive />
-      </div>
-
-      <div style={styles.grid2}>
-        {/* Today's schedule */}
-        <div style={styles.panel}>
-          <div style={styles.panelHeader}>
-            <h2 style={styles.panelTitle}>SÉANCES DU JOUR</h2>
-            <span style={styles.badge("red")}>Aujourd'hui</span>
+      <div style={S.grid2}>
+        {/* Séances du jour */}
+        <div style={S.panel}>
+          <div style={S.panelHdr}>
+            <h2 style={S.panelTitle}>SÉANCES DU JOUR</h2>
+            <span style={bdg("red")}>Aujourd'hui</span>
           </div>
-          {todaySeances.map((s) => (
-            <div key={s.time} style={styles.seanceCard}>
-              <div style={styles.timePill}>{s.time}</div>
+          {todaySeances.length === 0 && (
+            <div style={{ color: TEXT_DIM, fontSize: "0.85rem", padding: "20px 0" }}>
+              Aucune séance prévue aujourd'hui
+            </div>
+          )}
+          {todaySeances.slice(0, 5).map((s) => (
+            <div key={s._id} style={S.seanceCard}>
+              <div style={S.timePill}>{s.heure || "—"}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#F5F5F5", marginBottom: "2px" }}>{s.client}</div>
-                <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>{s.type} · {s.duration}</div>
+                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#F5F5F5", marginBottom: "2px" }}>
+                  {s.programme?.name || "—"}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>
+                  Coach : {s.coach?.name || "—"} · Capacité : {s.membres?.length || 0}/{s.capacite}
+                </div>
               </div>
-              <div style={styles.badge("green")}>Confirmé</div>
+              <span style={bdg("green")}>Confirmée</span>
             </div>
           ))}
         </div>
 
-        {/* Activity feed */}
-        <div style={styles.panel}>
-          <h2 style={styles.panelTitle}>ACTIVITÉ RÉCENTE</h2>
-          {activityFeed.map((item, i) => (
-            <div key={i} style={styles.feedItem}>
-              <div style={styles.feedDot} />
+        {/* Dernières progressions */}
+        <div style={S.panel}>
+          <h2 style={S.panelTitle}>PROGRESSIONS RÉCENTES</h2>
+          {data.progressions.length === 0 && (
+            <div style={{ color: TEXT_DIM, fontSize: "0.85rem", padding: "20px 0" }}>Aucune progression enregistrée</div>
+          )}
+          {data.progressions.slice(0, 5).map((p, i) => (
+            <div key={p._id} style={{ display: "flex", gap: "12px", padding: "12px 0", borderBottom: "1px solid #181818", alignItems: "flex-start" }}>
+              <div style={{ width: "8px", height: "8px", background: RED, borderRadius: "50%", flexShrink: 0, marginTop: "5px" }} />
               <div>
-                <div style={{ fontSize: "0.85rem", color: "#DEDEDE", marginBottom: "2px" }}>{item.text}</div>
-                <div style={{ fontSize: "0.72rem", color: TEXT_DIM }}>{item.time}</div>
+                <div style={{ fontSize: "0.85rem", color: "#DEDEDE", marginBottom: "2px" }}>
+                  {p.membre?.name || "Membre"} — {p.objectif || "Objectif non défini"}
+                </div>
+                <div style={{ fontSize: "0.72rem", color: TEXT_DIM }}>
+                  {p.poids ? `${p.poids} kg` : ""} {p.taille ? `· ${p.taille} cm` : ""}
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Programs summary */}
-      <div style={styles.panel}>
-        <h2 style={styles.panelTitle}>PROGRAMMES EN COURS</h2>
-        <div style={styles.grid3}>
-          {programs.map((p) => (
-            <div key={p.name} style={{ background: "#111", border: "1px solid #1E1E1E", padding: "18px" }}>
-              <div style={{ fontSize: "0.62rem", color: RED, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>{p.type}</div>
-              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "1px", marginBottom: "10px" }}>{p.name}</div>
-              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED, marginBottom: "8px" }}>{p.clients} client(s)</div>
-              <div style={styles.progressTrack}>
-                <div style={styles.progressFill(p.progress)} />
+      {/* Programmes en cours */}
+      <div style={S.panel}>
+        <h2 style={S.panelTitle}>PROGRAMMES EN COURS</h2>
+        <div style={S.grid3}>
+          {data.programmes.slice(0, 3).map((p) => (
+            <div key={p._id} style={{ background: "#111", border: "1px solid #1E1E1E", padding: "18px", borderRadius: "2px" }}>
+              <div style={{ fontSize: "0.62rem", color: RED, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>{p.niveau || "—"}</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "1px", marginBottom: "8px" }}>{p.name}</div>
+              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>
+                Coach : {p.coach?.name || "—"} · {p.duree} sem.
               </div>
-              <div style={{ fontSize: "0.72rem", color: TEXT_DIM, marginTop: "4px" }}>{p.progress}% complété</div>
             </div>
           ))}
         </div>
@@ -450,57 +235,358 @@ function DashboardHome() {
   );
 }
 
-function ClientsView() {
-  const [selected, setSelected] = React.useState(null);
+// ══════════════════════════════════════════════════════════════════════════════
+// VIEW 2 — Programmes  (vrai CRUD → /programme)
+// ══════════════════════════════════════════════════════════════════════════════
+function ProgrammesView() {
+  const [programmes, setProgrammes] = React.useState([]);
+  const [coaches,    setCoaches]    = React.useState([]);
+  const [load,  setLoad]   = React.useState(true);
+  const [saving,setSaving] = React.useState(false);
+  const [err,   setErr]    = React.useState("");
+  const [showCreate,  setShowCreate]  = React.useState(false);
+  const [editTarget,  setEditTarget]  = React.useState(null);
+
+  const emptyForm = { name: "", description: "", duree: 8, niveau: "débutant", coach: "" };
+  const [form, setForm] = React.useState(emptyForm);
+
+  const fetchAll = () =>
+    Promise.all([programmeAPI.getAll(), coachAPI.getAll()])
+      .then(([p, c]) => { setProgrammes(p); setCoaches(c); })
+      .catch(e => setErr(e.message))
+      .finally(() => setLoad(false));
+
+  React.useEffect(() => { fetchAll(); }, []);
+
+  const openCreate = () => { setForm(emptyForm); setShowCreate(true); };
+  const openEdit   = (p) => {
+    setForm({ name: p.name, description: p.description || "", duree: p.duree, niveau: p.niveau || "débutant", coach: p.coach?._id || p.coach || "" });
+    setEditTarget(p);
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim()) { setErr("Le nom est requis"); return; }
+    setSaving(true);
+    try {
+      if (editTarget) {
+        await programmeAPI.update(editTarget._id, form);
+        setEditTarget(null);
+      } else {
+        await programmeAPI.add(form);
+        setShowCreate(false);
+      }
+      fetchAll();
+    } catch (e) { setErr(e.message); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Supprimer ce programme ?")) return;
+    try { await programmeAPI.delete(id); fetchAll(); } catch (e) { setErr(e.message); }
+  };
+
+  const niveauColor = { débutant: "#059669", intermédiaire: "#d97706", avancé: "#D62828" };
+
+  if (load) return <Spinner />;
+
+  const ProgrammeForm = () => (
+    <>
+      <ErrBanner msg={err} onClose={() => setErr("")} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+        <div style={{ gridColumn: "1/-1" }}>
+          {label("Nom du programme *")}
+          <input style={S.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex: Force & Masse" />
+        </div>
+        <div style={{ gridColumn: "1/-1" }}>
+          {label("Description")}
+          <textarea style={{ ...S.input, minHeight: "70px", resize: "vertical" }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Objectifs, méthode..." />
+        </div>
+        <div>
+          {label("Durée (semaines)")}
+          <input style={S.input} type="number" min={1} max={52} value={form.duree} onChange={e => setForm(f => ({ ...f, duree: +e.target.value }))} />
+        </div>
+        <div>
+          {label("Niveau")}
+          <select style={S.input} value={form.niveau} onChange={e => setForm(f => ({ ...f, niveau: e.target.value }))}>
+            {["débutant","intermédiaire","avancé"].map(n => <option key={n}>{n}</option>)}
+          </select>
+        </div>
+        <div style={{ gridColumn: "1/-1" }}>
+          {label("Coach assigné")}
+          <select style={S.input} value={form.coach} onChange={e => setForm(f => ({ ...f, coach: e.target.value }))}>
+            <option value="">— Sélectionner un coach —</option>
+            {coaches.map(c => <option key={c._id} value={c._id}>{c.name} · {c.specialite}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button style={S.navBtn} onClick={handleSave} disabled={saving}>
+          {saving ? "Sauvegarde..." : "💾 Sauvegarder"}
+        </button>
+        <button onClick={() => { setShowCreate(false); setEditTarget(null); }} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>
+          Annuler
+        </button>
+      </div>
+    </>
+  );
+
   return (
     <>
-      <div style={styles.pageHeader}>
-        <div style={styles.tag}>Gestion</div>
-        <h1 style={styles.pageTitle}>MES CLIENTS</h1>
+      <div style={S.pageTag}>Planification</div>
+      <h1 style={S.pageTitle}>PROGRAMMES D'ENTRAÎNEMENT</h1>
+      <ErrBanner msg={err} onClose={() => setErr("")} />
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
+        <button style={S.navBtn} onClick={openCreate}>+ Créer un programme</button>
       </div>
 
-      <div style={styles.panel}>
-        <div style={styles.panelHeader}>
-          <h2 style={styles.panelTitle}>LISTE DES CLIENTS</h2>
-          <span style={{ ...styles.badge("red"), fontSize: "0.72rem" }}>{clients.length} clients</span>
+      {programmes.length === 0 && !load && (
+        <div style={{ ...S.panel, textAlign: "center", color: TEXT_DIM, padding: "60px" }}>
+          Aucun programme. Créez-en un !
         </div>
-        <table style={styles.table}>
+      )}
+
+      <div style={S.grid3}>
+        {programmes.map(p => (
+          <div key={p._id} style={{ ...S.panel, display: "flex", flexDirection: "column", marginBottom: 0 }}>
+            <div style={{ fontSize: "0.62rem", color: niveauColor[p.niveau] || RED, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px", fontWeight: 700 }}>
+              {p.niveau || "—"}
+            </div>
+            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.2rem", letterSpacing: "1px", margin: "0 0 6px" }}>{p.name}</h3>
+            {p.description && (
+              <div style={{ color: TEXT_DIM, fontSize: "0.75rem", marginBottom: "8px", lineHeight: 1.4 }}>{p.description}</div>
+            )}
+            <div style={{ color: TEXT_MUTED, fontSize: "0.78rem", marginBottom: "14px" }}>
+              {p.duree} semaines · Coach : {p.coach?.name || "Non assigné"}
+            </div>
+            <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
+              <button onClick={() => openEdit(p)} style={{ ...S.navBtn, padding: "8px 14px", fontSize: "0.68rem" }}>✏️ Modifier</button>
+              <button onClick={() => handleDelete(p._id)} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none", padding: "8px 12px", fontSize: "0.68rem", color: "#f87171" }}>🗑️</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showCreate && (
+        <Modal onClose={() => setShowCreate(false)} title="NOUVEAU PROGRAMME">
+          <ProgrammeForm />
+        </Modal>
+      )}
+      {editTarget && (
+        <Modal onClose={() => setEditTarget(null)} title={`MODIFIER — ${editTarget.name}`}>
+          <ProgrammeForm />
+        </Modal>
+      )}
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIEW 3 — Séances  (vrai CRUD → /seances)
+// ══════════════════════════════════════════════════════════════════════════════
+function SeancesView() {
+  const [seances,    setSeances]    = React.useState([]);
+  const [coaches,    setCoaches]    = React.useState([]);
+  const [programmes, setProgrammes] = React.useState([]);
+  const [members,    setMembers]    = React.useState([]);
+  const [load,   setLoad]   = React.useState(true);
+  const [saving, setSaving] = React.useState(false);
+  const [err,    setErr]    = React.useState("");
+  const [showAdd,setShowAdd]= React.useState(false);
+
+  const today = new Date().toISOString().split("T")[0];
+  const emptyForm = { date: today, heure: "09:00", capacite: 10, coach: "", programme: "" };
+  const [form, setForm] = React.useState(emptyForm);
+
+  const fetchAll = () =>
+    Promise.all([seanceAPI.getAll(), coachAPI.getAll(), programmeAPI.getAll(), memberAPI.getAll()])
+      .then(([s, c, p, m]) => { setSeances(s); setCoaches(c); setProgrammes(p); setMembers(m); })
+      .catch(e => setErr(e.message))
+      .finally(() => setLoad(false));
+
+  React.useEffect(() => { fetchAll(); }, []);
+
+  const handleAdd = async () => {
+    if (!form.coach || !form.programme) { setErr("Coach et programme sont requis"); return; }
+    setSaving(true);
+    try { await seanceAPI.add(form); setShowAdd(false); setForm(emptyForm); fetchAll(); }
+    catch (e) { setErr(e.message); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Supprimer cette séance ?")) return;
+    try { await seanceAPI.delete(id); fetchAll(); } catch (e) { setErr(e.message); }
+  };
+
+  if (load) return <Spinner />;
+
+  return (
+    <>
+      <div style={S.pageTag}>Planning</div>
+      <h1 style={S.pageTitle}>SÉANCES</h1>
+      <ErrBanner msg={err} onClose={() => setErr("")} />
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+        <button style={S.navBtn} onClick={() => setShowAdd(true)}>+ Nouvelle séance</button>
+      </div>
+
+      <div style={S.panel}>
+        <div style={S.panelHdr}>
+          <h2 style={S.panelTitle}>TOUTES LES SÉANCES</h2>
+          <span style={bdg("red")}>{seances.length} séance{seances.length !== 1 ? "s" : ""}</span>
+        </div>
+        {seances.length === 0 && <div style={{ color: TEXT_DIM, textAlign: "center", padding: "40px" }}>Aucune séance planifiée</div>}
+        {seances.map(s => (
+          <div key={s._id} style={{ ...S.seanceCard, flexWrap: "wrap" }}>
+            <div style={S.timePill}>{s.heure || "—"}</div>
+            <div style={{ flex: 1, minWidth: "200px" }}>
+              <div style={{ fontSize: "0.88rem", fontWeight: 700, marginBottom: "3px" }}>
+                {s.programme?.name || "—"}
+              </div>
+              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>
+                📅 {fmtDate(s.date)} · 👤 {s.coach?.name || "—"} · 👥 {s.membres?.length || 0}/{s.capacite}
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <span style={bdg(s.membres?.length >= s.capacite ? "red" : "green")}>
+                {s.membres?.length >= s.capacite ? "Complet" : "Places dispo"}
+              </span>
+              <button onClick={() => handleDelete(s._id)} style={{ background: "transparent", border: "1px solid #333", color: "#f87171", padding: "5px 9px", cursor: "pointer", fontSize: "0.75rem", borderRadius: "2px" }}>✕</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {showAdd && (
+        <Modal onClose={() => setShowAdd(false)} title="NOUVELLE SÉANCE">
+          <ErrBanner msg={err} onClose={() => setErr("")} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+            <div>
+              {label("Date")}
+              <input style={S.input} type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} />
+            </div>
+            <div>
+              {label("Heure")}
+              <input style={S.input} type="time" value={form.heure} onChange={e => setForm(f => ({ ...f, heure: e.target.value }))} />
+            </div>
+            <div>
+              {label("Capacité")}
+              <input style={S.input} type="number" min={1} value={form.capacite} onChange={e => setForm(f => ({ ...f, capacite: +e.target.value }))} />
+            </div>
+            <div>
+              {label("Coach *")}
+              <select style={S.input} value={form.coach} onChange={e => setForm(f => ({ ...f, coach: e.target.value }))}>
+                <option value="">— Sélectionner —</option>
+                {coaches.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
+              </select>
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              {label("Programme *")}
+              <select style={S.input} value={form.programme} onChange={e => setForm(f => ({ ...f, programme: e.target.value }))}>
+                <option value="">— Sélectionner —</option>
+                {programmes.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+              </select>
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button style={S.navBtn} onClick={handleAdd} disabled={saving}>{saving ? "Ajout..." : "Planifier"}</button>
+            <button onClick={() => setShowAdd(false)} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>Annuler</button>
+          </div>
+        </Modal>
+      )}
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VIEW 4 — Progressions  (→ /progressions)
+// ══════════════════════════════════════════════════════════════════════════════
+function ProgressionsView() {
+  const [progs,   setProgs]   = React.useState([]);
+  const [members, setMembers] = React.useState([]);
+  const [seances, setSeances] = React.useState([]);
+  const [load,    setLoad]    = React.useState(true);
+  const [saving,  setSaving]  = React.useState(false);
+  const [err,     setErr]     = React.useState("");
+  const [editing, setEditing] = React.useState(null);
+  const [showAdd, setShowAdd] = React.useState(false);
+
+  const emptyForm = { poids: "", taille: "", objectif: "", membre: "", seance: "" };
+  const [form, setForm] = React.useState(emptyForm);
+
+  const fetchAll = () =>
+    Promise.all([progressionAPI.getAll(), memberAPI.getAll(), seanceAPI.getAll()])
+      .then(([p, m, s]) => { setProgs(p); setMembers(m); setSeances(s); })
+      .catch(e => setErr(e.message))
+      .finally(() => setLoad(false));
+
+  React.useEffect(() => { fetchAll(); }, []);
+
+  const handleAdd = async () => {
+    if (!form.membre) { setErr("Membre requis"); return; }
+    setSaving(true);
+    try { await progressionAPI.add(form); setShowAdd(false); setForm(emptyForm); fetchAll(); }
+    catch (e) { setErr(e.message); }
+    setSaving(false);
+  };
+
+  const handleUpdate = async () => {
+    setSaving(true);
+    try { await progressionAPI.update(editing._id, { poids: editing.poids, taille: editing.taille, objectif: editing.objectif }); setEditing(null); fetchAll(); }
+    catch (e) { setErr(e.message); }
+    setSaving(false);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Supprimer cette progression ?")) return;
+    try { await progressionAPI.delete(id); fetchAll(); } catch (e) { setErr(e.message); }
+  };
+
+  if (load) return <Spinner />;
+
+  return (
+    <>
+      <div style={S.pageTag}>Suivi</div>
+      <h1 style={S.pageTitle}>SUIVI DES PROGRESSIONS</h1>
+      <ErrBanner msg={err} onClose={() => setErr("")} />
+
+      <div style={S.statsRow}>
+        <StatCard value={progs.length}                                         label="Entrées total" />
+        <StatCard value={members.length}                                       label="Membres suivis" />
+        <StatCard value={progs.filter(p=>p.objectif).length}                  label="Avec objectif" positive />
+        <StatCard value={progs.length ? Math.round(progs.reduce((s,p)=>s+(+p.poids||0),0)/progs.length)+"kg" : "—"} label="Poids moyen" />
+      </div>
+
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "16px" }}>
+        <button style={S.navBtn} onClick={() => setShowAdd(true)}>+ Ajouter progression</button>
+      </div>
+
+      <div style={S.panel}>
+        <h2 style={S.panelTitle}>TOUTES LES PROGRESSIONS</h2>
+        {progs.length === 0 && <div style={{ color: TEXT_DIM, textAlign: "center", padding: "40px" }}>Aucune progression enregistrée</div>}
+        <table style={S.table}>
           <thead>
-            <tr>
-              {["Client", "Objectif", "Progression", "Séances", "Statut", "Actions"].map((h) => (
-                <th key={h} style={styles.th}>{h}</th>
-              ))}
-            </tr>
+            <tr>{["Membre","Poids","Taille","Objectif","Séance","Actions"].map(h => <th key={h} style={S.th}>{h}</th>)}</tr>
           </thead>
           <tbody>
-            {clients.map((c) => (
-              <tr key={c.name}>
-                <td style={styles.td}>
+            {progs.map((p, i) => (
+              <tr key={p._id}>
+                <td style={S.td}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={styles.avatar(c.avatar)}>{c.name[0]}</div>
-                    <span style={{ fontWeight: 600 }}>{c.name}</span>
+                    <div style={{ ...avt(AVATAR_COLORS[i % AVATAR_COLORS.length]) }}>{(p.membre?.name || "?")[0].toUpperCase()}</div>
+                    <span style={{ fontWeight: 600 }}>{p.membre?.name || "—"}</span>
                   </div>
                 </td>
-                <td style={styles.td}><span style={{ color: TEXT_MUTED }}>{c.goal}</span></td>
-                <td style={{ ...styles.td, minWidth: "140px" }}>
-                  <div style={styles.progressTrack}>
-                    <div style={styles.progressFill(c.progress)} />
+                <td style={S.td}>{p.poids ? `${p.poids} kg` : "—"}</td>
+                <td style={S.td}>{p.taille ? `${p.taille} cm` : "—"}</td>
+                <td style={S.td}><span style={{ color: TEXT_MUTED }}>{p.objectif || "—"}</span></td>
+                <td style={S.td}>{p.seance ? fmtDate(p.seance?.date) : "—"}</td>
+                <td style={S.td}>
+                  <div style={{ display: "flex", gap: "8px" }}>
+                    <button onClick={() => setEditing({ ...p, poids: p.poids || "", taille: p.taille || "", objectif: p.objectif || "" })} style={{ background: "transparent", border: "1px solid rgba(214,40,40,0.4)", color: RED, padding: "5px 10px", cursor: "pointer", fontSize: "0.72rem", borderRadius: "2px" }}>✏️</button>
+                    <button onClick={() => handleDelete(p._id)} style={{ background: "transparent", border: "1px solid #333", color: "#f87171", padding: "5px 10px", cursor: "pointer", fontSize: "0.72rem", borderRadius: "2px" }}>✕</button>
                   </div>
-                  <span style={{ fontSize: "0.72rem", color: TEXT_DIM }}>{c.progress}%</span>
-                </td>
-                <td style={styles.td}><span style={{ color: "#F5F5F5" }}>{c.sessions}</span></td>
-                <td style={styles.td}>
-                  <span style={styles.badge(c.status === "active" ? "green" : "yellow")}>
-                    {c.status === "active" ? "Actif" : "Attention"}
-                  </span>
-                </td>
-                <td style={styles.td}>
-                  <button
-                    onClick={() => setSelected(c)}
-                    style={{ background: "transparent", border: `1px solid rgba(214,40,40,0.4)`, color: RED, padding: "6px 12px", cursor: "pointer", fontSize: "0.72rem", letterSpacing: "1px", textTransform: "uppercase" }}
-                  >
-                    Voir
-                  </button>
                 </td>
               </tr>
             ))}
@@ -508,298 +594,165 @@ function ClientsView() {
         </table>
       </div>
 
-      {selected && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.8)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ background: "#111", border: `1px solid rgba(214,40,40,0.3)`, padding: "36px", width: "460px", position: "relative" }}>
-            <button onClick={() => setSelected(null)} style={{ position: "absolute", top: 16, right: 16, background: "transparent", border: "none", color: TEXT_MUTED, fontSize: "1.2rem", cursor: "pointer" }}>✕</button>
-            <div style={styles.tag}>Fiche client</div>
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "22px" }}>
-              <div style={{ ...styles.avatar(selected.avatar), width: "52px", height: "52px", fontSize: "1.4rem" }}>{selected.name[0]}</div>
-              <div>
-                <h2 style={{ ...styles.pageTitle, fontSize: "1.8rem", margin: 0 }}>{selected.name}</h2>
-                <div style={{ color: TEXT_MUTED, fontSize: "0.82rem" }}>{selected.goal}</div>
-              </div>
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "22px" }}>
-              {[["Séances", selected.sessions], ["Progression", `${selected.progress}%`], ["Statut", selected.status === "active" ? "Actif" : "Attention"], ["Plan", "Performance"]].map(([k, v]) => (
-                <div key={k} style={{ background: "#0D0D0D", border: "1px solid #1E1E1E", padding: "14px" }}>
-                  <div style={styles.statLabel}>{k}</div>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", color: RED }}>{v}</div>
-                </div>
-              ))}
-            </div>
-            <div style={styles.progressTrack}>
-              <div style={styles.progressFill(selected.progress)} />
-            </div>
-            <div style={{ fontSize: "0.75rem", color: TEXT_DIM, marginTop: "6px", marginBottom: "22px" }}>{selected.progress}% de l'objectif atteint</div>
-            <button style={styles.navBtn}>Modifier programme</button>
-          </div>
-        </div>
-      )}
-    </>
-  );
-}
-
-function ProgramsView() {
-  const [showCreate, setShowCreate] = React.useState(false);
-  const [name, setName] = React.useState("");
-  const [type, setType] = React.useState("Musculation");
-
-  const inputStyle = {
-    background: "#0D0D0D",
-    border: "1px solid #2A2A2A",
-    color: "#F5F5F5",
-    padding: "12px 14px",
-    fontSize: "0.88rem",
-    width: "100%",
-    boxSizing: "border-box",
-    outline: "none",
-    fontFamily: "Barlow, Arial, sans-serif",
-  };
-
-  return (
-    <>
-      <div style={styles.pageHeader}>
-        <div style={styles.tag}>Planification</div>
-        <h1 style={styles.pageTitle}>PROGRAMMES D'ENTRAÎNEMENT</h1>
-      </div>
-
-      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "20px" }}>
-        <button onClick={() => setShowCreate(true)} style={styles.navBtn}>+ Créer un programme</button>
-      </div>
-
-      {showCreate && (
-        <div style={{ ...styles.panel, marginBottom: "20px", border: `1px solid rgba(214,40,40,0.35)` }}>
-          <h2 style={styles.panelTitle}>NOUVEAU PROGRAMME</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px", marginBottom: "16px" }}>
-            <div>
-              <div style={{ ...styles.statLabel, marginBottom: "8px" }}>Nom du programme</div>
-              <input style={inputStyle} value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Force 8 semaines..." />
-            </div>
-            <div>
-              <div style={{ ...styles.statLabel, marginBottom: "8px" }}>Type</div>
-              <select style={inputStyle} value={type} onChange={(e) => setType(e.target.value)}>
-                {["Musculation", "Cardio", "HIIT", "Mobilité", "Général"].map((t) => <option key={t}>{t}</option>)}
+      {/* Modal Ajouter */}
+      {showAdd && (
+        <Modal onClose={() => setShowAdd(false)} title="NOUVELLE PROGRESSION">
+          <ErrBanner msg={err} onClose={() => setErr("")} />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+            <div style={{ gridColumn: "1/-1" }}>
+              {label("Membre *")}
+              <select style={S.input} value={form.membre} onChange={e => setForm(f => ({ ...f, membre: e.target.value }))}>
+                <option value="">— Sélectionner —</option>
+                {members.map(m => <option key={m._id} value={m._id}>{m.name}</option>)}
               </select>
             </div>
             <div>
-              <div style={{ ...styles.statLabel, marginBottom: "8px" }}>Durée</div>
-              <select style={inputStyle}>
-                {["4 semaines", "8 semaines", "12 semaines"].map((d) => <option key={d}>{d}</option>)}
+              {label("Poids (kg)")}
+              <input style={S.input} type="number" value={form.poids} onChange={e => setForm(f => ({ ...f, poids: e.target.value }))} placeholder="75" />
+            </div>
+            <div>
+              {label("Taille (cm)")}
+              <input style={S.input} type="number" value={form.taille} onChange={e => setForm(f => ({ ...f, taille: e.target.value }))} placeholder="180" />
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              {label("Objectif")}
+              <input style={S.input} value={form.objectif} onChange={e => setForm(f => ({ ...f, objectif: e.target.value }))} placeholder="Ex: Prise de masse, perte de poids..." />
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              {label("Séance liée (optionnel)")}
+              <select style={S.input} value={form.seance} onChange={e => setForm(f => ({ ...f, seance: e.target.value }))}>
+                <option value="">— Aucune —</option>
+                {seances.map(s => <option key={s._id} value={s._id}>{fmtDate(s.date)} {s.heure} — {s.programme?.name || "—"}</option>)}
               </select>
             </div>
           </div>
-          <div style={{ display: "flex", gap: "12px" }}>
-            <button style={styles.navBtn} onClick={() => setShowCreate(false)}>Créer</button>
-            <button onClick={() => setShowCreate(false)} style={{ ...styles.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>Annuler</button>
-          </div>
-        </div>
-      )}
-
-      <div style={styles.grid3}>
-        {programs.map((p) => (
-          <div key={p.name} style={{ ...styles.panel, display: "flex", flexDirection: "column" }}>
-            <div style={{ ...styles.badge("red"), marginBottom: "10px" }}>{p.type}</div>
-            <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.3rem", letterSpacing: "1px", margin: "0 0 8px" }}>{p.name}</h3>
-            <div style={{ color: TEXT_MUTED, fontSize: "0.8rem", marginBottom: "14px" }}>{p.clients} client(s) assigné(s)</div>
-            <div style={styles.progressTrack}>
-              <div style={styles.progressFill(p.progress)} />
-            </div>
-            <div style={{ fontSize: "0.72rem", color: TEXT_DIM, margin: "6px 0 16px" }}>{p.progress}% complété</div>
-            <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
-              <button style={{ ...styles.navBtn, padding: "8px 14px", fontSize: "0.68rem" }}>Modifier</button>
-              <button style={{ ...styles.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none", padding: "8px 14px", fontSize: "0.68rem" }}>Détails</button>
-            </div>
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
-
-function ScheduleView() {
-  const days = ["LUN", "MAR", "MER", "JEU", "VEN", "SAM", "DIM"];
-  const hours = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
-
-  const scheduled = {
-    "LUN-08:00": { client: "Sami", type: "Muscu" },
-    "LUN-10:30": { client: "Leila", type: "HIIT" },
-    "MAR-09:00": { client: "Amira", type: "Bilan" },
-    "MER-15:00": { client: "Karim", type: "Cardio" },
-    "JEU-17:00": { client: "Youssef", type: "Perf" },
-    "VEN-08:00": { client: "Sami", type: "Muscu" },
-    "VEN-11:00": { client: "Leila", type: "Mobilité" },
-    "SAM-10:00": { client: "Amira", type: "HIIT" },
-  };
-
-  return (
-    <>
-      <div style={styles.pageHeader}>
-        <div style={styles.tag}>Planning</div>
-        <h1 style={styles.pageTitle}>PLANIFIER UNE SÉANCE</h1>
-      </div>
-
-      <div style={styles.panel}>
-        <div style={styles.panelHeader}>
-          <h2 style={styles.panelTitle}>SEMAINE DU 19 MAI 2026</h2>
           <div style={{ display: "flex", gap: "10px" }}>
-            <button style={{ ...styles.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none", padding: "8px 14px" }}>← Préc.</button>
-            <button style={{ ...styles.navBtn, padding: "8px 14px" }}>Suiv. →</button>
+            <button style={S.navBtn} onClick={handleAdd} disabled={saving}>{saving ? "Ajout..." : "Ajouter"}</button>
+            <button onClick={() => setShowAdd(false)} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>Annuler</button>
           </div>
-        </div>
+        </Modal>
+      )}
 
-        <div style={{ overflowX: "auto" }}>
-          <table style={{ ...styles.table, minWidth: "700px" }}>
-            <thead>
-              <tr>
-                <th style={{ ...styles.th, width: "60px" }}>H</th>
-                {days.map((d) => <th key={d} style={{ ...styles.th, textAlign: "center" }}>{d}</th>)}
-              </tr>
-            </thead>
-            <tbody>
-              {hours.map((h) => (
-                <tr key={h}>
-                  <td style={{ ...styles.td, color: TEXT_DIM, fontSize: "0.72rem", paddingRight: "12px", whiteSpace: "nowrap" }}>{h}</td>
-                  {days.map((d) => {
-                    const key = `${d}-${h}`;
-                    const slot = scheduled[key];
-                    return (
-                      <td key={d} style={{ ...styles.td, textAlign: "center", padding: "6px 4px" }}>
-                        {slot ? (
-                          <div style={{ background: "rgba(214,40,40,0.15)", border: `1px solid rgba(214,40,40,0.3)`, padding: "4px 8px", borderRadius: "2px" }}>
-                            <div style={{ fontSize: "0.72rem", color: RED, fontWeight: 700 }}>{slot.client}</div>
-                            <div style={{ fontSize: "0.65rem", color: TEXT_MUTED }}>{slot.type}</div>
-                          </div>
-                        ) : (
-                          <div style={{ height: "34px", border: "1px dashed #1E1E1E", borderRadius: "2px", cursor: "pointer" }} />
-                        )}
-                      </td>
-                    );
-                  })}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </>
-  );
-}
-
-function ProgressionView() {
-  return (
-    <>
-      <div style={styles.pageHeader}>
-        <div style={styles.tag}>Suivi</div>
-        <h1 style={styles.pageTitle}>SUIVI DES PROGRESSIONS</h1>
-      </div>
-
-      <div style={styles.statsRow}>
-        <StatCard value="63%" label="Progression moyenne" delta="↑ +8% ce mois" positive />
-        <StatCard value="4/5" label="Objectifs atteints" delta="↑ +1 vs mois passé" positive />
-        <StatCard value="1" label="Client en difficulté" delta="↓ Karim J." />
-        <StatCard value="87" label="Séances ce mois" delta="↑ +12 séances" positive />
-      </div>
-
-      <div style={styles.panel}>
-        <h2 style={styles.panelTitle}>PROGRESSION PAR CLIENT</h2>
-        <div style={{ display: "grid", gap: "16px" }}>
-          {clients.map((c) => (
-            <div key={c.name} style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <div style={styles.avatar(c.avatar)}>{c.name[0]}</div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-                  <span style={{ fontSize: "0.88rem", fontWeight: 600 }}>{c.name}</span>
-                  <span style={{ fontSize: "0.82rem", color: c.progress >= 60 ? "#4ade80" : "#fbbf24" }}>{c.progress}%</span>
-                </div>
-                <div style={styles.progressTrack}>
-                  <div style={styles.progressFill(c.progress)} />
-                </div>
-                <div style={{ fontSize: "0.72rem", color: TEXT_DIM, marginTop: "3px" }}>{c.goal} · {c.sessions} séances</div>
-              </div>
-              <span style={styles.badge(c.status === "active" ? "green" : "yellow")}>
-                {c.status === "active" ? "En bonne voie" : "À surveiller"}
-              </span>
+      {/* Modal Modifier */}
+      {editing && (
+        <Modal onClose={() => setEditing(null)} title="MODIFIER PROGRESSION">
+          <ErrBanner msg={err} onClose={() => setErr("")} />
+          <div style={{ marginBottom: "14px" }}>
+            {label("Membre")}
+            <div style={{ fontWeight: 600, color: "#F5F5F5" }}>{editing.membre?.name || "—"}</div>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+            <div>
+              {label("Poids (kg)")}
+              <input style={S.input} type="number" value={editing.poids} onChange={e => setEditing(x => ({ ...x, poids: e.target.value }))} />
             </div>
-          ))}
-        </div>
-      </div>
+            <div>
+              {label("Taille (cm)")}
+              <input style={S.input} type="number" value={editing.taille} onChange={e => setEditing(x => ({ ...x, taille: e.target.value }))} />
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              {label("Objectif")}
+              <input style={S.input} value={editing.objectif} onChange={e => setEditing(x => ({ ...x, objectif: e.target.value }))} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <button style={S.navBtn} onClick={handleUpdate} disabled={saving}>{saving ? "Sauvegarde..." : "💾 Sauvegarder"}</button>
+            <button onClick={() => setEditing(null)} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>Annuler</button>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }
 
-// ─── Sidebar nav config ───────────────────────────────────────────────────────
-const navItems = [
-  { key: "home", icon: "⊞", label: "Vue d'ensemble" },
-  { key: "clients", icon: "👥", label: "Mes clients" },
-  { key: "programs", icon: "📋", label: "Programmes" },
-  { key: "schedule", icon: "📅", label: "Planifier séance" },
-  { key: "progress", icon: "📈", label: "Suivre progression" },
+// ══════════════════════════════════════════════════════════════════════════════
+// LAYOUT PRINCIPAL
+// ══════════════════════════════════════════════════════════════════════════════
+const NAV_ITEMS = [
+  { key: "home",        icon: "⊞", label: "Vue d'ensemble"  },
+  { key: "programmes",  icon: "📋", label: "Programmes"      },
+  { key: "seances",     icon: "📅", label: "Séances"         },
+  { key: "progressions",icon: "📈", label: "Progressions"    },
 ];
 
-// ─── Main component ───────────────────────────────────────────────────────────
 export default function CoachDashboard() {
+  const history = useHistory();                              // ← React Router v5
   const [activeView, setActiveView] = React.useState("home");
+  const [coachName,  setCoachName]  = React.useState("");
+
+  React.useEffect(() => {
+    // Charger fonts
+    if (!document.getElementById("gymaccess-fonts")) {
+      const link = document.createElement("link");
+      link.id   = "gymaccess-fonts";
+      link.href = "https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap";
+      link.rel  = "stylesheet";
+      document.head.appendChild(link);
+    }
+
+    // Récupérer le coach depuis localStorage
+    const stored = localStorage.getItem("gymaccess_user");
+    if (stored) {
+      try { setCoachName(JSON.parse(stored).name || "Coach"); } catch {}
+    }
+  }, []);
+
+  // ── Logout : supprime token + redirect vers /  ────────────────────────────
+  const handleLogout = () => {
+    localStorage.removeItem("gymaccess_token");
+    localStorage.removeItem("gymaccess_user");
+    history.push("/");          // → landing page (Route path="/" dans index.js)
+  };
 
   const renderView = () => {
     switch (activeView) {
-      case "clients": return <ClientsView />;
-      case "programs": return <ProgramsView />;
-      case "schedule": return <ScheduleView />;
-      case "progress": return <ProgressionView />;
-      default: return <DashboardHome />;
+      case "programmes":   return <ProgrammesView />;
+      case "seances":      return <SeancesView />;
+      case "progressions": return <ProgressionsView />;
+      default:             return <DashboardHome />;
     }
   };
 
   return (
-    <div style={styles.page}>
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-      <link
-        href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700;800&family=Bebas+Neue&display=swap"
-        rel="stylesheet"
-      />
-
+    <div style={S.page}>
       {/* ── Navbar ── */}
-      <nav style={styles.nav}>
-        <Link to="/" style={{ textDecoration: "none" }}>
-          <p style={styles.logo}>GYM<span style={{ color: RED }}>ACCESS</span></p>
-        </Link>
-
-        <div style={styles.navLinks}>
-          <Link to="/#salle" style={styles.navLink}>Salle</Link>
-          <Link to="/#services" style={styles.navLink}>Services</Link>
-          
-          <Link to="/landing" style={styles.navLink}>Nutrition</Link>
-          <Link to="/newpage" style={styles.navLink}>Abonnements</Link>
-          
-          <Link
-            to="/auth/login"
-            style={{ ...styles.navBtn, background: "transparent", border: "1px solid rgba(214,40,40,0.6)", boxShadow: "none" }}
-          >
-            Se connecter
-          </Link>
-          <Link to="/auth/register" style={styles.navBtn}>Nous rejoindre</Link>
+      <nav style={S.nav}>
+        <a href="/" style={{ ...S.logo, textDecoration: "none", color: "#F5F5F5" }}>
+          GYM<span style={{ color: RED }}>ACCESS</span>
+        </a>
+        <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
+          <a href="/#salle"        style={S.navLink}>Salle</a>
+          <a href="/#services"     style={S.navLink}>Services</a>
+          <a href="/#nutrition"    style={S.navLink}>Nutrition</a>
+          <a href="/#abonnements"  style={S.navLink}>Abonnements</a>
+          {coachName && (
+            <span style={{ color: TEXT_MUTED, fontSize: "0.78rem" }}>👋 {coachName}</span>
+          )}
+          <button onClick={handleLogout} style={{ ...S.navBtn, background: "transparent", border: "1px solid rgba(214,40,40,0.6)", boxShadow: "none" }}>
+            Se déconnecter
+          </button>
         </div>
       </nav>
 
       {/* ── Body ── */}
-      <div style={styles.wrapper}>
+      <div style={S.wrapper}>
         {/* Sidebar */}
-        <aside style={styles.sidebar}>
-          {/* Coach profile */}
+        <aside style={S.sidebar}>
+          {/* Profil coach */}
           <div style={{ padding: "0 20px 24px", borderBottom: "1px solid #1A1A1A", marginBottom: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-              <div style={{ ...styles.avatar(RED), width: "44px", height: "44px", fontSize: "1.2rem", borderRadius: "4px" }}>N</div>
+              <div style={{ width: "44px", height: "44px", borderRadius: "4px", background: RED, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.2rem", color: "#fff" }}>
+                {coachName?.[0]?.toUpperCase() || "C"}
+              </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>Nassim</div>
+                <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>{coachName || "Coach"}</div>
                 <div style={{ fontSize: "0.68rem", color: RED, textTransform: "uppercase", letterSpacing: "1px" }}>Coach certifié</div>
               </div>
             </div>
           </div>
 
-          <div style={styles.sidebarLabel}>Navigation</div>
-          {navItems.map((item) => (
+          <div style={S.sideLabel}>Navigation</div>
+          {NAV_ITEMS.map(item => (
             <SidebarItem
               key={item.key}
               icon={item.icon}
@@ -809,21 +762,19 @@ export default function CoachDashboard() {
             />
           ))}
 
+          {/* Se déconnecter — pas de Paramètres */}
           <div style={{ marginTop: "auto", borderTop: "1px solid #1A1A1A", paddingTop: "16px" }}>
-            <SidebarItem icon="⚙️" label="Paramètres" active={false} onClick={() => {}} />
-            <SidebarItem icon="🔓" label="Se déconnecter" active={false} onClick={() => {}} />
+            <SidebarItem icon="🔓" label="Se déconnecter" danger onClick={handleLogout} />
           </div>
         </aside>
 
-        {/* Main */}
-        <main style={styles.main}>
-          {renderView()}
-        </main>
+        {/* Contenu */}
+        <main style={S.main}>{renderView()}</main>
       </div>
 
-      {/* ── Footer (identical to landing) ── */}
-      <footer style={styles.footer}>
-        <div style={styles.logo}>
+      {/* ── Footer ── */}
+      <footer style={S.footer}>
+        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "3px" }}>
           GYM<span style={{ color: RED }}>ACCESS</span>
         </div>
         <div>© 2026 GymAccess — Tous droits réservés</div>
