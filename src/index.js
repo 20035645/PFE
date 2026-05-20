@@ -2,11 +2,15 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 
+
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "assets/styles/index.css";
 
 import Admin from "layouts/Admin.js";
 import Auth from "layouts/Auth.js";
+import Coach from "layouts/Coach.js";
+
+
 
 import Index from "views/Index.js";
 import Landing from "views/Landing.js";
@@ -18,10 +22,12 @@ ReactDOM.render(
     <Switch>
       <Route path="/admin" component={Admin} />
       <Route path="/auth" component={Auth} />
+      <Route path="/coach" component={Coach} />
       <Route path="/landing" component={Landing} />
       <Route path="/profile" component={Profile} />
       <Route path="/newpage" component={NewPage} />
       <Route path="/" exact component={Index} />
+    
       <Redirect from="*" to="/" />
     </Switch>
   </BrowserRouter>,

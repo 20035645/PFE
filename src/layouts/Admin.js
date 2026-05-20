@@ -6,8 +6,10 @@ import Sidebar from "components/Sidebar/Sidebar.js";
 import HeaderStats from "components/Headers/HeaderStats.js";
 import FooterAdmin from "components/Footers/FooterAdmin.js";
 
+
 import Dashboard from "views/admin/Dashboard.js";
 import Settings from "views/admin/Settings.js";
+
 import Tables from "views/admin/Tables.js";
 import Maps from "views/admin/Maps.js";
 

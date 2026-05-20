@@ -24,12 +24,16 @@ export default function Login() {
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       const role = res.data.user.role;
+      console.log(role);
 
+      // Redirige selon le rôle
       // Redirige selon le rôle
       if (role === "admin") {
         history.push("/admin/dashboard");
+      } else if (role === "coach") {
+        history.push("/coach/dashboard");  // ← ajout
       } else {
-        history.push("/profile"); // ← membre → profil
+        history.push("/profile"); // membre
       }
 
     } catch (err) {

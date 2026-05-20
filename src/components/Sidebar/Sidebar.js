@@ -216,6 +216,7 @@ export default function Sidebar() {
           <ul style={{ padding: 0, margin: 0 }}>
             <NavItem to="/admin/dashboard" icon="fas fa-chart-bar" label="Dashboard" />
             <NavItem to="/admin/settings" icon="fas fa-cog" label="Paramètres" />
+            
             <NavItem to="/admin/tables" icon="fas fa-users" label="Membres" />
             <NavItem to="/admin/maps" icon="fas fa-map-marked-alt" label="Localisation" />
           </ul>

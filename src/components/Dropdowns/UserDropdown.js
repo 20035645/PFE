@@ -33,8 +33,6 @@ export default function UserDropdown() {
         style={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a', minWidth: '160px' }}
       >
         {[
-          { label: "Mon Profil", icon: "fas fa-user", to: "/profile" },
-          { label: "Paramètres", icon: "fas fa-cog", to: "/admin/settings" },
           { label: "Déconnexion", icon: "fas fa-sign-out-alt", to: "/auth/login" },
         ].map((item, i) => (
           <Link key={i} to={item.to}
