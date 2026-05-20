@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from "react";
 import { Link } from "react-router-dom";
 import { AUTH_API } from "Services/api";
@@ -39,66 +40,74 @@ export default function Login() {
       setLoggedIn(true);
     } catch {
       setError("Impossible de contacter le serveur.");
+=======
+// LOGIN.JS
+
+import React, { useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { loginUser } from "../../services/apiUser";
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");       // ← ajout
+  const [loading, setLoading] = useState(false); // ← ajout
+
+  const history = useHistory(); // ← ajout
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+
+    try {
+      const res = await loginUser({ email, password });
+
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      const role = res.data.user.role;
+      console.log(role);
+
+      // Redirige selon le rôle
+      // Redirige selon le rôle
+      if (role === "admin") {
+        history.push("/admin/dashboard");
+      } else if (role === "coach") {
+        history.push("/coach/dashboard");  // ← ajout
+      } else {
+        history.push("/profile"); // membre
+      }
+
+    } catch (err) {
+      setError(err.response?.data?.error || err.response?.data?.message || "Erreur de connexion");
+>>>>>>> 4e3b5072001c40ddd098fb493cbb1d7eb6202f9e
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={s.page}>
-      {/* Google Fonts */}
-      <link
-        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap"
-        rel="stylesheet"
-      />
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity:0; transform:translateY(30px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes pulse {
-          0%,100% { opacity:.6; } 50% { opacity:1; }
-        }
-        * { box-sizing:border-box; }
-        ::-webkit-scrollbar { width:5px; }
-        ::-webkit-scrollbar-thumb { background:#D62828; border-radius:10px; }
-        input:-webkit-autofill {
-          -webkit-box-shadow: 0 0 0 1000px #0A0A0A inset !important;
-          -webkit-text-fill-color: #F5F5F5 !important;
-        }
-      `}</style>
+    <div style={styles.page}>
+      <div style={styles.overlay}></div>
 
-      {/* BG decorative lines */}
-      <div style={s.bgLines}>
-        {[...Array(6)].map((_, i) => (
-          <div key={i} style={{ ...s.bgLine, left: `${i * 20}%`, animationDelay: `${i * 0.4}s` }} />
-        ))}
-      </div>
+      <div style={styles.card}>
+        <div style={styles.iconWrap}>
+          <span style={styles.icon}>🔐</span>
+        </div>
 
-      {/* Red glow blob */}
-      <div style={s.blob} />
+        <h1 style={styles.title}>CONNEXION</h1>
 
-      {/* ── CARD ── */}
-      <div style={s.card}>
+        <p style={styles.subtitle}>
+          Connectez-vous à votre espace GymAccess
+        </p>
 
-        {/* Logo */}
-        <Link to="/" style={s.logo}>
-          GYM<span style={s.logoRed}>ACCESS</span>
-        </Link>
-
-        {loggedIn ? (
-          /* ── SUCCESS STATE ── */
-          <div style={s.successBox}>
-            <div style={{ fontSize: "3.5rem", marginBottom: "1rem" }}>✅</div>
-            <div style={s.cardTitle}>BIENVENUE !</div>
-            <p style={s.cardSub}>
-              Connecté en tant que{" "}
-              <span style={{ color: "#D62828", fontWeight: 600 }}>{userName}</span>
-            </p>
-            <Link to="/" style={{ ...s.btnPrimary, display: "inline-block", marginTop: "1.5rem" }}>
-              ACCUEIL
-            </Link>
+        {/* ← Message d'erreur ajouté */}
+        {error && (
+          <div style={styles.errorBox}>
+            {error}
           </div>
+<<<<<<< HEAD
         ) : (
           /* ── LOGIN FORM ── */
           <>
@@ -191,83 +200,151 @@ export default function Login() {
               Seed — <span style={{ color: "#888" }}>admin@gym.com</span> / <span style={{ color: "#888" }}>Admin123!</span>
             </p>
           </>
+=======
+>>>>>>> 4e3b5072001c40ddd098fb493cbb1d7eb6202f9e
         )}
+
+        <form onSubmit={handleSubmit} style={styles.form}>
+          <div>
+            <label style={styles.label}>EMAIL</label>
+
+            <input
+              type="email"
+              required
+              placeholder="votre@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+
+          <div>
+            <label style={styles.label}>MOT DE PASSE</label>
+
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              style={styles.input}
+            />
+          </div>
+
+          {/* ← loading ajouté sur le bouton */}
+          <button type="submit" style={styles.button} disabled={loading}>
+            {loading ? "CONNEXION..." : "SE CONNECTER"}
+          </button>
+        </form>
+
+        <div style={styles.links}>
+          <Link to="/auth/forget" style={styles.link}>
+            Mot de passe oublié ?
+          </Link>
+        </div>
+
+        <p style={styles.footer}>
+          Pas encore membre ?{" "}
+          <Link to="/auth/register" style={styles.linkRed}>
+            Créer un compte
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
 
-// ── STYLES ──────────────────────────────────────────────
-const s = {
+const styles = {
   page: {
     minHeight: "100vh",
-    background: "#0A0A0A",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    fontFamily: "'Barlow', sans-serif",
-    color: "#F5F5F5",
+    width: "100%",
+    background: "#000",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     position: "relative",
-    overflow: "hidden",
-    padding: "2rem 1rem",
+    padding: "2rem",
+    boxSizing: "border-box",
   },
-  // decorative vertical lines
-  bgLines: {
-    position: "absolute", inset: 0, pointerEvents: "none",
-  },
-  bgLine: {
-    position: "absolute", top: 0, width: "1px", height: "100%",
-    background: "linear-gradient(to bottom, transparent, rgba(214,40,40,0.08), transparent)",
-    animation: "pulse 4s ease-in-out infinite",
-  },
-  // red glow
-  blob: {
+
+  overlay: {
     position: "absolute",
-    width: "500px", height: "500px",
-    background: "radial-gradient(circle, rgba(214,40,40,0.12) 0%, transparent 70%)",
-    top: "50%", left: "50%",
-    transform: "translate(-50%, -50%)",
-    pointerEvents: "none",
+    inset: 0,
+    background:
+      "radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)",
   },
-  // card
+
   card: {
-    position: "relative", zIndex: 1,
-    background: "#111111",
-    border: "1px solid rgba(214,40,40,0.3)",
-    borderRadius: "4px",
-    padding: "3rem 2.5rem",
-    width: "100%", maxWidth: "440px",
-    boxShadow: "0 0 80px rgba(214,40,40,0.12)",
-    animation: "fadeUp 0.5s ease both",
+    position: "relative",
+    zIndex: 2,
+    width: "100%",
+    maxWidth: "430px",
+    background: "#111",
+    border: "1px solid #222",
+    borderRadius: "18px",
+    padding: "2.5rem",
+    boxShadow: "0 20px 60px rgba(220,38,38,0.25)",
   },
-  logo: {
-    display: "block", textAlign: "center",
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "1.8rem", letterSpacing: "4px",
-    color: "#F5F5F5", textDecoration: "none",
+
+  iconWrap: {
+    width: "70px",
+    height: "70px",
+    borderRadius: "50%",
+    background: "linear-gradient(135deg,#dc2626,#991b1b)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 1.5rem",
+  },
+
+  icon: {
+    fontSize: "30px",
+  },
+
+  title: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: "2rem",
+    fontWeight: 800,
+    letterSpacing: "0.2em",
+    marginBottom: "0.7rem",
+  },
+
+  subtitle: {
+    color: "#888",
+    textAlign: "center",
     marginBottom: "2rem",
   },
-  logoRed: { color: "#D62828" },
-  cardTitle: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "1.9rem", letterSpacing: "3px",
-    marginBottom: "0.3rem", textAlign: "center",
-  },
-  cardSub: {
-    color: "#888", fontSize: "0.85rem",
-    textAlign: "center", marginBottom: "2rem",
-  },
+
+  // ← style du message d'erreur ajouté
   errorBox: {
-    background: "rgba(214,40,40,0.1)",
-    border: "1px solid rgba(214,40,40,0.4)",
-    color: "#ff6b6b", padding: "0.7rem 1rem",
-    borderRadius: "2px", fontSize: "0.85rem",
+    background: "rgba(220,38,38,0.12)",
+    border: "1px solid rgba(220,38,38,0.4)",
+    color: "#f87171",
+    borderRadius: "8px",
+    padding: "0.75rem 1rem",
     marginBottom: "1rem",
+    fontSize: "0.88rem",
+    textAlign: "center",
   },
+
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1.5rem",
+  },
+
   label: {
-    display: "block", fontSize: "0.7rem",
-    letterSpacing: "2px", textTransform: "uppercase",
-    color: "#888", marginBottom: "0.5rem",
+    display: "block",
+    color: "#aaa",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+    marginBottom: "0.5rem",
+    letterSpacing: "0.15em",
   },
+
   input: {
+<<<<<<< HEAD
     width: "100%", background: "#0A0A0A",
     border: "1px solid #2a2a2a", color: "#F5F5F5",
     padding: "0.85rem 1rem",
@@ -282,39 +359,53 @@ const s = {
     transform: "translateY(-50%)",
     background: "none", border: "none",
     color: "#888", cursor: "pointer", fontSize: "1rem",
+=======
+    width: "100%",
+    background: "#000",
+    border: "1px solid #333",
+    borderRadius: "10px",
+    padding: "1rem",
+    color: "#fff",
+    fontSize: "0.95rem",
+    outline: "none",
+    boxSizing: "border-box",
   },
-  forgotLink: {
-    color: "#888", fontSize: "0.78rem",
+
+  button: {
+    marginTop: "0.5rem",
+    background: "linear-gradient(135deg,#ef4444,#991b1b)",
+    border: "none",
+    color: "#fff",
+    padding: "1rem",
+    borderRadius: "10px",
+    fontWeight: 800,
+    fontSize: "0.95rem",
+    letterSpacing: "0.15em",
+    cursor: "pointer",
+    boxShadow: "0 10px 30px rgba(220,38,38,0.35)",
+>>>>>>> 4e3b5072001c40ddd098fb493cbb1d7eb6202f9e
+  },
+
+  links: {
+    marginTop: "1rem",
+    textAlign: "right",
+  },
+
+  link: {
+    color: "#aaa",
     textDecoration: "none",
+    fontSize: "0.9rem",
   },
-  btnPrimary: {
-    width: "100%", background: "#D62828", color: "#F5F5F5",
-    padding: "0.9rem", fontFamily: "'Barlow', sans-serif",
-    fontWeight: 700, fontSize: "0.85rem",
-    letterSpacing: "3px", textTransform: "uppercase",
-    border: "none", cursor: "pointer", borderRadius: "2px",
-    textAlign: "center", textDecoration: "none",
-    display: "block",
+
+  footer: {
+    textAlign: "center",
+    color: "#888",
+    marginTop: "2rem",
   },
-  divider: {
-    display: "flex", alignItems: "center",
-    gap: "1rem", margin: "1.5rem 0",
-  },
-  dividerLine: { flex: 1, height: "1px", background: "#222" },
-  dividerText: { color: "#555", fontSize: "0.8rem" },
-  btnOutline: {
-    width: "100%", background: "transparent", color: "#F5F5F5",
-    padding: "0.9rem", fontFamily: "'Barlow', sans-serif",
-    fontWeight: 700, fontSize: "0.85rem",
-    letterSpacing: "3px", textTransform: "uppercase",
-    border: "1px solid rgba(255,255,255,0.2)",
-    cursor: "pointer", borderRadius: "2px",
-    textAlign: "center", textDecoration: "none",
-    display: "block",
-  },
-  successBox: { textAlign: "center", padding: "1rem 0" },
-  demoHint: {
-    color: "#444", fontSize: "0.72rem",
-    textAlign: "center", marginTop: "1.5rem",
+
+  linkRed: {
+    color: "#ef4444",
+    textDecoration: "none",
+    fontWeight: 700,
   },
 };

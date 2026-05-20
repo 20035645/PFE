@@ -74,19 +74,34 @@ module.exports.deleteUser = async (req, res) => {
 };
 
 module.exports.login = async (req, res) => {
+
     try {
+
         const { email, password } = req.body;
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
-        }
+
+        // Login déjà vérifie email + password
         const user = await userModel.Login(email, password);
+
         const token = createToken(user._id);
+
         const userObj = user.toObject();
+
         delete userObj.password;
-        res.status(200).json({ message: 'Login successful', user: userObj, token });
+
+        res.status(200).json({
+            message: 'Login successful',
+            user: userObj,
+            token
+        });
+
     } catch (error) {
-        res.status(401).json({ error: error.message || 'Invalid email or password' });
+
+        res.status(500).json({
+            error: error.message
+        });
+
     }
+
 };
 
 // Dans user.controller.js — remplace la fonction register par celle-ci :

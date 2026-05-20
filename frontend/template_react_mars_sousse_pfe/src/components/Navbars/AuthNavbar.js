@@ -1,97 +1,87 @@
-/*eslint-disable*/
 import React from "react";
 import { Link } from "react-router-dom";
 
-// components
+const styles = {
+  nav: {
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px 5%",
+    background: "rgba(10,10,10,0.92)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(214,40,40,0.22)",
+    fontFamily: "'Barlow', Arial, sans-serif",
+  },
+  logo: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2rem",
+    letterSpacing: "4px",
+    color: "#F5F5F5",
+    margin: 0,
+  },
+  navLinks: {
+    display: "flex",
+    gap: "24px",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  navLink: {
+    color: "#A3A3A3",
+    textDecoration: "none",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+  },
+  navBtn: {
+    background: "#D62828",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "12px 18px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    boxShadow: "0 10px 30px rgba(214,40,40,0.35)",
+  },
+};
 
-import PagesDropdown from "components/Dropdowns/PagesDropdown.js";
-
-export default function Navbar(props) {
-  const [navbarOpen, setNavbarOpen] = React.useState(false);
+export default function Navbar() {
   return (
     <>
-      <nav className="top-0 absolute z-50 w-full flex flex-wrap items-center justify-between px-2 py-3 navbar-expand-lg">
-        <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
-          <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-            <Link
-              className="text-white text-sm font-bold leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase"
-              to="/"
-            >
-              Notus React
-            </Link>
-            <button
-              className="cursor-pointer text-xl leading-none px-3 py-1 border border-solid border-transparent rounded bg-transparent block lg:hidden outline-none focus:outline-none"
-              type="button"
-              onClick={() => setNavbarOpen(!navbarOpen)}
-            >
-              <i className="text-white fas fa-bars"></i>
-            </button>
-          </div>
-          <div
-            className={
-              "lg:flex flex-grow items-center bg-white lg:bg-opacity-0 lg:shadow-none" +
-              (navbarOpen ? " block rounded shadow-lg" : " hidden")
-            }
-            id="example-navbar-warning"
-          >
-            <ul className="flex flex-col lg:flex-row list-none mr-auto">
-              <li className="flex items-center">
-                <a
-                  className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://www.creative-tim.com/learning-lab/tailwind/react/overview/notus?ref=nr-auth-navbar"
-                >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 far fa-file-alt text-lg leading-lg mr-2" />{" "}
-                  Docs
-                </a>
-              </li>
-            </ul>
-            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto">
-              <li className="flex items-center">
-                <PagesDropdown />
-              </li>
-              <li className="flex items-center">
-                <a
-                  className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fdemos.creative-tim.com%2Fnotus-react%2F%23%2F"
-                  target="_blank"
-                >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 fab fa-facebook text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Share</span>
-                </a>
-              </li>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Bebas+Neue&display=swap"
+        rel="stylesheet"
+      />
 
-              <li className="flex items-center">
-                <a
-                  className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://twitter.com/intent/tweet?url=https%3A%2F%2Fdemos.creative-tim.com%2Fnotus-react%2F%23%2F&text=Start%20your%20development%20with%20a%20Free%20Tailwind%20CSS%20and%20React%20UI%20Kit%20and%20Admin.%20Let%20Notus%20React%20amaze%20you%20with%20its%20cool%20features%20and%20build%20tools%20and%20get%20your%20project%20to%20a%20whole%20new%20level.%20"
-                  target="_blank"
-                >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 fab fa-twitter text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Tweet</span>
-                </a>
-              </li>
+      <nav style={styles.nav}>
+        <p style={styles.logo}>
+          GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+        </p>
 
-              <li className="flex items-center">
-                <a
-                  className="lg:text-white lg:hover:text-blueGray-200 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-                  href="https://github.com/creativetimofficial/notus-react?ref=nr-auth-navbar"
-                  target="_blank"
-                >
-                  <i className="lg:text-blueGray-200 text-blueGray-400 fab fa-github text-lg leading-lg " />
-                  <span className="lg:hidden inline-block ml-2">Star</span>
-                </a>
-              </li>
+        <div style={styles.navLinks}>
+          <a href="/#salle" style={styles.navLink}>Salle</a>
 
-              <li className="flex items-center">
-                <button
-                  className="bg-white text-blueGray-700 active:bg-blueGray-50 text-xs font-bold uppercase px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none lg:mr-1 lg:mb-0 ml-3 mb-3 ease-linear transition-all duration-150"
-                  type="button"
-                >
-                  <i className="fas fa-arrow-alt-circle-down"></i> Download
-                </button>
-              </li>
-            </ul>
-          </div>
+          <a href="/#services" style={styles.navLink}>Services</a>
+
+          <a href="/#coachs" style={styles.navLink}>Coachs</a>
+
+          <Link to="/landing" style={styles.navLink}>
+            Nutrition
+          </Link>
+
+          <Link to="/newpage" style={styles.navLink}>
+            Abonnements
+          </Link>
+
+          <Link to="/auth/register" style={styles.navBtn}>
+            Nous rejoindre
+          </Link>
+
         </div>
       </nav>
     </>

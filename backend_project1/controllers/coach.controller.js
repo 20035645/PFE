@@ -1,4 +1,4 @@
-const coachModel = require('../models/coach.model')
+const coachModel = require('../models/coach.model');
 
 module.exports.getAllCoachs = async (req, res) => {
     try {
@@ -7,22 +7,27 @@ module.exports.getAllCoachs = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}
+};
 
-module.exports.getCoachById = async(req,res) => {
-    try{
-        const {coachId} =req.params;
-        const coach = await coachModel.findById(coachId);
-        res.status(200).json({message: 'Coach:', data: coachId});
-    }catch(error){
-        res.status(500).json({error: error.message});
+module.exports.getCoachById = async (req, res) => {
+    try {
+        // ✅ coachModel au lieu de Coach
+        const coach = await coachModel.findById(req.params.coachId);
+        if (!coach) return res.status(404).json({ error: "Coach not found" });
+        res.status(200).json(coach);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
 module.exports.addCoach = async (req, res) => {
     try {
-        const {coachName, speciality} = req.body;
-        const newCoach = new coachModel({ coachId, FaceID , coachName, speciality });
+        // ✅ Récupère tous les champs envoyés depuis Postman
+        const { name, email, password, phone, specialite } = req.body;
+
+        const newCoach = new coachModel({ name, email, password, phone, specialite });
+        // ✅ Plus de coachId ou FaceID non définis — MongoDB génère _id tout seul
+        
         await newCoach.save();
         res.status(201).json(newCoach);
     } catch (error) {
@@ -30,46 +35,28 @@ module.exports.addCoach = async (req, res) => {
     }
 };
 
-
 module.exports.deleteCoach = async (req, res) => {
     try {
-        const { coachId } = req.params;
-        const deletedCoach = await coachModel.findByIdAndDelete(coachId);
-        if (!deletedCoach) {
-            return res.status(404).json({ error: "Coach not found" });
-        }
-        res.status(200).json({ message: "Coach deleted successfully" });
+        // ✅ coachModel au lieu de Coach
+        const deleted = await coachModel.findByIdAndDelete(req.params.coachId);
+        if (!deleted) return res.status(404).json({ error: "Coach not found" });
+        res.status(200).json({ message: "Coach deleted" });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}
+};
 
 module.exports.UpdateCoach = async (req, res) => {
     try {
-        const { coachId } = req.params;
-        const { numTelephone, location } = req.body;
+        // ✅ req.body ajouté pour vraiment mettre à jour les données
         const updatedCoach = await coachModel.findByIdAndUpdate(
-            coachId,
-            { numTelephone, location },
-            { new: true },
+            req.params.coachId,
+            req.body,        // ← manquait !
+            { new: true }    // ← était mal placé
         );
-        if (!updatedCoach) {
-            return res.status(404).json({ error: "Coach not found" });
-        }
-        res.status(200).json({ message: "Coach updated successfully" });
+        if (!updatedCoach) return res.status(404).json({ error: "Coach not found" });
+        res.status(200).json({ message: "Coach updated successfully", updatedCoach });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}
-
-module.exports.addCoachWithPhoto = async (req, res) => {
-    try {
-        const { coachName, speciality } = req.body;
-        const photo = req.file ? req.file.path : null;
-        const newCoach = new coachModel({ coachName, speciality, photo });
-        await newCoach.save();
-        res.status(201).json(newCoach);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }   
-}
+};

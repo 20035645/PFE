@@ -1,668 +1,627 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import API from "../services/api";
 
-// ── STYLES ──────────────────────────────────────────────
-const styles = {
-  // globals
-  body: {
-    fontFamily: "'Barlow', sans-serif",
-    background: "#0A0A0A",
-    color: "#F5F5F5",
-    overflowX: "hidden",
-    margin: 0,
+const css = `
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;800&display=swap');
+:root{--red:#D62828;--black:#0A0A0A;--dark:#111111;--card:#141414;--border:rgba(214,40,40,0.16);--gray:#A3A3A3;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--black);color:#F5F5F5;font-family:'Barlow',sans-serif;}
+
+.nav{display:flex;justify-content:space-between;align-items:center;padding:18px 5%;background:rgba(10,10,10,0.92);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:99;backdrop-filter:blur(12px);}
+.logo{font-family:'Bebas Neue';font-size:1.9rem;letter-spacing:4px;color:#F5F5F5;}
+.logo em{color:var(--red);font-style:normal;}
+.nav-links{display:flex;gap:22px;align-items:center;}
+.nav-links a{color:#A3A3A3;text-decoration:none;text-transform:uppercase;letter-spacing:2px;font-size:.72rem;font-weight:700;transition:.2s;}
+.nav-links a:hover{color:#F5F5F5;}
+.nav-cta{background:var(--red);color:#fff;border:none;padding:11px 18px;font-family:'Barlow';font-weight:700;letter-spacing:2px;font-size:.72rem;text-transform:uppercase;cursor:pointer;box-shadow:0 8px 24px rgba(214,40,40,.35);}
+
+.hero-nutr{position:relative;padding:100px 5% 70px;min-height:80vh;display:flex;align-items:center;overflow:hidden;}
+.hero-bg{position:absolute;inset:0;background:linear-gradient(105deg,rgba(10,10,10,.97) 40%,rgba(214,40,40,.12) 100%);}
+.hero-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.18;}
+.hero-inner{position:relative;z-index:2;max-width:640px;}
+.hero-tag{display:inline-block;border:1px solid rgba(214,40,40,.5);color:var(--red);padding:6px 14px;text-transform:uppercase;letter-spacing:3px;font-size:.68rem;margin-bottom:20px;}
+.hero-title{font-family:'Bebas Neue';font-size:clamp(3.5rem,7vw,6.5rem);line-height:.92;letter-spacing:2px;margin-bottom:18px;}
+.hero-title em{color:var(--red);font-style:normal;}
+.hero-sub{color:#C0C0C0;line-height:1.8;font-size:1.05rem;margin-bottom:30px;}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;}
+.btn-red{background:var(--red);color:#fff;border:none;padding:14px 24px;font-family:'Barlow';font-weight:700;letter-spacing:2px;font-size:.75rem;text-transform:uppercase;cursor:pointer;box-shadow:0 10px 28px rgba(214,40,40,.4);}
+.btn-ghost{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.2);padding:14px 24px;font-family:'Barlow';font-weight:700;letter-spacing:2px;font-size:.75rem;text-transform:uppercase;cursor:pointer;}
+.hero-stats{display:flex;gap:32px;margin-top:36px;}
+.hstat-val{font-family:'Bebas Neue';font-size:2.2rem;color:var(--red);letter-spacing:2px;line-height:1;}
+.hstat-lbl{font-size:.65rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
+
+.sec{padding:80px 5%;}
+.sec-dark{background:#0e0e0e;}
+.sec-label{color:var(--red);text-transform:uppercase;letter-spacing:3px;font-size:.68rem;margin-bottom:10px;}
+.sec-title{font-family:'Bebas Neue';font-size:clamp(2.2rem,4.5vw,3.6rem);line-height:1;letter-spacing:2px;margin-bottom:14px;}
+.sec-sub{color:#B0B0B0;line-height:1.8;max-width:560px;}
+
+.stats-strip{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:#0e0e0e;}
+.sstrip-cell{padding:26px;text-align:center;border-right:1px solid var(--border);}
+.sstrip-cell:last-child{border-right:none;}
+.sstrip-num{font-family:'Bebas Neue';font-size:2.6rem;color:var(--red);letter-spacing:2px;}
+.sstrip-lbl{font-size:.65rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:4px;}
+
+.calc-wrap{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:36px;align-items:start;}
+.calc-form{background:var(--card);border:1px solid var(--border);padding:28px;}
+.calc-label{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:#777;margin-bottom:6px;display:block;}
+.calc-input,.calc-select{width:100%;background:#0A0A0A;border:1px solid #1e1e1e;color:#F5F5F5;padding:10px 14px;font-family:'Barlow';font-size:.9rem;margin-bottom:16px;outline:none;}
+.calc-input:focus,.calc-select:focus{border-color:rgba(214,40,40,.5);}
+.gender-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.gender-btn{background:#0A0A0A;border:1px solid #1e1e1e;color:#777;padding:10px;font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:2px;cursor:pointer;transition:.2s;}
+.gender-btn.active{border-color:var(--red);color:var(--red);}
+.calc-btn{width:100%;background:var(--red);color:#fff;border:none;padding:14px;font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:3px;cursor:pointer;margin-top:4px;}
+.calc-results{background:var(--card);border:1px solid var(--border);padding:28px;}
+.res-main{text-align:center;padding:24px 0;border-bottom:1px solid #1e1e1e;margin-bottom:20px;}
+.res-cal{font-family:'Bebas Neue';font-size:4rem;color:var(--red);letter-spacing:3px;line-height:1;}
+.res-cal-lbl{font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:6px;}
+.macros-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.macro-box{background:#0A0A0A;border:1px solid #1e1e1e;padding:16px;text-align:center;}
+.macro-val{font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;line-height:1;}
+.macro-lbl{font-size:.62rem;color:#666;text-transform:uppercase;letter-spacing:2px;margin-top:4px;}
+
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:32px;}
+.plan-c{background:var(--card);border:1px solid var(--border);padding:26px;}
+.plan-c.featured{border-color:var(--red);box-shadow:0 0 32px rgba(214,40,40,.15);}
+.plan-badge{display:inline-block;background:var(--red);color:#fff;font-size:.62rem;text-transform:uppercase;letter-spacing:2px;padding:4px 10px;margin-bottom:10px;}
+.plan-name{font-family:'Bebas Neue';font-size:1.8rem;letter-spacing:2px;margin-bottom:4px;}
+.plan-price{font-family:'Bebas Neue';font-size:3rem;color:var(--red);letter-spacing:2px;line-height:1;}
+.plan-period{font-size:.68rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-bottom:18px;margin-top:2px;}
+.plan-feats{list-style:none;padding:0;margin-bottom:20px;}
+.plan-feats li{padding:7px 0;font-size:.82rem;color:#C0C0C0;border-bottom:1px solid #1a1a1a;display:flex;align-items:center;gap:8px;}
+.plan-feats li span{color:var(--red);font-weight:700;}
+.plan-btn{width:100%;border:1px solid rgba(214,40,40,.4);background:transparent;color:var(--red);padding:12px;font-family:'Bebas Neue';font-size:1.1rem;letter-spacing:3px;cursor:pointer;transition:.2s;}
+.plan-btn:hover,.plan-c.featured .plan-btn{background:var(--red);color:#fff;}
+
+.meals-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:28px;}
+.meal-tab{background:none;border:none;color:#666;padding:12px 22px;font-family:'Bebas Neue';font-size:1.05rem;letter-spacing:2px;cursor:pointer;border-bottom:2px solid transparent;transition:.2s;}
+.meal-tab.on{color:var(--red);border-bottom-color:var(--red);}
+.meals-panel{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.meal-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #161616;}
+.meal-num{font-family:'Bebas Neue';font-size:1.4rem;color:var(--red);min-width:28px;}
+.meal-name{font-weight:700;font-size:.88rem;color:#F0F0F0;}
+.meal-type{font-size:.68rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-top:2px;}
+.macros-summary{background:var(--card);border:1px solid var(--border);padding:24px;}
+.macro-big{font-family:'Bebas Neue';font-size:4rem;color:var(--red);letter-spacing:3px;line-height:1;text-align:center;}
+.macro-big-lbl{text-align:center;font-size:.65rem;color:#555;text-transform:uppercase;letter-spacing:2px;margin-bottom:20px;}
+.mbar-row{margin-bottom:14px;}
+.mbar-header{display:flex;justify-content:space-between;font-size:.7rem;text-transform:uppercase;letter-spacing:1px;color:#777;margin-bottom:6px;}
+.mbar-track{background:#1a1a1a;height:4px;}
+.mbar-fill{height:4px;background:var(--red);transition:.4s;}
+
+.coaches-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;}
+.coach-c{background:var(--card);border:1px solid var(--border);padding:22px;text-align:center;transition:.3s;}
+.coach-c:hover{border-color:rgba(214,40,40,.45);transform:translateY(-4px);}
+.coach-avatar{width:64px;height:64px;background:rgba(214,40,40,.12);border:1px solid var(--border);margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue';font-size:1.4rem;color:var(--red);letter-spacing:2px;}
+.coach-name{font-family:'Bebas Neue';font-size:1.25rem;letter-spacing:2px;margin-bottom:4px;}
+.coach-spec{font-size:.68rem;color:var(--red);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px;}
+.coach-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.cstat{background:#0A0A0A;padding:8px;text-align:center;}
+.cstat-v{font-family:'Bebas Neue';font-size:1.3rem;letter-spacing:1px;}
+.cstat-l{font-size:.58rem;color:#555;text-transform:uppercase;letter-spacing:1px;}
+.coach-book{width:100%;background:transparent;border:1px solid rgba(214,40,40,.35);color:var(--red);padding:9px;font-family:'Bebas Neue';font-size:1rem;letter-spacing:2px;cursor:pointer;transition:.2s;}
+.coach-book:hover{background:var(--red);color:#fff;}
+
+.tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px;}
+.tip-c{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--red);padding:22px;transition:.3s;}
+.tip-c:hover{transform:translateY(-3px);}
+.tip-title{font-family:'Bebas Neue';font-size:1.2rem;letter-spacing:2px;margin-bottom:8px;margin-top:10px;}
+.tip-txt{font-size:.82rem;color:#888;line-height:1.7;}
+
+.bar-nutr{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:32px;}
+.baritem{background:var(--card);border:1px solid var(--border);padding:20px;transition:.3s;}
+.baritem:hover{border-color:rgba(214,40,40,.45);transform:translateY(-3px);}
+.baritem-badge{display:inline-block;font-size:.62rem;text-transform:uppercase;letter-spacing:2px;padding:3px 8px;border:1px solid rgba(214,40,40,.4);color:var(--red);margin-bottom:10px;}
+.baritem-name{font-family:'Bebas Neue';font-size:1.35rem;letter-spacing:2px;margin-bottom:6px;}
+.baritem-desc{font-size:.78rem;color:#777;line-height:1.6;}
+.baritem-price{font-family:'Bebas Neue';font-size:1.5rem;color:var(--red);letter-spacing:2px;margin-top:10px;}
+
+.transform-sec{
+    position:relative;
+    padding:100px 5%;
+    background:#0A0A0A;
+    overflow:hidden;
+    border-top:1px solid rgba(214,40,40,.15);
+    border-bottom:1px solid rgba(214,40,40,.15);
+}
+
+.transform-overlay{
+    position:absolute;
+    inset:0;
+    background:
+    radial-gradient(circle at center,
+    rgba(214,40,40,.12),
+    transparent 70%);
+}
+
+.transform-content{
+    position:relative;
+    z-index:2;
+    text-align:center;
+}
+
+.transform-title{
+    font-family:'Bebas Neue';
+    font-size:clamp(3rem,7vw,6rem);
+    line-height:.9;
+    letter-spacing:3px;
+    margin-bottom:20px;
+}
+
+.transform-title span{
+    color:#D62828;
+}
+
+.transform-sub{
+    max-width:650px;
+    margin:0 auto 50px;
+    color:#888;
+    line-height:1.8;
+    font-size:1rem;
+}
+
+.transform-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:40px;
+}
+
+.t-box{
+    background:#111;
+    border:1px solid rgba(214,40,40,.15);
+    padding:35px 20px;
+    transition:.3s;
+}
+
+.t-box:hover{
+    transform:translateY(-4px);
+    border-color:rgba(214,40,40,.4);
+}
+
+.t-num{
+    font-family:'Bebas Neue';
+    font-size:3rem;
+    color:#D62828;
+    letter-spacing:3px;
+    line-height:1;
+}
+
+.t-lbl{
+    margin-top:8px;
+    font-size:.7rem;
+    text-transform:uppercase;
+    letter-spacing:2px;
+    color:#666;
+}
+
+.mindset-sec{
+    position:relative;
+
+    padding:120px 5%;
+
+    background:
+    radial-gradient(circle at center,
+    rgba(214,40,40,.08),
+    transparent 70%);
+
+    border-top:1px solid rgba(214,40,40,.12);
+    border-bottom:1px solid rgba(214,40,40,.12);
+
+    overflow:hidden;
+}
+
+.mindset-content{
+    max-width:850px;
+    margin:auto;
+    text-align:center;
+}
+
+.mindset-top{
+    color:#2F374B;
+
+    font-size:.75rem;
+
+    letter-spacing:4px;
+
+    text-transform:uppercase;
+
+    margin-bottom:20px;
+}
+
+.mindset-title{
+    font-family:'Bebas Neue';
+    font-size:clamp(4rem,9vw,7rem);
+    line-height:.9;
+    letter-spacing:4px;
+    margin-bottom:30px;
+
+    color:#D62828;
+    text-shadow:0 0 30px rgba(0,0,0,.35);
+}
+
+
+.mindset-text{
+    color:#9A9A9A;
+
+    font-size:1.05rem;
+
+    line-height:2;
+
+    max-width:700px;
+
+    margin:auto;
+}
+
+.mindset-line{
+    width:120px;
+    height:2px;
+
+    background:#D62828;
+
+    margin:40px auto;
+}
+
+.mindset-bottom{
+    color:#666;
+
+    text-transform:uppercase;
+
+    letter-spacing:3px;
+
+    font-size:.78rem;
+}
+
+.footer{border-top:1px solid var(--border);padding:24px 5%;background:#080808;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;}
+.footer-logo{font-family:'Bebas Neue';font-size:1.5rem;letter-spacing:3px;}
+.footer-logo em{color:var(--red);font-style:normal;}
+.footer-copy{font-size:.72rem;color:#444;text-transform:uppercase;letter-spacing:1px;}
+
+@media(max-width:768px){
+  .nav-links{display:none;}
+  .calc-wrap,.meals-panel,.plans-grid,.coaches-grid{grid-template-columns:1fr;}
+  .stats-strip,.bar-nutr{grid-template-columns:1fr 1fr;}
+  .tips-grid{grid-template-columns:1fr;}
+}
+`;
+
+const MEALS = {
+  seche: {
+    cal: 1800, p: 160, g: 180, l: 55, meals: [
+      { n: "01", name: "Blancs d'œufs + yaourt grec", type: "Petit-déjeuner" },
+      { n: "02", name: "Salade + poulet grillé + légumes", type: "Déjeuner" },
+      { n: "03", name: "Amandes + pomme", type: "Collation" },
+      { n: "04", name: "Poisson vapeur + haricots verts", type: "Dîner" },
+      { n: "05", name: "Caséine + infusion minceur", type: "Pré-sleep" },
+    ]
   },
-  // NAV
-  nav: {
-    position: "fixed", top: 0, left: 0, width: "100%", zIndex: 100,
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-    padding: "0 5%", height: "72px",
-    background: "rgba(10,10,10,0.92)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(214,40,40,0.2)",
-    boxSizing: "border-box",
+  maintien: {
+    cal: 2400, p: 150, g: 280, l: 70, meals: [
+      { n: "01", name: "Avoine + fruits + miel", type: "Petit-déjeuner" },
+      { n: "02", name: "Riz + légumineuses + légumes", type: "Déjeuner" },
+      { n: "03", name: "Fromage blanc + noix", type: "Collation" },
+      { n: "04", name: "Saumon + quinoa + brocolis", type: "Dîner" },
+      { n: "05", name: "Lait chaud + banane", type: "Pré-sleep" },
+    ]
   },
-  logo: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "1.7rem", letterSpacing: "3px", color: "#F5F5F5",
-    textDecoration: "none",
+  masse: {
+    cal: 3200, p: 180, g: 400, l: 80, meals: [
+      { n: "01", name: "Œufs + avoine + banane", type: "Petit-déjeuner" },
+      { n: "02", name: "Poulet + riz + légumes + huile", type: "Déjeuner" },
+      { n: "03", name: "Shake protéiné + fruits secs", type: "Collation pré-workout" },
+      { n: "04", name: "Thon + pâtes + huile d'olive", type: "Dîner" },
+      { n: "05", name: "Viande rouge + patate douce", type: "Post-training" },
+      { n: "06", name: "Caséine + beurre d'amande", type: "Pré-sleep" },
+    ]
   },
-  logoSpan: { color: "#D62828" },
-  navLinks: { display: "flex", gap: "2.5rem", listStyle: "none", margin: 0, padding: 0 },
-  navLink: {
-    textDecoration: "none", color: "#888", fontWeight: 600,
-    fontSize: "0.78rem", letterSpacing: "2px", textTransform: "uppercase",
-    transition: "color 0.3s ease",
-  },
-  navBtn: {
-    background: "#D62828", color: "#F5F5F5", padding: "0.55rem 1.4rem",
-    borderRadius: "2px", letterSpacing: "2px", fontWeight: 700,
-    fontSize: "0.78rem", textTransform: "uppercase", textDecoration: "none",
-    transition: "all 0.3s ease", boxShadow: "0 4px 15px rgba(214,40,40,0.3)",
-    cursor: "pointer",
-  },
-  // HERO
-  hero: {
-    position: "relative", minHeight: "100vh",
-    display: "flex", alignItems: "center", overflow: "hidden",
-  },
-  heroBg: {
-    position: "absolute", inset: 0,
-    background: "linear-gradient(105deg, rgba(10,10,10,0.88) 40%, rgba(214,40,40,0.08) 100%)",
-    backgroundImage: [
-      "linear-gradient(105deg, rgba(10,10,10,0.88) 40%, rgba(214,40,40,0.08) 100%)",
-      "url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80')",
-    ].join(", "),
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  },
-  heroContent: {
-    position: "relative", padding: "0 8%", maxWidth: "800px",
-    animation: "fadeUp 1s ease both",
-  },
-  heroTag: {
-    display: "inline-block", fontSize: "0.7rem", letterSpacing: "4px",
-    textTransform: "uppercase", color: "#D62828",
-    border: "1px solid #D62828", padding: "0.3rem 0.9rem", marginBottom: "1.5rem",
-  },
-  heroTitle: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "clamp(3.5rem, 8vw, 7rem)",
-    lineHeight: 0.95, letterSpacing: "2px", marginBottom: "1.5rem",
-  },
-  heroAccent: { color: "#D62828" },
-  heroDesc: {
-    color: "#bbb", fontSize: "1.05rem", lineHeight: 1.7,
-    maxWidth: "500px", marginBottom: "2.5rem", fontWeight: 300,
-  },
-  heroBtns: { display: "flex", gap: "1rem", flexWrap: "wrap" },
-  btnPrimary: {
-    background: "#D62828", color: "#F5F5F5", padding: "0.85rem 2rem",
-    fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: "0.8rem",
-    letterSpacing: "3px", textTransform: "uppercase",
-    border: "none", cursor: "pointer", borderRadius: "2px",
-    textDecoration: "none", display: "inline-block",
-    transition: "all 0.3s ease", boxShadow: "0 6px 20px rgba(214,40,40,0.4)",
-  },
-  btnOutline: {
-    background: "transparent", color: "#F5F5F5", padding: "0.85rem 2rem",
-    fontFamily: "'Barlow', sans-serif", fontWeight: 700, fontSize: "0.8rem",
-    letterSpacing: "3px", textTransform: "uppercase",
-    border: "1px solid rgba(255,255,255,0.4)",
-    cursor: "pointer", borderRadius: "2px",
-    textDecoration: "none", display: "inline-block",
-    transition: "all 0.3s ease",
-  },
-  // STATS
-  statsBar: {
-    background: "#111111",
-    borderTop: "1px solid rgba(214,40,40,0.3)",
-    borderBottom: "1px solid rgba(214,40,40,0.3)",
-    display: "flex", justifyContent: "space-around", flexWrap: "wrap",
-    padding: "2rem 5%", gap: "1rem",
-  },
-  stat: { textAlign: "center" },
-  statNum: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "2.6rem", color: "#D62828", letterSpacing: "2px",
-  },
-  statLabel: { fontSize: "0.72rem", letterSpacing: "3px", textTransform: "uppercase", color: "#888" },
-  // SECTION
-  section: { padding: "6rem 8%" },
-  sectionDark: { padding: "6rem 8%", background: "#1A1A1A" },
-  sectionTag: { fontSize: "0.7rem", letterSpacing: "4px", textTransform: "uppercase", color: "#D62828", marginBottom: "0.7rem" },
-  sectionTitle: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "clamp(2.2rem, 5vw, 3.8rem)", letterSpacing: "2px",
-    marginBottom: "3rem", lineHeight: 1.05,
-  },
-  // COURSES
-  coursGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "1.5rem" },
-  coursCard: {
-    background: "#111111", border: "1px solid #222",
-    padding: "2rem", borderRadius: "3px",
-    transition: "border-color .3s, transform .3s",
-    cursor: "default",
-  },
-  coursCardHover: { borderColor: "#D62828", transform: "translateY(-4px)" },
-  coursIcon: { fontSize: "2rem", marginBottom: "1rem" },
-  coursName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "2px", marginBottom: "0.5rem" },
-  coursDesc: { color: "#888", fontSize: "0.9rem", lineHeight: 1.6 },
-  // PROGRAMS
-  programsContainer: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "center", marginBottom: "4rem" },
-  programsInfo: { display: "flex", flexDirection: "column", gap: "1.5rem" },
-  programsDesc: { color: "#bbb", fontSize: "1rem", lineHeight: 1.7, maxWidth: "500px" },
-  programsGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" },
-  programCard: {
-    background: "#111111", border: "1px solid #222",
-    padding: "2rem", borderRadius: "3px",
-    overflow: "hidden", transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    cursor: "pointer", position: "relative",
-    boxShadow: "0 4px 15px rgba(0,0,0,0.5)",
-  },
-  programCardImage: {
-    width: "100%", height: "300px",
-    backgroundSize: "cover", backgroundPosition: "center",
-    marginBottom: "1.5rem", borderRadius: "2px",
-    transition: "transform 0.4s ease, filter 0.4s ease",
-    filter: "brightness(0.9)",
-  },
-  programNumber: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "2.5rem", color: "#D62828", letterSpacing: "2px", marginBottom: "0.5rem",
-  },
-  programLabel: { fontSize: "0.65rem", letterSpacing: "3px", textTransform: "uppercase", color: "#888", marginBottom: "0.5rem" },
-  programName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.6rem", letterSpacing: "2px", marginBottom: "1rem" },
-  programCardDesc: { color: "#888", fontSize: "0.85rem", lineHeight: 1.6 },
-  // PLANS
-  plansGrid: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "2rem", alignItems: "start" },
-  plan: { 
-    background: "#111111", border: "1px solid #222", borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center",
-    transition: "all 0.3s ease", boxShadow: "0 4px 15px rgba(0,0,0,0.3)",
-  },
-  planFeatured: {
-    background: "linear-gradient(135deg, #1a0000 0%, #111111 100%)",
-    border: "2px solid #D62828",
-    borderRadius: "3px", padding: "2.5rem 2rem", textAlign: "center",
-    boxShadow: "0 0 50px rgba(214,40,40,0.4), inset 0 0 30px rgba(214,40,40,0.1)",
-    transition: "all 0.3s ease",
-  },
-  planBadge: {
-    display: "inline-block", background: "#D62828",
-    fontSize: "0.65rem", letterSpacing: "3px", textTransform: "uppercase",
-    padding: "0.25rem 0.8rem", marginBottom: "1.5rem", borderRadius: "2px",
-  },
-  planName: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.8rem", letterSpacing: "2px", marginBottom: "1.5rem" },
-  planPrice: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "2rem", color: "#F5F5F5", lineHeight: 1, marginBottom: "1.5rem" },
-  planPriceAmount: { color: "#D62828", fontSize: "2.8rem" },
-  planPriceUnit: { color: "#888", fontSize: "0.9rem", fontFamily: "'Barlow', sans-serif", fontWeight: 300 },
-  planFeatures: { listStyle: "none", margin: "2rem 0", textAlign: "left", padding: 0 },
-  planFeatureItem: {
-    padding: "0.6rem 0", color: "#ccc", fontSize: "0.9rem",
-    borderBottom: "1px solid #1e1e1e", display: "flex", alignItems: "center", gap: "0.6rem",
-  },
-  featureArrow: { color: "#D62828", flexShrink: 0 },
-  // CONTACT
-  contactGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "start" },
-  contactInfoP: { color: "#888", lineHeight: 1.8, marginBottom: "2rem" },
-  contactItem: { display: "flex", gap: "1rem", alignItems: "flex-start", marginBottom: "1.2rem" },
-  contactIcon: {
-    width: "40px", height: "40px",
-    background: "rgba(214,40,40,0.12)",
-    border: "1px solid rgba(214,40,40,0.3)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-    flexShrink: 0, fontSize: "1rem",
-  },
-  contactText: { color: "#ccc", fontSize: "0.9rem" },
-  contactForm: { display: "flex", flexDirection: "column", gap: "1rem" },
-  formInput: {
-    background: "#111111", border: "1px solid #2a2a2a",
-    color: "#F5F5F5", padding: "0.9rem 1.2rem",
-    fontFamily: "'Barlow', sans-serif", fontSize: "0.9rem",
-    borderRadius: "2px", outline: "none",
-  },
-  // MODAL
-  modalOverlay: {
-    position: "fixed", inset: 0, zIndex: 999,
-    background: "rgba(0,0,0,0.85)",
-    backdropFilter: "blur(6px)",
-    display: "flex", alignItems: "center", justifyContent: "center",
-  },
-  modalBox: {
-    background: "#111111",
-    border: "1px solid rgba(214,40,40,0.4)",
-    borderRadius: "4px",
-    padding: "3rem 2.5rem",
-    width: "100%", maxWidth: "420px",
-    position: "relative",
-    boxShadow: "0 0 60px rgba(214,40,40,0.2)",
-    animation: "fadeUp 0.35s ease both",
-  },
-  modalClose: {
-    position: "absolute", top: "1rem", right: "1.2rem",
-    background: "none", border: "none", color: "#888",
-    fontSize: "1.4rem", cursor: "pointer", lineHeight: 1,
-  },
-  modalTitle: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "2rem", letterSpacing: "3px",
-    marginBottom: "0.3rem",
-  },
-  modalSub: { color: "#888", fontSize: "0.85rem", marginBottom: "2rem" },
-  modalLabel: {
-    display: "block", fontSize: "0.7rem", letterSpacing: "2px",
-    textTransform: "uppercase", color: "#888", marginBottom: "0.4rem",
-  },
-  modalInput: {
-    width: "100%", background: "#0A0A0A",
-    border: "1px solid #2a2a2a", color: "#F5F5F5",
-    padding: "0.85rem 1rem", fontFamily: "'Barlow', sans-serif",
-    fontSize: "0.95rem", borderRadius: "2px", outline: "none",
-    marginBottom: "1.2rem", boxSizing: "border-box",
-  },
-  modalInputFocus: { borderColor: "#D62828" },
-  modalForgot: {
-    display: "block", textAlign: "right", color: "#888",
-    fontSize: "0.78rem", textDecoration: "none", marginTop: "-0.8rem",
-    marginBottom: "1.5rem", cursor: "pointer",
-  },
-  modalDivider: {
-    textAlign: "center", color: "#444", fontSize: "0.8rem",
-    margin: "1.5rem 0", position: "relative",
-  },
-  modalError: {
-    background: "rgba(214,40,40,0.1)", border: "1px solid rgba(214,40,40,0.4)",
-    color: "#ff6b6b", padding: "0.7rem 1rem", borderRadius: "2px",
-    fontSize: "0.85rem", marginBottom: "1rem",
-  },
-  modalSuccess: {
-    background: "rgba(40,214,100,0.1)", border: "1px solid rgba(40,214,100,0.4)",
-    color: "#6bffaa", padding: "0.7rem 1rem", borderRadius: "2px",
-    fontSize: "0.85rem", marginBottom: "1rem", textAlign: "center",
-  },
-  // FOOTER
-  footer: {
-    background: "#0A0A0A",
-    borderTop: "1px solid rgba(214,40,40,0.2)",
-    padding: "2rem 8%",
-    display: "flex", alignItems: "center", justifyContent: "space-between",
-    flexWrap: "wrap", gap: "1rem",
-  },
-  footerLogo: { fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.4rem", letterSpacing: "3px" },
 };
 
-const sliderBtn = {
-  position: "absolute", top: "50%", transform: "translateY(-50%)",
-  zIndex: 3, background: "rgba(0,0,0,0.5)", color: "#fff",
-  border: "1px solid rgba(255,255,255,0.2)", borderRadius: "2px",
-  width: "48px", height: "48px", fontSize: "1.3rem",
-  cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
-  transition: "background .2s, border-color .2s",
-};
-
-const dotsContainer = {
-  position: "absolute", bottom: "2rem", left: "50%",
-  transform: "translateX(-50%)", zIndex: 3,
-  display: "flex", gap: "0.5rem", alignItems: "center",
-};
-
-const dot = {
-  height: "8px", borderRadius: "4px",
-  border: "none", cursor: "pointer", padding: 0,
-  transition: "all 0.3s ease",
-};
-
-// ── PROGRAMS DATA ────────────────────────────────────────
-const programs = [
-  {
-    number: "01",
-    label: "Programme",
-    name: "Force",
-    desc: "Powerlifting, haltérophilie olympique, hypertrophie. Développez une force durable.",
-    image: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80",
-  },
-  {
-    number: "02",
-    label: "Programme",
-    name: "Condition Physique",
-    desc: "HIIT, protocoles d'athlète hybride, développement du cardio. Surpassez tout le monde.",
-    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80",
-  },
-  {
-    number: "03",
-    label: "Programme",
-    name: "Combat",
-    desc: "Boxe, Muay Thaï et BJJ. Fondamentaux à travers la préparation au combat avec des compétiteurs actifs.",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600&q=80",
-  },
+const COACHES = [
+  { initials: "NA", name: "NABIL A.", spec: "Prise de masse & force", years: 8, clients: 120, rating: "4.9" },
+  { initials: "SB", name: "SARRA B.", spec: "Sèche & rééquilibrage", years: 6, clients: 85, rating: "5.0" },
+  { initials: "AM", name: "AMINE M.", spec: "Performance & HIIT", years: 5, clients: 95, rating: "4.8" },
+  { initials: "LT", name: "LEILA T.", spec: "Nutrition végétale", years: 7, clients: 110, rating: "4.9" },
 ];
 
-// ── COURSES DATA ─────────────────────────────────────────
-const courses = [
-  { icon: "🥊", name: "Boxe & Combat", desc: "Cours collectifs de boxe anglaise, MMA et self-défense avec des instructeurs professionnels." },
-  { icon: "🏋️", name: "Musculation", desc: "Programmes personnalisés de renforcement musculaire pour tous niveaux, du débutant au confirmé." },
-  { icon: "🔥", name: "CrossFit", desc: "Entraînements HIIT intenses qui combinent force, endurance et agilité en sessions de 45 min." },
-  { icon: "🧘", name: "Yoga & Étirement", desc: "Sessions de récupération active et de mobilité pour équilibrer vos entraînements intensifs." },
-  { icon: "🚴", name: "Spinning", desc: "Vélos stationnaires avec coaching audio et musique pour brûler jusqu'à 600 cal par séance." },
-  { icon: "⚡", name: "Cardio Training", desc: "Programmes cardio variés sur tapis, elliptiques et rameurs avec suivi de performance." },
+const TIPS = [
+  { title: "Timing des repas", txt: "Consomme 30g de protéines dans les 30 min post-entraînement pour maximiser la synthèse musculaire de 40%." },
+  { title: "Fréquence des repas", txt: "5 à 6 petits repas espacés de 3h maintiennent ton métabolisme actif et évitent les pics de glycémie." },
+  { title: "Protéines complètes", txt: "Combine légumineuses + céréales pour obtenir tous les acides aminés essentiels si tu suis une alimentation végétale." },
+  { title: "Hydratation active", txt: "Bois 500ml d'eau 2h avant l'effort, 200ml toutes les 20min pendant et 600ml par heure d'entraînement intense." },
+  { title: "Glucides intelligents", txt: "Privilégie les glucides à index glycémique bas (avoine, patate douce, riz complet) pour une énergie stable toute la journée." },
+  { title: "Progression calorique", txt: "Augmente ou réduis tes calories de 100-200 kcal par semaine max. Les changements brusques perturbent le métabolisme." },
 ];
 
-// ── MEMBERSHIP DATA ──────────────────────────────────────
-const memberships = [
-  {
-    name: "Accès Journalier", price: "29", unit: "/ jour", featured: false,
-    features: ["Accès à une seule séance", "Tous les horaires d'ouverture", "Casier & serviette"],
-  },
-  {
-    name: "Accès Total", price: "149", unit: "/ mois", featured: true,
-    features: ["Accès illimité 24h/24", "Tous les cours collectifs", "Salle libre & sparring", "Salle de récupération"],
-  },
-  {
-    name: "Coaching Premium", price: "299", unit: "/ mois", featured: false,
-    features: ["Tous les avantages Accès Total", "1 séance hebdomadaire avec un coach", "Programme personnalisé", "Suivi nutritionnel"],
-  },
+const BAR = [
+  { badge: "Sèche", name: "BOWL PROTÉINÉ", desc: "Quinoa, poulet grillé, légumes rôtis, sauce tahini. 480 kcal · 42g prot.", price: "8.5 DT" },
+  { badge: "Énergie", name: "SMOOTHIE BOOST", desc: "Banane, whey vanille, beurre d'arachide, lait d'avoine. 320 kcal · 28g prot.", price: "6.5 DT" },
+  { badge: "Masse", name: "WRAP MASSE", desc: "Tortilla complète, thon, avocat, riz, légumes. 620 kcal · 52g prot.", price: "9 DT" },
+  { badge: "Recovery", name: "SHAKE RECOVERY", desc: "Whey, BCAA, miel, lait entier, cacao. Post-training idéal. 380 kcal.", price: "7 DT" },
 ];
 
-// ── SLIDES DATA ──────────────────────────────────────────
-const slides = [
-  {
-    url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1600&q=80",
-    tag: "Équipements Modernes",
-    title: "TRANSFORMEZ VOTRE CORPS, DÉPASSEZ VOS LIMITES !",
-    accent: "CORPS,",
-    desc: "Rejoignez GymAccess et profitez d'équipements modernes, de coachs certifiés et d'un accès 24h/24.",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1600&q=80",
-    tag: "Coachs Certifiés",
-    title: "ATTEIGNEZ VOS OBJECTIFS AVEC NOS EXPERTS !",
-    accent: "OBJECTIFS",
-    desc: "Nos coachs certifiés créent des programmes personnalisés adaptés à votre niveau et vos ambitions.",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80",
-    tag: "Accès 24h/24",
-    title: "ENTRAÎNEZ-VOUS QUAND VOUS VOULEZ !",
-    accent: "QUAND",
-    desc: "Accès illimité 24h/24 et 7j/7. Votre salle de sport toujours disponible, à votre rythme.",
-  },
-];
+export default function NutritionPage() {
+  const [genre, setGenre] = useState("H");
+  const [age, setAge] = useState(25);
+  const [poids, setPoids] = useState(75);
+  const [taille, setTaille] = useState(175);
+  const [activite, setActivite] = useState(1.375);
+  const [objectif, setObjectif] = useState("maintien");
+  const [result, setResult] = useState({ cal: 2456, bmr: 1876, p: 184, g: 307, l: 82, imc: 24.5, imcTxt: "Normal" });
+  const [mealTab, setMealTab] = useState("seche");
+  const [setBackendMessage] = useState("");
 
-// ── COMPONENT ────────────────────────────────────────────
-export default function Index() {
-  const [hoveredCard,    setHoveredCard]    = React.useState(null);
-  const [currentSlide,   setCurrentSlide]   = React.useState(0);
-  const [transitioning,  setTransitioning]  = React.useState(false);
+  const scroll = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
 
-  // Auto-play 5s
-  React.useEffect(() => {
-    const t = setInterval(() => changeSlide((currentSlide + 1) % slides.length), 5000);
-    return () => clearInterval(t);
-  }, [currentSlide]);
-
-  const changeSlide = (idx) => {
-    if (transitioning) return;
-    setTransitioning(true);
-    setCurrentSlide(idx);
-    setTimeout(() => setTransitioning(false), 700);
+  const calcCalories = () => {
+    let bmr = genre === "H"
+      ? Math.round(88.362 + 13.397 * poids + 4.799 * taille - 5.677 * age)
+      : Math.round(447.593 + 9.247 * poids + 3.098 * taille - 4.330 * age);
+    let tdee = Math.round(bmr * activite);
+    if (objectif === "deficit") tdee -= 500;
+    if (objectif === "surplus") tdee += 300;
+    const p = Math.round(poids * 2.2);
+    const l = Math.round(tdee * 0.25 / 9);
+    const g = Math.round((tdee - p * 4 - l * 9) / 4);
+    const imc = +(poids / ((taille / 100) ** 2)).toFixed(1);
+    const imcTxt = imc < 18.5 ? "Insuffisant" : imc < 25 ? "Normal" : imc < 30 ? "Surpoids" : "Obésité";
+    setResult({ cal: tdee, bmr, p, g, l, imc, imcTxt });
   };
 
-  const prevSlide = () => changeSlide((currentSlide - 1 + slides.length) % slides.length);
-  const nextSlide = () => changeSlide((currentSlide + 1) % slides.length);
+  useEffect(() => {
 
-  const sl = slides[currentSlide];
+    API.get("/test")
+      .then((res) => {
+        setBackendMessage(res.data.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
-  // Build title with accent word in red
-  const renderTitle = (title, accent) => {
-    const parts = title.split(accent);
-    return (
-      <>
-        {parts[0]}
-        <span style={styles.heroAccent}>{accent}</span>
-        {parts[1]}
-      </>
-    );
-  };
+  }, []);
+  const meal = MEALS[mealTab];
 
   return (
-    <div style={styles.body}>
+    <>
+      <style>{css}</style>
 
-      {/* Google Fonts */}
-      <link
-        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700&display=swap"
-        rel="stylesheet"
-      />
+      {/* NAV */}
+      <nav className="nav">
+        <div className="logo">GYM<em>ACCESS</em></div>
+        <div className="nav-links">
+          <a href="/">Acceuil</a>
 
-      {/* CSS keyframes */}
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-40px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(40px); }
-          to   { opacity: 1; transform: translateX(0); }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(214,40,40,0.3); }
-          50% { box-shadow: 0 0 40px rgba(214,40,40,0.6); }
-        }
-        * { box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0A0A0A; }
-        ::-webkit-scrollbar-thumb { background: #D62828; border-radius: 10px; transition: background 0.3s; }
-        ::-webkit-scrollbar-thumb:hover { background: #ff5555; }
-      `}</style>
+          <a href="#calc">Calculateur</a>
 
-      {/* ── NAV ── */}
-      <nav style={styles.nav}>
-        <div style={styles.logo}>GYM<span style={styles.logoSpan}>ACCESS</span></div>
-        <ul style={styles.navLinks}>
-          <li><a href="#hero" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Accueil</a></li>
-          <li><a href="#cours" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Cours</a></li>
-          <li><a href="#abonnements" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Abonnements</a></li>
-          <li><a href="#contact" style={styles.navLink} onMouseEnter={e => e.target.style.color = '#D62828'} onMouseLeave={e => e.target.style.color = '#888'}>Contact</a></li>
-          <li>
-            <Link to="/auth/login" style={styles.navBtn} onMouseEnter={e => { e.target.style.transform = 'translateY(-2px)'; e.target.style.boxShadow = '0 8px 25px rgba(214,40,40,0.5)'; }} onMouseLeave={e => { e.target.style.transform = 'translateY(0)'; e.target.style.boxShadow = '0 4px 15px rgba(214,40,40,0.3)'; }}>Espace Membre</Link>
-          </li>
-        </ul>
+          <a href="#plans">Plans</a>
+
+          <a href="#repas">Repas</a>
+
+          <a href="#conseils">Conseils</a>
+
+          <a href="#bar">Bar</a>
+        </div>
       </nav>
 
-      {/* ── HERO SLIDER ── */}
-      <section id="hero" style={styles.hero}>
+      {/* HERO */}
+      <section className="hero-nutr">
+        <div className="hero-bg">
+          <img src="https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=1400&q=80" alt="nutrition" />
+        </div>
+        <div className="hero-inner">
+          <div className="hero-tag">Nutrition & Performance</div>
+          <h1 className="hero-title">MANGE MIEUX.<br /><em>PERFORME PLUS.</em></h1>
+          <p className="hero-sub">Calcule tes besoins exacts en calories, découvre ton plan repas personnalisé et suis les conseils de nos experts nutritionnistes certifiés.</p>
+          <div style={{ color: "red", marginTop: "20px" }}>
 
-        {/* Background images */}
-        {slides.map((s, i) => (
-          <div key={i} style={{
-            position: "absolute", inset: 0,
-            backgroundImage: [
-              "linear-gradient(105deg, rgba(10,10,10,0.88) 40%, rgba(214,40,40,0.06) 100%)",
-              `url('${s.url}')`,
-            ].join(", "),
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            opacity: i === currentSlide ? 1 : 0,
-            transition: "opacity 0.7s ease",
-            zIndex: 0,
-          }} />
-        ))}
-
-        {/* Content */}
-        <div style={{ ...styles.heroContent, zIndex: 2, opacity: transitioning ? 0 : 1, transition: "opacity 0.4s ease" }}>
-          <div style={styles.heroTag}>{sl.tag}</div>
-          <h1 style={styles.heroTitle}>{renderTitle(sl.title, sl.accent)}</h1>
-          <p style={styles.heroDesc}>{sl.desc}</p>
-          <div style={styles.heroBtns}>
-            <a href="#abonnements" style={styles.btnPrimary}>Rejoignez-Nous</a>
-            <a href="#abonnements" style={styles.btnOutline}>Voir Nos Offres</a>
+          </div>
+          <div className="hero-btns">
+            <button className="btn-red" onClick={() => scroll("calc")}>Calculer mes calories →</button>
+          </div>
+          <div className="hero-stats">
+            <div><div className="hstat-val">850+</div><div className="hstat-lbl">Plans créés</div></div>
+            <div><div className="hstat-val">4</div><div className="hstat-lbl">Experts nutrition</div></div>
+            <div><div className="hstat-val">98%</div><div className="hstat-lbl">Satisfaction</div></div>
           </div>
         </div>
-
-        {/* Arrow Left */}
-        <button onClick={prevSlide} style={{...sliderBtn, left: "2%"}}>&#8592;</button>
-
-        {/* Arrow Right */}
-        <button onClick={nextSlide} style={{...sliderBtn, right: "2%"}}>&#8594;</button>
-
-        {/* Dots */}
-        <div style={dotsContainer}>
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => changeSlide(i)}
-              style={{
-                ...dot,
-                background: i === currentSlide ? "#D62828" : "rgba(255,255,255,0.3)",
-                width:  i === currentSlide ? "28px" : "8px",
-              }}
-            />
-          ))}
-        </div>
-
       </section>
 
-      {/* ── STATS BAR ── */}
-      <div style={styles.statsBar}>
-        {[
-          { num: "1200+", label: "Membres Actifs" },
-          { num: "24/7",  label: "Accès Libre" },
-          { num: "30+",   label: "Cours par Semaine" },
-          { num: "15+",   label: "Coachs Certifiés" },
-        ].map((s) => (
-          <div key={s.label} style={styles.stat}>
-            <div style={styles.statNum}>{s.num}</div>
-            <div style={styles.statLabel}>{s.label}</div>
+      {/* STRIP STATS */}
+      <div className="stats-strip">
+        {[["850+", "Plans nutritionnels"], ["4", "Coachs certifiés"], ["3", "Objectifs couverts"], ["7j/7", "Bar alimentaire"]].map(([n, l]) => (
+          <div key={l} className="sstrip-cell">
+            <div className="sstrip-num">{n}</div>
+            <div className="sstrip-lbl">{l}</div>
           </div>
         ))}
       </div>
 
-      {/* ── THE WORK ── */}
-      <section id="cours" style={styles.sectionDark}>
-        <div style={styles.sectionTag}>Nos Programmes</div>
-        <div style={styles.sectionTitle}>Trois façons de vous surpasser.</div>
-        <div style={styles.programsContainer}>
-          <div style={styles.programsInfo}>
-            <p style={styles.programsDesc}>
-              Chaque programme est dirigé par un coach, périodisé et adapté à votre corps - et non l'inverse.
-            </p>
+      {/* CALCULATEUR */}
+      <section id="calc" className="sec">
+        <div className="sec-label">Outil interactif</div>
+        <h2 className="sec-title">CALCULATEUR DE<br />CALORIES & IMC</h2>
+        <p className="sec-sub">Renseigne tes données pour obtenir tes besoins caloriques journaliers et tes macros idéales.</p>
+        <div className="calc-wrap">
+          <div className="calc-form">
+            <span className="calc-label">Genre</span>
+            <div className="gender-row">
+              <button className={`gender-btn${genre === "H" ? " active" : ""}`} onClick={() => setGenre("H")}>HOMME</button>
+              <button className={`gender-btn${genre === "F" ? " active" : ""}`} onClick={() => setGenre("F")}>FEMME</button>
+            </div>
+            <span className="calc-label">Âge</span>
+            <input className="calc-input" type="number" value={age} onChange={e => setAge(+e.target.value)} min={14} max={80} />
+            <span className="calc-label">Poids (kg)</span>
+            <input className="calc-input" type="number" value={poids} onChange={e => setPoids(+e.target.value)} min={30} max={200} />
+            <span className="calc-label">Taille (cm)</span>
+            <input className="calc-input" type="number" value={taille} onChange={e => setTaille(+e.target.value)} min={120} max={220} />
+            <span className="calc-label">Niveau d'activité</span>
+            <select className="calc-select" value={activite} onChange={e => setActivite(+e.target.value)}>
+              <option value={1.2}>Sédentaire</option>
+              <option value={1.375}>Légèrement actif (1-3x/sem)</option>
+              <option value={1.55}>Modérément actif (3-5x/sem)</option>
+              <option value={1.725}>Très actif (6-7x/sem)</option>
+              <option value={1.9}>Extrêmement actif</option>
+            </select>
+            <span className="calc-label">Objectif</span>
+            <select className="calc-select" value={objectif} onChange={e => setObjectif(e.target.value)}>
+              <option value="deficit">Perte de poids (-500 kcal)</option>
+              <option value="maintien">Maintien du poids</option>
+              <option value="surplus">Prise de masse (+300 kcal)</option>
+            </select>
+            <button className="calc-btn" onClick={calcCalories}>CALCULER →</button>
+          </div>
+          <div className="calc-results">
+            <div className="res-main">
+              <div className="res-cal">{result.cal.toLocaleString("fr")}</div>
+              <div className="res-cal-lbl">calories recommandées / jour</div>
+            </div>
+            <div className="macros-grid">
+              <div className="macro-box"><div className="macro-val" style={{ color: "#D62828" }}>{result.p}g</div><div className="macro-lbl">Protéines</div></div>
+              <div className="macro-box"><div className="macro-val">{result.g}g</div><div className="macro-lbl">Glucides</div></div>
+              <div className="macro-box"><div className="macro-val" style={{ color: "#A3A3A3" }}>{result.l}g</div><div className="macro-lbl">Lipides</div></div>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 0", borderTop: "1px solid #1e1e1e" }}>
+              <span style={{ fontSize: ".7rem", textTransform: "uppercase", letterSpacing: "2px", color: "#777" }}>IMC</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontFamily: "'Bebas Neue'", fontSize: "1.5rem", letterSpacing: "2px" }}>{result.imc}</span>
+                <span style={{ fontSize: ".65rem", padding: "4px 10px", background: "rgba(29,158,117,.15)", color: "#1D9E75", border: "1px solid rgba(29,158,117,.3)" }}>{result.imcTxt}</span>
+              </div>
+            </div>
+            <div style={{ marginTop: "16px", padding: "14px", background: "#0A0A0A", border: "1px solid #1a1a1a" }}>
+              <div style={{ fontSize: ".65rem", textTransform: "uppercase", letterSpacing: "2px", color: "#555", marginBottom: "6px" }}>Métabolisme de base (BMR)</div>
+              <div style={{ fontFamily: "'Bebas Neue'", fontSize: "1.6rem", letterSpacing: "2px" }}>{result.bmr.toLocaleString("fr")} kcal</div>
+            </div>
           </div>
         </div>
-        <div style={styles.programsGrid}>
-          {programs.map((p) => (
-            <div
-              key={p.number}
-              style={{
-                ...styles.programCard,
-                ...(hoveredCard === p.number ? { borderColor: "#D62828", transform: "translateY(-8px)", boxShadow: "0 15px 40px rgba(214,40,40,0.3)" } : {}),
-              }}
-              onMouseEnter={() => setHoveredCard(p.number)}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{ ...styles.programCardImage, backgroundImage: `url('${p.image}')`, ...(hoveredCard === p.number ? { transform: "scale(1.05)", filter: "brightness(1.1)" } : {}) }} />
-              <div style={styles.programNumber}>{p.number}</div>
-              <div style={styles.programLabel}>{p.label}</div>
-              <div style={styles.programName}>{p.name}</div>
-              <p style={styles.programCardDesc}>{p.desc}</p>
+      </section>
+
+      {/* PLANS */}
+      <section id="plans" className="sec sec-dark">
+        <div className="sec-label">Programmes</div>
+        <h2 className="sec-title">PLANS NUTRITIONNELS<br /></h2>
+        <p className="sec-sub">Trois approches adaptées à ton objectif, rédigées par nos coachs nutrition certifiés.</p>
+        <div className="plans-grid">
+          {[
+            { name: "SÈCHE", cal: "1 800", period: "déficit contrôlé", feats: ["160g protéines / jour", "180g glucides ciblés", "55g lipides essentiels", "5 repas structurés", "Suivi hebdomadaire"] },
+            { name: "MAINTIEN", cal: "2 400", period: "équilibre parfait", featured: true, feats: ["150g protéines / jour", "280g glucides équilibrés", "70g lipides sains", "5 repas + collations", "Plan repas 7 jours"] },
+            { name: "MASSE", cal: "3 200", period: "surplus optimisé", feats: ["180g protéines / jour", "400g glucides énergie", "80g lipides de qualité", "6 repas + pré-workout", "Suivi bihebdomadaire"] },
+          ].map(p => (
+            <div key={p.name} className={`plan-c${p.featured ? " featured" : ""}`}>
+              {p.featured && <div className="plan-badge">Recommandé</div>}
+              <div className="plan-name">{p.name}</div>
+              <div className="plan-price">{p.cal}</div>
+              <div className="plan-period">calories / jour · {p.period}</div>
+              <ul className="plan-feats">{p.feats.map(f => <li key={f}><span>→</span>{f}</li>)}</ul>
+              
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── MEMBERSHIP ── */}
-      <section id="abonnements" style={styles.section}>
-        <div style={styles.sectionTag}>Abonnements</div>
-        <div style={styles.sectionTitle}>Choisissez votre combat.</div>
-        <div style={styles.plansGrid}>
-          {memberships.map((m) => (
-            <div key={m.name} style={m.featured ? styles.planFeatured : styles.plan}
-              onMouseEnter={e => {
-                if (m.featured) {
-                  e.currentTarget.style.transform = 'translateY(-8px)';
-                  e.currentTarget.style.boxShadow = '0 0 60px rgba(214,40,40,0.5), inset 0 0 40px rgba(214,40,40,0.15)';
-                } else {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 12px 30px rgba(0,0,0,0.5)';
-                }
-              }}
-              onMouseLeave={e => {
-                if (m.featured) {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 0 50px rgba(214,40,40,0.4), inset 0 0 30px rgba(214,40,40,0.1)';
-                } else {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.3)';
-                }
-              }}
-            >
-              {m.featured && <div style={styles.planBadge}>Le Plus Populaire</div>}
-              <div style={styles.planName}>{m.name}</div>
-              <div style={styles.planPrice}>
-                <span style={{ color: "#F5F5F5" }}>€</span>
-                <span style={styles.planPriceAmount}>{m.price}</span>
-                <div style={styles.planPriceUnit}>{m.unit}</div>
-              </div>
-              <ul style={styles.planFeatures}>
-                {m.features.map((f) => (
-                  <li key={f} style={styles.planFeatureItem}>
-                    <span style={styles.featureArrow}>▸</span> {f}
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="#contact"
-                style={{
-                  ...(m.featured ? styles.btnPrimary : styles.btnOutline),
-                  width: "100%", textAlign: "center",
-                }}
-                onMouseEnter={e => {
-                  e.target.style.transform = 'translateY(-2px)';
-                  e.target.style.boxShadow = m.featured ? '0 10px 30px rgba(214,40,40,0.6)' : '0 6px 20px rgba(255,255,255,0.2)';
-                  if (!m.featured) e.target.style.borderColor = '#D62828';
-                  if (!m.featured) e.target.style.color = '#D62828';
-                }}
-                onMouseLeave={e => {
-                  e.target.style.transform = 'translateY(0)';
-                  e.target.style.boxShadow = m.featured ? '0 6px 20px rgba(214,40,40,0.4)' : 'none';
-                  if (!m.featured) e.target.style.borderColor = 'rgba(255,255,255,0.4)';
-                  if (!m.featured) e.target.style.color = '#F5F5F5';
-                }}
-              >
-                COMMENCER MAINTENANT
-              </a>
-            </div>
+      {/* REPAS */}
+      <section id="repas" className="sec">
+        <div className="sec-label">Alimentation quotidienne</div>
+        <h2 className="sec-title">PLAN REPAS<br />JOURNALIER</h2>
+        <div className="meals-tabs">
+          {[["seche", "SÈCHE"], ["maintien", "MAINTIEN"], ["masse", "PRISE DE MASSE"]].map(([k, l]) => (
+            <button key={k} className={`meal-tab${mealTab === k ? " on" : ""}`} onClick={() => setMealTab(k)}>{l}</button>
           ))}
         </div>
-      </section>
-
-      {/* ── CONTACT ── */}
-      <section id="contact" style={styles.sectionDark}>
-        <div style={styles.sectionTag}>Nous Trouver</div>
-        <div style={styles.sectionTitle}>CONTACT</div>
-        <div style={styles.contactGrid}>
-          {/* Info */}
-          <div>
-            <p style={styles.contactInfoP}>
-              Une question ? Prêt à commencer votre transformation ?
-              Notre équipe est là pour vous accompagner.
-            </p>
-            {[
-              { icon: "📍", text: "123 Avenue des Champs-Élysées, Paris 75008" },
-              { icon: "📞", text: "+33 1 23 45 67 89" },
-              { icon: "✉️", text: "contact@gymaccess.fr" },
-              { icon: "⏰", text: "Lun – Dim : 24h/24" },
-            ].map((item) => (
-              <div key={item.text} style={styles.contactItem}>
-                <div style={styles.contactIcon}>{item.icon}</div>
-                <div style={styles.contactText}>{item.text}</div>
+        <div className="meals-panel">
+          <div>{meal.meals.map(m => (
+            <div key={m.n} className="meal-row">
+              <div className="meal-num">{m.n}</div>
+              <div><div className="meal-name">{m.name}</div><div className="meal-type">{m.type}</div></div>
+            </div>
+          ))}</div>
+          <div className="macros-summary">
+            <div className="macro-big">{meal.cal.toLocaleString("fr")}</div>
+            <div className="macro-big-lbl">calories / jour</div>
+            {[["Protéines", meal.p, "bar-p"], ["Glucides", meal.g, "bar-g"], ["Lipides", meal.l, "bar-l"]].map(([name, val, id], i) => (
+              <div key={name} className="mbar-row">
+                <div className="mbar-header"><span>{name}</span><span>{val}g</span></div>
+                <div className="mbar-track">
+                  <div className="mbar-fill" style={{ width: `${Math.round(val * (i === 2 ? 9 : 4) / meal.cal * 100)}%`, background: i === 0 ? "#D62828" : i === 1 ? "#888" : "#555" }} />
+                </div>
               </div>
             ))}
-          </div>
-          {/* Form */}
-          <div style={styles.contactForm}>
-            <input style={styles.formInput} type="text"  placeholder="Votre Nom" />
-            <input style={styles.formInput} type="email" placeholder="Votre Email" />
-            <input style={styles.formInput} type="text"  placeholder="Sujet" />
-            <textarea
-              style={{ ...styles.formInput, resize: "vertical", minHeight: "120px" }}
-              placeholder="Votre message..."
-            />
-            <button style={styles.btnPrimary}>Envoyer le Message</button>
+            <button className="btn-red" style={{ width: "100%", marginTop: "20px", border: "none" }}>Obtenir mon plan →</button>
           </div>
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer style={styles.footer}>
-        <div style={styles.footerLogo}>
-          GYM<span style={styles.logoSpan}>ACCESS</span>
-        </div>
-        <p style={{ color: "#888", fontSize: "0.8rem" }}>© 2026 GymAccess France — Tous droits réservés</p>
-        <p style={{ color: "#444", fontSize: "0.75rem" }}>Transformez-vous. Dépassez-vous.</p>
-      </footer>
 
-    </div>
+
+      {/* CONSEILS */}
+      <section id="conseils" className="sec">
+        <div className="sec-label">Expertise</div>
+        <h2 className="sec-title">CONSEILS DE<br />NOS EXPERTS</h2>
+        <div className="tips-grid">
+          {TIPS.map(t => (
+            <div key={t.title} className="tip-c">
+              <div className="tip-title">{t.title}</div>
+              <p className="tip-txt">{t.txt}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* BAR */}
+      <section id="bar" className="sec sec-dark">
+        <div className="sec-label">Bar alimentaire</div>
+        <h2 className="sec-title">NOTRE CATALOGUE<br />NUTRITION</h2>
+        <div className="bar-nutr">
+          {BAR.map(b => (
+            <div key={b.name} className="baritem">
+              <div className="baritem-badge">{b.badge}</div>
+              <div className="baritem-name">{b.name}</div>
+              <p className="baritem-desc">{b.desc}</p>
+              <div className="baritem-price">{b.price}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mindset-sec">
+
+        <div className="mindset-content">
+
+          <div className="mindset-top">
+            ELITE MEMBERS
+          </div>
+
+          <h2 className="mindset-title">
+            BUILT BY<br />
+            DISCIPLINE.
+          </h2>
+
+          <p className="mindset-text">
+            Chez GymAccess, la transformation ne repose pas sur la motivation temporaire.
+            Elle repose sur la discipline, la constance et un mode de vie pensé pour performer chaque jour.
+          </p>
+
+          <div className="mindset-line"></div>
+
+          <p className="mindset-bottom">
+            Nutrition intelligente. Entraînement structuré.
+            Résultats visibles.
+          </p>
+
+        </div>
+
+      </section>
+
+
+
+      {/* FOOTER IDENTIQUE À INDEX.JS */}
+      <footer className="footer">
+        <div className="footer-logo">
+          GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+        </div>
+        <div className="footer-copy">
+          © 2026 GymAccess — Tous droits réservés
+        </div>
+      </footer>
+    </>
   );
 }

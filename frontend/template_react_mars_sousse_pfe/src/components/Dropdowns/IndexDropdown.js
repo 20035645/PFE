@@ -1,115 +1,66 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { createPopper } from "@popperjs/core";
 
-const IndexDropdown = () => {
-  // dropdown props
-  const [dropdownPopoverShow, setDropdownPopoverShow] = React.useState(false);
-  const btnDropdownRef = React.createRef();
-  const popoverDropdownRef = React.createRef();
+export default function IndexDropdown() {
+  const [dropdownPopoverShow, setDropdownPopoverShow] = useState(false);
+  const btnRef = useRef(null);
+  const popoverRef = useRef(null);
+
   const openDropdownPopover = () => {
-    createPopper(btnDropdownRef.current, popoverDropdownRef.current, {
-      placement: "bottom-start",
-    });
+    createPopper(btnRef.current, popoverRef.current, { placement: "bottom-start" });
     setDropdownPopoverShow(true);
   };
-  const closeDropdownPopover = () => {
-    setDropdownPopoverShow(false);
-  };
+  const closeDropdownPopover = () => setDropdownPopoverShow(false);
+
   return (
     <>
-      <a
-        className="hover:text-blueGray-500 text-blueGray-700 px-3 py-4 lg:py-2 flex items-center text-xs uppercase font-bold"
-        href="#pablo"
-        ref={btnDropdownRef}
-        onClick={(e) => {
-          e.preventDefault();
-          dropdownPopoverShow ? closeDropdownPopover() : openDropdownPopover();
-        }}
+      <button
+        className="text-gray-300 hover:text-red-400 transition-colors px-4 py-2 text-xs uppercase font-bold"
+        style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em', background: 'none', border: 'none', cursor: 'pointer' }}
+        ref={btnRef}
+        onClick={() => dropdownPopoverShow ? closeDropdownPopover() : openDropdownPopover()}
       >
-        Demo Pages
-      </a>
+        Pages <i className="fas fa-chevron-down ml-1 text-xs"></i>
+      </button>
       <div
-        ref={popoverDropdownRef}
-        className={
-          (dropdownPopoverShow ? "block " : "hidden ") +
-          "bg-white text-base z-50 float-left py-2 list-none text-left rounded shadow-lg min-w-48"
-        }
+        ref={popoverRef}
+        className={`${dropdownPopoverShow ? "block " : "hidden "}rounded shadow-lg z-50 py-2`}
+        style={{ backgroundColor: '#1a1a1a', border: '1px solid #2a2a2a', minWidth: '180px' }}
       >
-        <span
-          className={
-            "text-sm pt-2 pb-0 px-4 font-bold block w-full whitespace-nowrap bg-transparent text-blueGray-400"
-          }
-        >
-          Admin Layout
-        </span>
-        <Link
-          to="/admin/dashboard"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Dashboard
-        </Link>
-        <Link
-          to="/admin/settings"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Settings
-        </Link>
-        <Link
-          to="/admin/tables"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Tables
-        </Link>
-        <Link
-          to="/admin/maps"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Maps
-        </Link>
-        <div className="h-0 mx-4 my-2 border border-solid border-blueGray-100" />
-        <span
-          className={
-            "text-sm pt-2 pb-0 px-4 font-bold block w-full whitespace-nowrap bg-transparent text-blueGray-400"
-          }
-        >
-          Auth Layout
-        </span>
-        <Link
-          to="/auth/login"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Login
-        </Link>
-        <Link
-          to="/auth/register"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Register
-        </Link>
-        <div className="h-0 mx-4 my-2 border border-solid border-blueGray-100" />
-        <span
-          className={
-            "text-sm pt-2 pb-0 px-4 font-bold block w-full whitespace-nowrap bg-transparent text-blueGray-400"
-          }
-        >
-          No Layout
-        </span>
-        <Link
-          to="/landing"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Landing
-        </Link>
-        <Link
-          to="/profile"
-          className="text-sm py-2 px-4 font-normal block w-full whitespace-nowrap bg-transparent text-blueGray-700"
-        >
-          Profile
-        </Link>
+        <div className="px-4 py-2 text-xs uppercase font-bold"
+          style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em', borderBottom: '1px solid #2a2a2a' }}>
+          Admin
+        </div>
+        {[
+          { to: "/admin/dashboard", label: "Dashboard" },
+          { to: "/admin/settings", label: "Paramètres" },
+          { to: "/admin/tables", label: "Membres" },
+          { to: "/admin/maps", label: "Maps" },
+        ].map((item, i) => (
+          <Link key={i} to={item.to}
+            className="block px-4 py-2 text-xs hover:text-red-400 transition-colors"
+            style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}
+            onClick={closeDropdownPopover}>
+            {item.label}
+          </Link>
+        ))}
+        <div className="px-4 py-2 text-xs uppercase font-bold mt-2"
+          style={{ color: '#e11d48', fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em', borderTop: '1px solid #2a2a2a', borderBottom: '1px solid #2a2a2a' }}>
+          Auth
+        </div>
+        {[
+          { to: "/auth/login", label: "Connexion" },
+          { to: "/auth/register", label: "Inscription" },
+        ].map((item, i) => (
+          <Link key={i} to={item.to}
+            className="block px-4 py-2 text-xs hover:text-red-400 transition-colors"
+            style={{ color: '#9ca3af', fontFamily: 'Rajdhani, sans-serif' }}
+            onClick={closeDropdownPopover}>
+            {item.label}
+          </Link>
+        ))}
       </div>
     </>
   );
-};
-
-export default IndexDropdown;
+}
