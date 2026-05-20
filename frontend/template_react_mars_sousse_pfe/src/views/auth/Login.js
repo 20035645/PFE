@@ -1,30 +1,46 @@
 import React from "react";
 import { Link } from "react-router-dom";
-
-// ── FAKE USERS (remplacer par appel API en production) ──
-const USERS = [
-  { email: "membre@gymaccess.tn", password: "gym2026", name: "Ahmed Ben Ali" },
-  { email: "admin@gymaccess.tn", password: "admin123", name: "Admin GymAccess" },
-];
+import { AUTH_API } from "Services/api";
 
 export default function Login() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPass, setShowPass] = React.useState(false);
   const [error, setError] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
   const [userName, setUserName] = React.useState("");
   const [focusField, setFocusField] = React.useState(null);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setError("");
-    if (!email || !password) { setError("Veuillez remplir tous les champs."); return; }
-    const user = USERS.find(u => u.email === email && u.password === password);
-    if (user) {
-      setUserName(user.name);
+    if (!email || !password) {
+      setError("Veuillez remplir tous les champs.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${AUTH_API}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || data.message || "Email ou mot de passe incorrect.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      setUserName(data.user?.name || email);
       setLoggedIn(true);
-    } else {
-      setError("Email ou mot de passe incorrect.");
+    } catch {
+      setError("Impossible de contacter le serveur.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -143,8 +159,12 @@ export default function Login() {
             </div>
 
             {/* Submit */}
-            <button style={s.btnPrimary} onClick={handleLogin}>
-              SE CONNECTER
+            <button
+              style={{ ...s.btnPrimary, opacity: loading ? 0.7 : 1 }}
+              onClick={handleLogin}
+              disabled={loading}
+            >
+              {loading ? "CONNEXION..." : "SE CONNECTER"}
             </button>
 
             {/* Divider */}
@@ -168,7 +188,7 @@ export default function Login() {
 
             {/* Demo hint */}
             <p style={s.demoHint}>
-              Demo — <span style={{ color: "#888" }}>membre@gymaccess.tn</span> / <span style={{ color: "#888" }}>gym2026</span>
+              Seed — <span style={{ color: "#888" }}>admin@gym.com</span> / <span style={{ color: "#888" }}>Admin123!</span>
             </p>
           </>
         )}
@@ -254,9 +274,9 @@ const s = {
     fontFamily: "'Barlow', sans-serif", fontSize: "0.95rem",
     borderRadius: "2px", outline: "none",
     marginBottom: "1.2rem",
-    transition: "border-color .2s",
+    transition: "border .2s",
   },
-  inputFocus: { borderColor: "#D62828" },
+  inputFocus: { border: "1px solid #D62828" },
   eyeBtn: {
     position: "absolute", right: "0.8rem", top: "50%",
     transform: "translateY(-50%)",

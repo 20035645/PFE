@@ -1,169 +1,225 @@
 """
-Agent bootstrap: try to use LangChain's GoogleGemini when available. If not,
-fall back to the `google-generativeai` client. This makes runtime robust across
-different environments and package versions.
+GymChatAgent: LangChain agent with MongoDB tools (Mistral via langchain-mistralai).
+Falls back to Mistral REST API if the LangChain agent cannot start.
 """
 
-from typing import Optional
+import logging
+from typing import Any, Optional
+
+import requests
 
 from config.settings import settings
 
-# tools and memory (langchain components may be optional at runtime)
-try:
-    from langchain.agents import initialize_agent
-    from langchain.memory import ConversationBufferMemory
-    from .tools import (
-        get_member_profile_tool,
-        get_program_tool,
-        get_booking_tool,
+logger = logging.getLogger(__name__)
+
+
+class ResponseParseError(RuntimeError):
+    """Raised when the LLM response cannot be parsed into plain text."""
+
+
+def _detect_backends() -> dict:
+    flags = {"langchain_agent": False, "mistral_rest": True}
+
+    try:
+        from langchain.agents import create_agent  # noqa: F401
+        from langchain_mistralai import ChatMistralAI  # noqa: F401
+        flags["langchain_agent"] = True
+    except ImportError:
+        pass
+
+    return flags
+
+
+_BACKENDS = _detect_backends()
+
+SYSTEM_PROMPT = """You are GymGPT, a friendly assistant for a fitness club.
+
+You help with TWO types of questions:
+
+1) GENERAL TRAINING & FITNESS (answer directly — do NOT use tools)
+   Examples: workout advice, exercise technique, sets/reps, warm-up/cool-down,
+   cardio vs strength, stretching, recovery, sleep, hydration, beginner tips,
+   muscle groups, training splits, gym etiquette.
+   - Give clear, practical, evidence-based guidance in plain language.
+   - Keep answers concise unless the user asks for detail.
+   - For injury, pain, pregnancy, or medical conditions: do not diagnose;
+     recommend seeing a doctor or physiotherapist, and offer only general safety tips.
+
+2) THIS GYM'S DATA (use tools only when needed)
+   - member_profile: this member's account/profile in the database.
+   - training_programs: programmes offered by this gym (search by keyword).
+   - book_gym_session: book a session at this gym.
+   Never invent member names, bookings, prices, or schedules — use tools or say you don't have that data.
+
+Rules:
+- Do not call tools for general fitness questions.
+- Do not call tools unless the user asks about their profile, our programmes, or booking.
+- Never fabricate private member details.
+- If a gym-specific request fails or data is missing, suggest contacting gym staff or their coach.
+"""
+
+
+def _build_user_content(user_id: str, message: str) -> str:
+    return f"[member_id: {user_id}]\n{message}"
+
+
+def _build_langchain_backend():
+    from langchain.agents import create_agent
+    from langchain_mistralai import ChatMistralAI
+    from langgraph.checkpoint.memory import MemorySaver
+
+    from .tools import get_tools
+
+    llm = ChatMistralAI(
+        model=settings.mistral_model,
+        api_key=settings.mistral_api_key,
+        temperature=0.2,
     )
-    _HAS_LANGCHAIN = True
-except Exception:
-    _HAS_LANGCHAIN = False
+    checkpointer = MemorySaver()
+    graph = create_agent(
+        llm,
+        get_tools(),
+        system_prompt=SYSTEM_PROMPT,
+        checkpointer=checkpointer,
+    )
+    return graph, checkpointer
 
-# try to import a LangChain Gemini wrapper; if not available, we'll use the
-# google-generativeai client as a fallback
-try:
-    from langchain.llms import GoogleGemini as _LangChainGoogleGemini  # type: ignore
-    _HAS_GEMINI_LC = True
-except Exception:
-    _LangChainGoogleGemini = None
-    _HAS_GEMINI_LC = False
 
-try:
-    import google.generativeai as genai  # type: ignore
-    _HAS_GENAI = True
-except Exception:
-    genai = None
-    _HAS_GENAI = False
+def _call_mistral_rest(messages: list[dict]) -> str:
+    """Stateless fallback: Mistral chat completions API (no tools)."""
+    response = requests.post(
+        "https://api.mistral.ai/v1/chat/completions",
+        headers={
+            "Authorization": f"Bearer {settings.mistral_api_key}",
+            "Content-Type": "application/json",
+        },
+        json={
+            "model": settings.mistral_model,
+            "messages": messages,
+            "temperature": 0.2,
+        },
+        timeout=60,
+    )
+    if not response.ok:
+        raise RuntimeError(
+            f"Mistral API error {response.status_code}: {response.text[:500]}"
+        )
+    data = response.json()
+    try:
+        return data["choices"][0]["message"]["content"]
+    except (KeyError, IndexError, TypeError) as exc:
+        raise ResponseParseError(f"Unexpected Mistral response: {data}") from exc
+
+
+def _message_content(message: Any) -> str:
+    content = getattr(message, "content", message)
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict) and block.get("type") == "text":
+                parts.append(block.get("text", ""))
+            elif isinstance(block, str):
+                parts.append(block)
+        return "\n".join(parts).strip()
+    return str(content)
+
+
+def get_agent_status() -> dict:
+    mongo_ok = False
+    try:
+        from services.mongo_client import ping_mongo
+
+        mongo_ok = ping_mongo()
+    except Exception as exc:
+        logger.debug("Mongo ping failed: %s", exc)
+
+    return {
+        "llm_provider": "mistral",
+        "model": settings.mistral_model,
+        "backends_available": _BACKENDS,
+        "mongo_ok": mongo_ok,
+        "tools": ["member_profile", "training_programs", "book_gym_session"],
+    }
 
 
 class GymChatAgent:
     def __init__(self):
-        self.system_prompt = (
-            "You are GymGPT, a gym assistant for a fitness club. "
-            "Answer member and admin questions clearly and politely. "
-            "Prefer actionable, concise replies. Use available gym data when provided, "
-            "and never fabricate private member details. If a user asks to book or query "
-            "their sessions, call the corresponding tool. If you cannot answer, instruct "
-            "the user to contact gym staff or their assigned coach."
-        )
+        self._lc_agent = None
+        self.backend = "none"
 
-        # Prefer using LangChain + GoogleGemini if available
-        self.use_langchain_agent = False
-        if _HAS_LANGCHAIN and _HAS_GEMINI_LC:
+        if _BACKENDS["langchain_agent"]:
             try:
-                self.llm = _LangChainGoogleGemini(
-                    api_key=settings.gemini_api_key,
-                    model=settings.gemini_model,
-                    temperature=0.2,
+                self._lc_agent, _ = _build_langchain_backend()
+                self.backend = "langchain"
+                logger.info(
+                    "GymChatAgent: LangChain + Mistral (%s), tools enabled.",
+                    settings.mistral_model,
                 )
-                self.tools = [
-                    get_member_profile_tool(),
-                    get_program_tool(),
-                    get_booking_tool(),
-                ]
-                self.memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
-                self.agent = initialize_agent(
-                    self.tools,
-                    self.llm,
-                    agent="chat-zero-shot-react-description",
-                    memory=self.memory,
-                    verbose=False,
+                return
+            except Exception as exc:
+                err = str(exc).lower()
+                if any(k in err for k in ("api_key", "invalid", "unauthorized", "401", "403")):
+                    raise RuntimeError(
+                        f"Mistral LangChain backend failed: {exc}"
+                    ) from exc
+                logger.warning(
+                    "LangChain backend unavailable (%s); using Mistral REST.", exc
                 )
-                self.use_langchain_agent = True
-            except Exception:
-                # fall through to genai fallback
-                self.use_langchain_agent = False
 
-        # Fallback: use google-generativeai client directly if installed
-        if not self.use_langchain_agent:
-            if not _HAS_GENAI:
-                raise RuntimeError(
-                    "No supported Gemini client found. Install either a LangChain "
-                    "build that exposes `langchain.llms.GoogleGemini` or install "
-                    "`google-generativeai` (pip)."
-                )
-            # initialize the client
-            genai.configure(api_key=settings.gemini_api_key)  # type: ignore[attr-defined]
-            self.genai_client = genai
-
-    def run(self, user_id: str, message: str, session_id: Optional[str] = None):
-        prompt = (
-            f"SYSTEM:\n{self.system_prompt}\n\n"
-            f"USER CONTEXT:\nuser_id: {user_id}\n"
-            f"session_id: {session_id or 'none'}\n"
-            f"message: {message}\n"
+        self.backend = "mistral_rest"
+        logger.info(
+            "GymChatAgent: Mistral REST fallback (%s), tools disabled.",
+            settings.mistral_model,
         )
 
-        if self.use_langchain_agent:
-            # delegate to LangChain agent (tools + memory enabled)
-            result = self.agent.run(prompt)
-            return {"reply": result, "user_id": user_id, "session_id": session_id}
+    def run(
+        self,
+        user_id: str,
+        message: str,
+        session_id: Optional[str] = None,
+    ) -> dict:
+        if self._lc_agent is not None:
+            from langchain_core.messages import HumanMessage
 
-        # Fallback: use google-generativeai client directly (support multiple client shapes)
-        genai_client = self.genai_client
-        resp = None
+            thread_id = session_id or user_id
+            config = {"configurable": {"thread_id": thread_id}}
+            result = self._lc_agent.invoke(
+                {
+                    "messages": [
+                        HumanMessage(content=_build_user_content(user_id, message))
+                    ]
+                },
+                config=config,
+            )
+            reply = _message_content(result["messages"][-1])
+            return {
+                "reply": reply,
+                "user_id": user_id,
+                "session_id": thread_id,
+                "backend": "langchain",
+                "llm_provider": "mistral",
+                "model": settings.mistral_model,
+                "tools_enabled": True,
+            }
 
-        # Try known API entry points depending on installed client version
-        if hasattr(genai_client, "generate_text"):
-            resp = genai_client.generate_text(model=settings.gemini_model, prompt=prompt)  # type: ignore[attr-defined]
-        elif hasattr(genai_client, "text") and hasattr(genai_client.text, "generate"):
-            resp = genai_client.text.generate(model=settings.gemini_model, prompt=prompt)  # type: ignore[attr-defined]
-        elif hasattr(genai_client, "chat") and hasattr(getattr(genai_client.chat, "completions", None), "create"):
-            messages = [
-                {"role": "system", "content": self.system_prompt},
-                {"role": "user", "content": f"user_id: {user_id}\nsession_id: {session_id or 'none'}\nmessage: {message}"},
-            ]
-            resp = genai_client.chat.completions.create(model=settings.gemini_model, messages=messages)  # type: ignore[attr-defined]
-        elif hasattr(genai_client, "Client") and hasattr(genai_client.Client, "generate_text"):
-            client = genai_client.Client(api_key=settings.gemini_api_key)  # type: ignore[attr-defined]
-            resp = client.generate_text(model=settings.gemini_model, prompt=prompt)
-        else:
-            raise RuntimeError(
-                "Unsupported google.generativeai client API. Update the package or install a supported version."
+        if session_id is not None:
+            logger.debug(
+                "session_id=%s ignored: REST fallback has no memory.", session_id
             )
 
-        # Normalize response to plain text across possible response shapes
-        text = None
-        try:
-            if isinstance(resp, dict):
-                # common JSON-like shapes
-                if "candidates" in resp and resp["candidates"]:
-                    cand = resp["candidates"][0]
-                    if isinstance(cand, dict) and "output" in cand:
-                        text = cand["output"]
-                    else:
-                        text = str(cand)
-                elif "output" in resp:
-                    text = resp["output"]
-                elif "content" in resp:
-                    text = resp["content"]
-                else:
-                    text = str(resp)
-            else:
-                # object-like responses
-                if hasattr(resp, "text"):
-                    text = resp.text
-                elif hasattr(resp, "output"):
-                    text = resp.output
-                elif hasattr(resp, "candidates") and getattr(resp, "candidates"):
-                    try:
-                        text = resp.candidates[0].output
-                    except Exception:
-                        try:
-                            text = resp.candidates[0]["output"]
-                        except Exception:
-                            text = str(resp)
-                elif hasattr(resp, "choices") and getattr(resp, "choices"):
-                    # some clients use `choices` similar to OpenAI
-                    try:
-                        text = resp.choices[0].text
-                    except Exception:
-                        text = str(resp)
-                else:
-                    text = str(resp)
-        except Exception:
-            text = str(resp)
-
-        return {"reply": text, "user_id": user_id, "session_id": session_id}
+        messages = [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": _build_user_content(user_id, message)},
+        ]
+        reply = _call_mistral_rest(messages)
+        return {
+            "reply": reply,
+            "user_id": user_id,
+            "session_id": None,
+            "backend": "mistral_rest",
+            "llm_provider": "mistral",
+            "model": settings.mistral_model,
+            "tools_enabled": False,
+        }

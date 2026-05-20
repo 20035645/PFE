@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useHistory } from "react-router-dom";
-
-const API = "http://localhost:5000/api/auth";
+import { AUTH_API } from "Services/api";
 
 export default function Register() {
   const history = useHistory();
@@ -33,14 +32,23 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const res = await fetch(`${API}/register`, {
+      const res = await fetch(`${AUTH_API}/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nom, prenom, email, password }),
+        body: JSON.stringify({
+          nom,
+          prenom,
+          email,
+          password,
+          role: "membre",
+        }),
       });
       const data = await res.json();
 
-      if (!res.ok) { setError(data.message || "Erreur lors de l'inscription."); return; }
+      if (!res.ok) {
+        setError(data.error || data.message || "Erreur lors de l'inscription.");
+        return;
+      }
 
       // Sauvegarder le token
       localStorage.setItem("token", data.token);
@@ -140,8 +148,8 @@ export default function Register() {
               style={{
                 ...s.input,
                 ...(focusField === "confirm" ? s.inputFocus : {}),
-                ...(confirm && confirm !== password ? { borderColor: "#D62828" } : {}),
-                ...(confirm && confirm === password ? { borderColor: "#28a745" } : {}),
+                ...(confirm && confirm !== password ? s.inputInvalid : {}),
+                ...(confirm && confirm === password ? s.inputValid : {}),
               }}
               type="password" placeholder="••••••••"
               value={confirm} onChange={e => setConfirm(e.target.value)}
@@ -184,8 +192,10 @@ const s = {
   sub: { color: "#888", fontSize: "0.85rem", textAlign: "center", marginBottom: "2rem" },
   errorBox: { background: "rgba(214,40,40,0.1)", border: "1px solid rgba(214,40,40,0.4)", color: "#ff6b6b", padding: "0.7rem 1rem", borderRadius: "2px", fontSize: "0.85rem", marginBottom: "1rem" },
   label: { display: "block", fontSize: "0.7rem", letterSpacing: "2px", textTransform: "uppercase", color: "#888", marginBottom: "0.5rem" },
-  input: { width: "100%", background: "#0A0A0A", border: "1px solid #2a2a2a", color: "#F5F5F5", padding: "0.85rem 1rem", fontFamily: "'Barlow',sans-serif", fontSize: "0.95rem", borderRadius: "2px", outline: "none", marginBottom: "1.2rem", transition: "border-color .2s" },
-  inputFocus: { borderColor: "#D62828" },
+  input: { width: "100%", background: "#0A0A0A", border: "1px solid #2a2a2a", color: "#F5F5F5", padding: "0.85rem 1rem", fontFamily: "'Barlow',sans-serif", fontSize: "0.95rem", borderRadius: "2px", outline: "none", marginBottom: "1.2rem", transition: "border .2s" },
+  inputFocus: { border: "1px solid #D62828" },
+  inputInvalid: { border: "1px solid #D62828" },
+  inputValid: { border: "1px solid #28a745" },
   eyeBtn: { position: "absolute", right: "0.8rem", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "#888", cursor: "pointer", fontSize: "1rem" },
   btnPrimary: { width: "100%", background: "#D62828", color: "#F5F5F5", padding: "0.9rem", fontFamily: "'Barlow',sans-serif", fontWeight: 700, fontSize: "0.85rem", letterSpacing: "3px", textTransform: "uppercase", border: "none", cursor: "pointer", borderRadius: "2px", textAlign: "center", display: "block" },
   divider: { display: "flex", alignItems: "center", gap: "1rem", margin: "1.5rem 0" },

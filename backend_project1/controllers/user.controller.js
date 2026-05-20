@@ -76,16 +76,16 @@ module.exports.deleteUser = async (req, res) => {
 module.exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await userModel.Login(email, password); 
-        if (!user) return res.status(404).json({ error: 'User not found' });
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) return res.status(400).json({ error: 'Invalid password' });
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Email and password are required' });
+        }
+        const user = await userModel.Login(email, password);
         const token = createToken(user._id);
         const userObj = user.toObject();
         delete userObj.password;
         res.status(200).json({ message: 'Login successful', user: userObj, token });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(401).json({ error: error.message || 'Invalid email or password' });
     }
 };
 
@@ -94,10 +94,18 @@ module.exports.login = async (req, res) => {
 module.exports.register = async (req, res) => {
     try {
         const {
-            name, email, password, role,
-            numTelephone, age, poids, taille,  // ← poids et taille ajoutés
+            name, nom, prenom, email, password,
+            role = 'membre',
+            numTelephone, age, poids, taille,
             objectif, specialite, experience, tarif
         } = req.body;
+
+        const displayName = name || [prenom, nom].filter(Boolean).join(' ').trim();
+        if (!displayName || !email || !password) {
+            return res.status(400).json({
+                error: 'Name (or nom/prenom), email and password are required',
+            });
+        }
 
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
@@ -107,7 +115,7 @@ module.exports.register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new userModel({
-            name, email,
+            name: displayName, email,
             password: hashedPassword,
             role, numTelephone,
             age, poids, taille,   // ← poids et taille ajoutés
