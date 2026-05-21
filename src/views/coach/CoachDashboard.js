@@ -526,10 +526,19 @@ function ProgressionsView() {
   const handleAdd = async () => {
     if (!form.membre) { setErr("Membre requis"); return; }
     setSaving(true);
-    try { await progressionAPI.add(form); setShowAdd(false); setForm(emptyForm); fetchAll(); }
+    try {
+        const payload = {
+            ...form,
+            seance: form.seance || undefined  // ← "" devient undefined
+        };
+        await progressionAPI.add(payload);
+        setShowAdd(false);
+        setForm(emptyForm);
+        fetchAll();
+    }
     catch (e) { setErr(e.message); }
     setSaving(false);
-  };
+};
 
   const handleUpdate = async () => {
     setSaving(true);
