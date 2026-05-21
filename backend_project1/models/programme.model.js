@@ -15,7 +15,7 @@ const programmeSchema = new mongoose.Schema(
         },
         niveau: {
             type: String,
-            enum: ['debutant', 'intermediaire', 'avance'],
+            enum: ['débutant', 'intermediaire', 'avance'],
             required: true,
         },
         coach: {
