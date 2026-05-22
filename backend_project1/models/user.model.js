@@ -38,6 +38,8 @@ userSchema.pre('save', async function () {
 });
 */
 
+
+
 userSchema.statics.Login = async function (email, password) {
     const user = await this.findOne({ email });
     if (!user) throw new Error('Invalid email or password');

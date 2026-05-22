@@ -30,14 +30,16 @@ progressionController.getProgressionById = async (req, res) => {
 progressionController.addProgression = async (req, res) => {
     try {
         const { poids, taille, objectif, membre, seance } = req.body;
-        const newProgression = new Progression({ poids, taille, objectif, membre, seance });
+        const newProgression = new Progression({ 
+            poids, taille, objectif, membre,
+            ...(seance ? { seance } : {})  // ← n'inclut seance que si non vide
+        });
         await newProgression.save();
         res.status(201).json(newProgression);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
-
 progressionController.updateProgression = async (req, res) => {
     try {
         const { progressionId } = req.params;
