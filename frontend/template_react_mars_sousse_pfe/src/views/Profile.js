@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { notifyAuthChange } from "Services/authSession";
 
 
 // ─── EXACT SAME STYLES FROM INDEX.JS ───────────────────────────────────────
@@ -559,6 +560,7 @@ export default function Profile() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    notifyAuthChange();
     history.push("/");
   };
 

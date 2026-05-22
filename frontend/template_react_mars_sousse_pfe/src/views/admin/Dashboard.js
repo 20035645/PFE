@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js";
-import { getAllUsers } from "services/apiUser";
+import { getAllUsers } from "Services/apiUser";
 
 export default function Dashboard() {
   const lineChartRef = useRef(null);
