@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import API from "../services/api";
+import API from "Services/api";
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;800&display=swap');
@@ -370,7 +370,7 @@ export default function NutritionPage() {
 
   useEffect(() => {
 
-    API.get("/test")
+    API.get("/api/test")
       .then((res) => {
         setBackendMessage(res.data.message);
       })

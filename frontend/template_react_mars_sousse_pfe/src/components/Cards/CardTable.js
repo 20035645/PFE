@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { getAllUsers, deleteUser } from "services/apiUser";
+import { getAllUsers, deleteUser } from "Services/apiUser";
+import LoadingSpinner from "components/UI/LoadingSpinner";
+import EmptyState from "components/UI/EmptyState";
+import { colors } from "theme/gymTheme";
 
 export default function CardTable() {
   const [membres, setMembres] = useState([]);
@@ -33,8 +36,8 @@ export default function CardTable() {
     }
   };
 
-  const colors = ["#e11d48", "#10b981", "#8b5cf6", "#f59e0b", "#3b82f6", "#ec4899"];
-  const getColor = (name) => colors[name?.charCodeAt(0) % colors.length] || "#e11d48";
+  const avatarColors = [colors.red, "#10b981", "#8b5cf6", "#f59e0b", "#3b82f6", "#ec4899"];
+  const getColor = (name) => avatarColors[name?.charCodeAt(0) % avatarColors.length] || colors.red;
 
   const filtered = membres.filter(
     (m) =>
@@ -43,14 +46,14 @@ export default function CardTable() {
   );
 
   return (
-    <div style={{ backgroundColor: "#111111", border: "1px solid #2a2a2a", borderRadius: "12px" }}>
+    <div className="gym-card" style={{ backgroundColor: colors.dark, borderRadius: "12px", overflow: "hidden" }}>
       {/* Header */}
       <div style={{ padding: "1rem 1.5rem", borderBottom: "1px solid #2a2a2a", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "1rem" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <h3 style={{ color: "white", fontFamily: "Oswald, sans-serif", fontSize: "1.1rem", fontWeight: 700, letterSpacing: "0.05em", margin: 0 }}>
             Liste des Membres
           </h3>
-          <span style={{ background: "rgba(225,29,72,0.1)", color: "#e11d48", border: "1px solid rgba(225,29,72,0.2)", padding: "0.2rem 0.7rem", borderRadius: "999px", fontSize: "0.75rem", fontWeight: 700 }}>
+          <span className="badge-red" style={{ padding: "0.2rem 0.7rem", borderRadius: "999px", fontSize: "0.75rem", fontWeight: 700 }}>
             {membres.length} membres
           </span>
         </div>
@@ -60,7 +63,8 @@ export default function CardTable() {
             placeholder="Rechercher..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            style={{ background: "#000", border: "1px solid #333", borderRadius: "8px", padding: "0.4rem 0.8rem", color: "white", fontSize: "0.85rem", outline: "none", width: "180px" }}
+            className="gym-input"
+            style={{ padding: "0.4rem 0.8rem", fontSize: "0.85rem", width: "180px" }}
           />
           <button
             style={{ background: "linear-gradient(135deg,#ef4444,#991b1b)", border: "none", color: "white", padding: "0.4rem 1rem", borderRadius: "8px", fontWeight: 700, fontSize: "0.8rem", letterSpacing: "0.1em", cursor: "pointer" }}
@@ -73,11 +77,15 @@ export default function CardTable() {
       {/* Table */}
       <div style={{ overflowX: "auto" }}>
         {loading ? (
-          <p style={{ color: "#9ca3af", textAlign: "center", padding: "2rem" }}>Chargement...</p>
+          <LoadingSpinner label="Chargement des membres..." />
         ) : filtered.length === 0 ? (
-          <p style={{ color: "#9ca3af", textAlign: "center", padding: "2rem" }}>Aucun membre trouvé</p>
+          <EmptyState
+            icon="👥"
+            title="Aucun membre"
+            message={search ? "Aucun résultat pour cette recherche." : "Aucun membre inscrit pour le moment."}
+          />
         ) : (
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <table className="gym-table" style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
                 {["Membre", "Abonnement", "Téléphone", "Statut", "Inscription", "Actions"].map((h, i) => (

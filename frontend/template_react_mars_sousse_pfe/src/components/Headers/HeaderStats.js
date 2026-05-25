@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CardStats from "components/Cards/CardStats.js";
-import { getAllUsers } from "services/apiUser";
+import { getAllUsers } from "Services/apiUser";
 
 export default function HeaderStats() {
   const [stats, setStats] = useState({
@@ -66,7 +66,7 @@ export default function HeaderStats() {
         style={{ background: "linear-gradient(135deg, #0a0a0a 0%, #1a0510 60%, #0a0a0a 100%)" }}
       >
         <div className="absolute bottom-0 left-0 right-0 h-px"
-          style={{ background: "linear-gradient(90deg, transparent, #e11d48, transparent)" }}>
+          style={{ background: "linear-gradient(90deg, transparent, #D62828, transparent)" }}>
         </div>
 
         <div className="px-4 md:px-10 mx-auto w-full">

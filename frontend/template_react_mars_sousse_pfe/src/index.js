@@ -13,6 +13,7 @@ import Index from "views/Index.js";
 import Landing from "views/Landing.js";
 import Profile from "views/Profile.js";
 import NewPage from "views/NewPage.js";
+import GymChatWidget from "components/Chat/GymChatWidget.js";
 
 // ✅ Composant PrivateRoute
 // Remplace l'ancienne version par celle-ci
@@ -34,6 +35,7 @@ function PrivateRoute({ component: Component, ...rest }) {
 
 ReactDOM.render(
   <BrowserRouter>
+    <GymChatWidget />
     <Switch>
       <Route path="/admin" component={Admin} />
       <Route path="/auth" component={Auth} />

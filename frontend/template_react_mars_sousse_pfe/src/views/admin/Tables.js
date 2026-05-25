@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CardTable from "components/Cards/CardTable.js";
-import { getAllUsers } from "services/apiUser";
+import { getAllUsers } from "Services/apiUser";
 
 export default function Tables() {
   const [stats, setStats] = useState({ actifs: 0 });

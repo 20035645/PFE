@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { loginUser } from "../../services/apiUser";
+import { loginUser } from "Services/apiUser";
+import { notifyAuthChange } from "Services/authSession";
 
 export default function Login() {
+  const history = useHistory();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
-  const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,6 +20,7 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      notifyAuthChange();
 
       const role = res.data.user.role;
       console.log(role);
@@ -32,9 +33,12 @@ export default function Login() {
         const from = history.location?.state?.from?.pathname;
         history.push(from === "/landing" ? "/landing" : "/profile");
       }
-
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.message || "Erreur de connexion");
+      setError(
+        err.response?.data?.error ||
+          err.message ||
+          "Erreur de connexion"
+      );
     } finally {
       setLoading(false);
     }
@@ -42,7 +46,7 @@ export default function Login() {
 
   return (
     <div style={styles.page}>
-      <div style={styles.overlay}></div>
+      <div style={styles.overlay} />
 
       <div style={styles.card}>
         <div style={styles.iconWrap}>
@@ -50,16 +54,9 @@ export default function Login() {
         </div>
 
         <h1 style={styles.title}>CONNEXION</h1>
+        <p style={styles.subtitle}>Connectez-vous à votre espace GymAccess</p>
 
-        <p style={styles.subtitle}>
-          Connectez-vous à votre espace GymAccess
-        </p>
-
-        {error && (
-          <div style={styles.errorBox}>
-            {error}
-          </div>
-        )}
+        {error && <div style={styles.errorBox}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div>
@@ -102,6 +99,11 @@ export default function Login() {
           <Link to="/auth/register" style={styles.linkRed}>
             Créer un compte
           </Link>
+        </p>
+
+        <p style={styles.demoHint}>
+          Seed — <span style={{ color: "#888" }}>admin@gym.com</span> /{" "}
+          <span style={{ color: "#888" }}>Admin123!</span>
         </p>
       </div>
     </div>
@@ -155,11 +157,7 @@ const styles = {
     letterSpacing: "0.2em",
     marginBottom: "0.7rem",
   },
-  subtitle: {
-    color: "#888",
-    textAlign: "center",
-    marginBottom: "2rem",
-  },
+  subtitle: { color: "#888", textAlign: "center", marginBottom: "2rem" },
   errorBox: {
     background: "rgba(220,38,38,0.12)",
     border: "1px solid rgba(220,38,38,0.4)",
@@ -170,11 +168,7 @@ const styles = {
     fontSize: "0.88rem",
     textAlign: "center",
   },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.5rem",
-  },
+  form: { display: "flex", flexDirection: "column", gap: "1.5rem" },
   label: {
     display: "block",
     color: "#aaa",
@@ -196,7 +190,7 @@ const styles = {
   },
   button: {
     marginTop: "0.5rem",
-    background: "linear-gradient(135deg,#ef4444,#991b1b)",
+    background: "linear-gradient(135deg,#D62828,#991b1b)",
     border: "none",
     color: "#fff",
     padding: "1rem",
@@ -207,23 +201,14 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 10px 30px rgba(220,38,38,0.35)",
   },
-  links: {
-    marginTop: "1rem",
-    textAlign: "right",
-  },
-  link: {
-    color: "#aaa",
-    textDecoration: "none",
-    fontSize: "0.9rem",
-  },
-  footer: {
+  links: { marginTop: "1rem", textAlign: "right" },
+  link: { color: "#aaa", textDecoration: "none", fontSize: "0.9rem" },
+  footer: { textAlign: "center", color: "#888", marginTop: "2rem" },
+  linkRed: { color: "#ef4444", textDecoration: "none", fontWeight: 700 },
+  demoHint: {
+    color: "#444",
+    fontSize: "0.72rem",
     textAlign: "center",
-    color: "#888",
-    marginTop: "2rem",
-  },
-  linkRed: {
-    color: "#ef4444",
-    textDecoration: "none",
-    fontWeight: 700,
+    marginTop: "1.5rem",
   },
 };

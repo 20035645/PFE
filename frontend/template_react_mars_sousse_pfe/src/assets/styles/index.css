@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;800&family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,24 +7,46 @@
 @import './tailwind.css';
 
 :root {
-  --gym-red: #e11d48;
-  --gym-red-dark: #9f1239;
-  --gym-black: #0a0a0a;
+  --gym-red: #D62828;
+  --gym-red-dark: #991b1b;
+  --gym-black: #0A0A0A;
   --gym-dark: #111111;
-  --gym-gray: #1a1a1a;
+  --gym-gray: #141414;
   --gym-gray-light: #2a2a2a;
-  --gym-text: #e5e7eb;
-  --gym-muted: #9ca3af;
+  --gym-text: #F5F5F5;
+  --gym-muted: #A3A3A3;
+  --gym-radius: 10px;
+  --gym-transition: 0.2s ease;
 }
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Inter', sans-serif;
+html {
+  scroll-behavior: smooth;
+}
+
+body,
+body.gym-app {
+  font-family: 'Barlow', 'Inter', sans-serif;
   background-color: var(--gym-black);
   color: var(--gym-text);
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  transition: color var(--gym-transition), opacity var(--gym-transition);
+}
+
+a:hover {
+  color: var(--gym-text);
+}
+
+::selection {
+  background: rgba(214, 40, 40, 0.35);
+  color: #fff;
 }
 
 h1, h2, h3, h4, h5, h6,
@@ -101,9 +123,41 @@ h1, h2, h3, h4, h5, h6,
 }
 
 /* Input focus */
+.gym-input,
+input.gym-input,
+textarea.gym-input,
+select.gym-input {
+  background: var(--gym-black);
+  border: 1px solid var(--gym-gray-light);
+  color: var(--gym-text);
+  border-radius: var(--gym-radius);
+  padding: 0.75rem 1rem;
+  outline: none;
+  transition: border-color var(--gym-transition), box-shadow var(--gym-transition);
+}
+
 .gym-input:focus {
   border-color: var(--gym-red) !important;
-  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.2);
+  box-shadow: 0 0 0 3px rgba(214, 40, 40, 0.2);
+}
+
+/* Admin / dashboard shell */
+.gym-admin-page {
+  background: var(--gym-black);
+  min-height: 100vh;
+}
+
+.gym-section-title {
+  font-family: 'Bebas Neue', 'Oswald', sans-serif;
+  letter-spacing: 0.12em;
+  color: var(--gym-text);
+}
+
+/* Smooth focus ring for buttons */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--gym-red);
+  outline-offset: 2px;
 }
 
 /* Animated underline */
