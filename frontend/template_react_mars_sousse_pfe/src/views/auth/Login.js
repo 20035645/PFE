@@ -1,5 +1,3 @@
-// LOGIN.JS
-
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { loginUser } from "../../services/apiUser";
@@ -7,10 +5,10 @@ import { loginUser } from "../../services/apiUser";
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");       // ← ajout
-  const [loading, setLoading] = useState(false); // ← ajout
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const history = useHistory(); // ← ajout
+  const history = useHistory();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,14 +24,13 @@ export default function Login() {
       const role = res.data.user.role;
       console.log(role);
 
-      // Redirige selon le rôle
-      // Redirige selon le rôle
       if (role === "admin") {
         history.push("/admin/dashboard");
       } else if (role === "coach") {
-        history.push("/coach/dashboard");  // ← ajout
+        history.push("/coach/dashboard");
       } else {
-        history.push("/profile"); // membre
+        const from = history.location?.state?.from?.pathname;
+        history.push(from === "/landing" ? "/landing" : "/profile");
       }
 
     } catch (err) {
@@ -58,7 +55,6 @@ export default function Login() {
           Connectez-vous à votre espace GymAccess
         </p>
 
-        {/* ← Message d'erreur ajouté */}
         {error && (
           <div style={styles.errorBox}>
             {error}
@@ -68,7 +64,6 @@ export default function Login() {
         <form onSubmit={handleSubmit} style={styles.form}>
           <div>
             <label style={styles.label}>EMAIL</label>
-
             <input
               type="email"
               required
@@ -81,7 +76,6 @@ export default function Login() {
 
           <div>
             <label style={styles.label}>MOT DE PASSE</label>
-
             <input
               type="password"
               required
@@ -92,7 +86,6 @@ export default function Login() {
             />
           </div>
 
-          {/* ← loading ajouté sur le bouton */}
           <button type="submit" style={styles.button} disabled={loading}>
             {loading ? "CONNEXION..." : "SE CONNECTER"}
           </button>
@@ -127,14 +120,11 @@ const styles = {
     padding: "2rem",
     boxSizing: "border-box",
   },
-
   overlay: {
     position: "absolute",
     inset: 0,
-    background:
-      "radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)",
+    background: "radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)",
   },
-
   card: {
     position: "relative",
     zIndex: 2,
@@ -146,7 +136,6 @@ const styles = {
     padding: "2.5rem",
     boxShadow: "0 20px 60px rgba(220,38,38,0.25)",
   },
-
   iconWrap: {
     width: "70px",
     height: "70px",
@@ -157,11 +146,7 @@ const styles = {
     justifyContent: "center",
     margin: "0 auto 1.5rem",
   },
-
-  icon: {
-    fontSize: "30px",
-  },
-
+  icon: { fontSize: "30px" },
   title: {
     color: "#fff",
     textAlign: "center",
@@ -170,14 +155,11 @@ const styles = {
     letterSpacing: "0.2em",
     marginBottom: "0.7rem",
   },
-
   subtitle: {
     color: "#888",
     textAlign: "center",
     marginBottom: "2rem",
   },
-
-  // ← style du message d'erreur ajouté
   errorBox: {
     background: "rgba(220,38,38,0.12)",
     border: "1px solid rgba(220,38,38,0.4)",
@@ -188,13 +170,11 @@ const styles = {
     fontSize: "0.88rem",
     textAlign: "center",
   },
-
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "1.5rem",
   },
-
   label: {
     display: "block",
     color: "#aaa",
@@ -203,7 +183,6 @@ const styles = {
     marginBottom: "0.5rem",
     letterSpacing: "0.15em",
   },
-
   input: {
     width: "100%",
     background: "#000",
@@ -215,7 +194,6 @@ const styles = {
     outline: "none",
     boxSizing: "border-box",
   },
-
   button: {
     marginTop: "0.5rem",
     background: "linear-gradient(135deg,#ef4444,#991b1b)",
@@ -229,24 +207,20 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 10px 30px rgba(220,38,38,0.35)",
   },
-
   links: {
     marginTop: "1rem",
     textAlign: "right",
   },
-
   link: {
     color: "#aaa",
     textDecoration: "none",
     fontSize: "0.9rem",
   },
-
   footer: {
     textAlign: "center",
     color: "#888",
     marginTop: "2rem",
   },
-
   linkRed: {
     color: "#ef4444",
     textDecoration: "none",

@@ -1,65 +1,90 @@
-import React, { useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import IndexDropdown from "components/Dropdowns/IndexDropdown.js";
 
-export default function IndexNavbar() {
-  const [navbarOpen, setNavbarOpen] = useState(false);
+const styles = {
+  nav: {
+    position: "sticky",
+    top: 0,
+    zIndex: 50,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: "18px 5%",
+    background: "rgba(10,10,10,0.92)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(214,40,40,0.22)",
+    fontFamily: "'Barlow', Arial, sans-serif",
+  },
+  logo: {
+    fontFamily: "'Bebas Neue', sans-serif",
+    fontSize: "2rem",
+    letterSpacing: "4px",
+    color: "#F5F5F5",
+    margin: 0,
+  },
+  navLinks: {
+    display: "flex",
+    gap: "24px",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  navLink: {
+    color: "#A3A3A3",
+    textDecoration: "none",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.75rem",
+    fontWeight: 700,
+  },
+  navBtn: {
+    background: "#D62828",
+    color: "#fff",
+    textDecoration: "none",
+    padding: "12px 18px",
+    borderRadius: "2px",
+    textTransform: "uppercase",
+    letterSpacing: "2px",
+    fontSize: "0.72rem",
+    fontWeight: 700,
+    boxShadow: "0 10px 30px rgba(214,40,40,0.35)",
+  },
+};
 
+export default function Navbar() {
   return (
     <>
-      <nav
-        className="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between px-6 py-3"
-        style={{ backgroundColor: 'rgba(10,10,10,0.95)', backdropFilter: 'blur(10px)', borderBottom: '1px solid #2a2a2a' }}
-      >
-        <div className="container px-4 mx-auto flex flex-wrap items-center justify-between">
-          <div className="w-full relative flex justify-between lg:w-auto lg:static lg:block lg:justify-start">
-            <Link to="/" className="flex items-center gap-2 leading-relaxed inline-block mr-4 py-2 whitespace-nowrap uppercase font-bold">
-              <div className="w-8 h-8 rounded flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #e11d48, #9f1239)' }}>
-                <i className="fas fa-dumbbell text-white text-sm"></i>
-              </div>
-              <span style={{ fontFamily: 'Oswald, sans-serif', fontSize: '1.3rem', fontWeight: 700, color: 'white', letterSpacing: '0.1em' }}>
-                GYM<span style={{ color: '#e11d48' }}>ACCESS</span>
-              </span>
-            </Link>
-            <button
-              className="cursor-pointer text-gray-400 lg:hidden px-3 py-1 text-xl leading-none bg-transparent rounded border border-transparent block outline-none focus:outline-none"
-              type="button"
-              onClick={() => setNavbarOpen(!navbarOpen)}
-            >
-              <i className="fas fa-bars"></i>
-            </button>
-          </div>
-          <div className={`lg:flex flex-grow items-center${navbarOpen ? " flex" : " hidden"}`} id="example-navbar-warning">
-            <ul className="flex flex-col lg:flex-row list-none lg:ml-auto items-center gap-1">
-              <li className="nav-item">
-                <a href="#nutrition" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
-                  Nutrition
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href="#abonnements" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
-                  Abonnements
-                </a>
-              </li>
-              <li className="nav-item">
-                <a href="#coachs" className="px-4 py-2 flex items-center text-xs uppercase font-bold text-gray-300 hover:text-red-400 transition-colors" style={{ fontFamily: 'Rajdhani, sans-serif', letterSpacing: '0.1em' }}>
-                  Coachs
-                </a>
-              </li>
-              <li className="nav-item">
-                <IndexDropdown />
-              </li>
-              <li className="nav-item">
-                <Link
-                  to="/auth/register"
-                  className="btn-gym px-6 py-2 rounded text-sm font-bold inline-block"
-                  style={{ fontFamily: 'Oswald, sans-serif', letterSpacing: '0.1em' }}
-                >
-                  REJOINDRE
-                </Link>
-              </li>
-            </ul>
-          </div>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&family=Bebas+Neue&display=swap"
+        rel="stylesheet"
+      />
+
+      <nav style={styles.nav}>
+        <p style={styles.logo}>
+          GYM<span style={{ color: "#D62828" }}>ACCESS</span>
+        </p>
+
+        <div style={styles.navLinks}>
+          <a href="/#salle" style={styles.navLink}>Salle</a>
+
+          <a href="/#services" style={styles.navLink}>Services</a>
+
+          <a href="/#coachs" style={styles.navLink}>Coachs</a>
+
+          <Link
+            to={localStorage.getItem("token") ? "/landing" : "/auth/login"}
+            style={styles.navLink}
+          >
+            Nutrition
+          </Link>
+
+          <Link to="/newpage" style={styles.navLink}>
+            Abonnements
+          </Link>
+
+          <Link to="/auth/register" style={styles.navBtn}>
+            Nous rejoindre
+          </Link>
+
         </div>
       </nav>
     </>
