@@ -2,14 +2,19 @@ export const CHAT_API =
   process.env.REACT_APP_CHAT_API_URL || "http://localhost:8000";
 
 export async function sendChatMessage({ userId, message, sessionId }) {
+  const body = {
+    user_id: userId,
+    message,
+  };
+
+  if (sessionId !== undefined && sessionId !== null) {
+    body.session_id = sessionId;
+  }
+
   const res = await fetch(`${CHAT_API}/chat`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user_id: userId,
-      message,
-      session_id: sessionId || undefined,
-    }),
+    body: JSON.stringify(body),
   });
 
   const data = await res.json().catch(() => ({}));

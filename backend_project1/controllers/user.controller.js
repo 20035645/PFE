@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
-const userModel = require('../models/user.model');
+const userModel = require('../models/user.model');    // collection 'membres'
+const coachModel = require('../models/coach.model');  // collection 'coaches'
 const memberModel = require('../models/member.model');
 const jwt = require('jsonwebtoken');
 
@@ -18,17 +19,14 @@ const mapMemberObjectif = (objectif) => {
         souplesse: 'souplesse',
         autre: 'autre',
     };
-    return map[key] || map[objectif] || 'autre';
+    return map[key] || 'autre';
 };
 
 const mapAbonnementType = (plan) => {
     const map = {
-        standard: 'mensuel',
-        premium: 'trimestriel',
-        coaching: 'annuel',
-        mensuel: 'mensuel',
-        trimestriel: 'trimestriel',
-        annuel: 'annuel',
+        standard: 'mensuel', premium: 'trimestriel',
+        coaching: 'annuel', mensuel: 'mensuel',
+        trimestriel: 'trimestriel', annuel: 'annuel',
     };
     return map[plan] || 'mensuel';
 };
@@ -41,11 +39,9 @@ const abonnementDurationMonths = (type) => {
 
 const maxAge = 3 * 24 * 60 * 60;
 const secretKey = "net secret key";
+const createToken = (id) => jwt.sign({ id }, secretKey, { expiresIn: maxAge });
 
-const createToken = (id) => {
-    return jwt.sign({ id }, secretKey, { expiresIn: maxAge });
-};
-
+// ── GET ALL USERS ──────────────────────────────────────────
 module.exports.getAllUsers = async (req, res) => {
     try {
         const users = await userModel.find().select('-password');
@@ -69,11 +65,7 @@ module.exports.getUserById = async (req, res) => {
 module.exports.addUser = async (req, res) => {
     try {
         const { name, email, password, role, numTelephone, age, objectif, specialite, experience, tarif } = req.body;
-        const newUser = new userModel({
-            name, email, password, role,
-            numTelephone, age, objectif,
-            specialite, experience, tarif
-        });
+        const newUser = new userModel({ name, email, password, role, numTelephone, age, objectif, specialite, experience, tarif });
         await newUser.save();
         const userObj = newUser.toObject();
         delete userObj.password;
@@ -87,11 +79,7 @@ module.exports.updateUser = async (req, res) => {
     try {
         const { id } = req.params;
         const { password, ...updateData } = req.body;
-        const updatedUser = await userModel.findByIdAndUpdate(
-            id,
-            updateData,
-            { new: true, runValidators: true }
-        ).select('-password');
+        const updatedUser = await userModel.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).select('-password');
         if (!updatedUser) return res.status(404).json({ error: 'User not found' });
         res.status(200).json(updatedUser);
     } catch (error) {
@@ -110,20 +98,46 @@ module.exports.deleteUser = async (req, res) => {
     }
 };
 
+// ── LOGIN ──────────────────────────────────────────────────
 module.exports.login = async (req, res) => {
-
     try {
-
         const { email, password } = req.body;
 
-        // Login déjà vérifie email + password
-        const user = await userModel.Login(email, password);
+        let user = null;
+        let role = null;
 
+        // 1 — cherche dans 'membres' (membres + admins)
+        const userFound = await userModel.findOne({ email });
+        if (userFound) {
+            const isMatch = await bcrypt.compare(password, userFound.password);
+            if (isMatch) {
+                user = userFound;
+                role = userFound.role; // 'membre' ou 'admin'
+            }
+        }
+
+        // 2 — si pas trouvé, cherche dans 'coaches'
+        if (!user) {
+            const coachFound = await coachModel.findOne({ email });
+            if (coachFound) {
+                const isMatch = await bcrypt.compare(password, coachFound.password);
+                if (isMatch) {
+                    user = coachFound;
+                    role = "coach";
+                }
+            }
+        }
+
+        // 3 — rien trouvé
+        if (!user) {
+            return res.status(400).json({ error: "Invalid email or password" });
+        }
+
+        // 4 — crée le token et retourne
         const token = createToken(user._id);
-
         const userObj = user.toObject();
-
         delete userObj.password;
+        userObj.role = role; // ✅ force le bon rôle
 
         res.status(200).json({
             message: 'Login successful',
@@ -132,17 +146,12 @@ module.exports.login = async (req, res) => {
         });
 
     } catch (error) {
-
-        res.status(500).json({
-            error: error.message
-        });
-
+        console.error("LOGIN ERROR:", error);
+        res.status(500).json({ error: error.message });
     }
-
 };
 
-// Dans user.controller.js — remplace la fonction register par celle-ci :
-
+// ── REGISTER ───────────────────────────────────────────────
 module.exports.register = async (req, res) => {
     try {
         const {
@@ -155,48 +164,41 @@ module.exports.register = async (req, res) => {
 
         const displayName = name || [prenom, nom].filter(Boolean).join(' ').trim();
         if (!displayName || !email || !password) {
-            return res.status(400).json({
-                error: 'Name (or nom/prenom), email and password are required',
-            });
+            return res.status(400).json({ error: 'Name, email and password are required' });
         }
 
+        // Vérifie email dans membres
         const existingUser = await userModel.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ error: 'Email already in use' });
-        }
+        if (existingUser) return res.status(400).json({ error: 'Email already in use' });
 
-        if (role === 'membre') {
-            const existingMember = await memberModel.findOne({ email });
-            if (existingMember) {
-                return res.status(400).json({ error: 'Email already in use' });
-            }
-        }
+        // Vérifie email dans coaches
+        const existingCoach = await coachModel.findOne({ email });
+        if (existingCoach) return res.status(400).json({ error: 'Email already in use' });
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const newUser = new userModel({
             name: displayName, email,
             password: hashedPassword,
-            role, numTelephone,
-            age, poids, taille,
-            objectif, specialite, experience, tarif
+            role, numTelephone, age, poids, taille,
+            objectif, specialite, experience, tarif,
+            statut: 'actif',
         });
-
         await newUser.save();
 
+        // Si membre → crée aussi dans 'membres' collection
         if (role === 'membre') {
             const abonnementType = mapAbonnementType(abonnement);
             const dateDebut = new Date();
             const dateFin = new Date(dateDebut);
             dateFin.setMonth(dateFin.getMonth() + abonnementDurationMonths(abonnementType));
-
             const phoneDigits = numTelephone
                 ? parseInt(String(numTelephone).replace(/\D/g, ''), 10)
                 : undefined;
 
             try {
                 await memberModel.create({
-                    _id: newUser._id,
+                    userId: newUser._id,
                     name: displayName,
                     email,
                     password,
@@ -207,6 +209,7 @@ module.exports.register = async (req, res) => {
                     dateDebut,
                     dateFin,
                     abonnementActif: true,
+                    status: 'pending',
                 });
             } catch (memberError) {
                 await userModel.findByIdAndDelete(newUser._id);
@@ -221,7 +224,6 @@ module.exports.register = async (req, res) => {
         res.status(201).json({
             message: 'Registration successful',
             user: userObj,
-            memberId: role === 'membre' ? String(newUser._id) : undefined,
             token
         });
 
@@ -242,7 +244,7 @@ module.exports.getMembres = async (req, res) => {
 
 module.exports.getCoaches = async (req, res) => {
     try {
-        const coaches = await userModel.find({ role: 'coach' }).select('-password');
+        const coaches = await coachModel.find().select('-password');
         res.status(200).json(coaches);
     } catch (error) {
         res.status(500).json({ error: error.message });

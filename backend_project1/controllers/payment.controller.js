@@ -1,4 +1,5 @@
 const paymentModel = require('../models/payment.model');
+const memberModel = require('../models/member.model');
 
 module.exports.getAllPayments = async (req,res) => {
     try{
@@ -19,16 +20,39 @@ module.exports.getPaymentById = async (req,res) => {
     }
 }
 
-module.exports.addPayment = async (req,res) => {
-    try{
-        const { paymentId, memberId, price, date } = req.body;
-        const newPayment = new paymentModel({ paymentId, memberId, price, date });
+module.exports.addPayment = async (req, res) => {
+    try {
+        const { memberId, memberName, price, method, dateDebut, dateFin, status } = req.body;
+
+        console.log("BODY REÇU:", req.body); // debug temporaire
+
+        // Vérifier que le membre existe
+        const member = await memberModel.findById(memberId);
+        if (!member) return res.status(404).json({ error: 'Membre introuvable' });
+
+        const newPayment = new paymentModel({
+            memberId,
+            memberName: memberName || member.name,
+            price,
+            method,
+            dateDebut,
+            dateFin,
+            status: status || 'effectue',
+        });
+
         await newPayment.save();
+
+        // Activer le membre automatiquement
+        if (!status || status === 'effectue') {
+            await memberModel.findByIdAndUpdate(memberId, { status: 'active' });
+        }
+
         res.status(201).json(newPayment);
-    }catch(error){
-        res.status(500).json({error: error.message});
+    } catch (error) {
+        console.log("ERREUR:", error.message); // debug temporaire
+        res.status(500).json({ error: error.message });
     }
-}
+};
 
 module.exports.deletePayment = async (req,res) => {
     try{

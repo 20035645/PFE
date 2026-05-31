@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import CardStats from "components/Cards/CardStats.js";
-import { getAllUsers } from "Services/apiUser";
+import { getAllUsers } from "services/apiUser";
+
+const API = "http://localhost:5000/api";
 
 export default function HeaderStats() {
   const [stats, setStats] = useState({
@@ -8,30 +10,32 @@ export default function HeaderStats() {
     abonnementsActifs: 0,
     nouveauxCeMois: 0,
     coaches: 0,
+    revenusMois: 0,
     loaded: false,
   });
 
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await getAllUsers();
-        const users = res.data;
+        // ✅ fetch users ET payments en même temps
+        const [resUsers, resPayments] = await Promise.all([
+          getAllUsers(),
+          fetch(`${API}/payments/getAllPayments`).then(r => r.json()),
+        ]);
 
+        const users = resUsers.data;
         const membres = users.filter((u) => u.role === "membre");
         const coaches = users.filter((u) => u.role === "coach");
         const now = new Date();
 
         const membresActifs = membres.filter((m) => m.statut === "actif").length;
         const abonnementsActifs = membres.filter((m) => m.statut === "actif").length;
+
         const nouveauxCeMois = membres.filter((m) => {
           const d = new Date(m.dateInscrit || m.createdAt);
-          return (
-            d.getMonth() === now.getMonth() &&
-            d.getFullYear() === now.getFullYear()
-          );
+          return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
         }).length;
 
-        // Calcul progression vs mois dernier
         const lastMonth = membres.filter((m) => {
           const d = new Date(m.dateInscrit || m.createdAt);
           const last = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -42,11 +46,23 @@ export default function HeaderStats() {
           ? (((nouveauxCeMois - lastMonth) / lastMonth) * 100).toFixed(1)
           : nouveauxCeMois > 0 ? "100" : "0";
 
+        // ✅ calcul revenus du mois
+        const payments = Array.isArray(resPayments) ? resPayments : [];
+        const revenusMois = payments
+          .filter(p => {
+            const d = new Date(p.createdAt);
+            return p.status === "effectue" &&
+              d.getMonth() === now.getMonth() &&
+              d.getFullYear() === now.getFullYear();
+          })
+          .reduce((sum, p) => sum + (p.price || 0), 0);
+
         setStats({
           membresActifs,
           abonnementsActifs,
           nouveauxCeMois,
           coaches: coaches.length,
+          revenusMois,           // ✅ nouveau
           progression: Math.abs(progression),
           progressionArrow: progression >= 0 ? "up" : "down",
           progressionColor: progression >= 0 ? "text-green-400" : "text-red-400",
@@ -114,16 +130,16 @@ export default function HeaderStats() {
               />
             </div>
 
-            {/* Coaches */}
+            {/* ✅ Revenus ce mois — remplace coaches */}
             <div className="w-full lg:w-6/12 xl:w-3/12 px-4">
               <CardStats
-                statSubtitle="COACHES"
-                statTitle={stats.loaded ? stats.coaches.toString() : "..."}
+                statSubtitle="REVENUS CE MOIS"
+                statTitle={stats.loaded ? `${stats.revenusMois} DT` : "..."}
                 statArrow="up"
                 statPercent="0"
                 statPercentColor="text-green-400"
-                statDescripiton="coaches actifs"
-                statIconName="fas fa-dumbbell"
+                statDescripiton={`${stats.coaches} coaches actifs`}
+                statIconName="fas fa-credit-card"
                 statIconColor="bg-red-900"
               />
             </div>

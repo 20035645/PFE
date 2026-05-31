@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js";
-import { getAllUsers } from "Services/apiUser";
+
 
 export default function Dashboard() {
   const lineChartRef = useRef(null);
@@ -15,15 +15,17 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await getAllUsers();
-        const users = res.data;
-        const m = users.filter((u) => u.role === "membre");
-        const c = users.filter((u) => u.role === "coach");
+        const [resMembres, resCoaches] = await Promise.all([
+          fetch("http://localhost:5000/api/members/getAllMembers").then(r => r.json()),
+          fetch("http://localhost:5000/api/coaches/getAllCoaches").then(r => r.json()),
+        ]);
+        const m = Array.isArray(resMembres) ? resMembres.filter(u => u.role === "membre") : [];
+        const c = Array.isArray(resCoaches) ? resCoaches : [];
         setMembres(m);
         setCoaches(c);
 
         // ── Graphique LINE : inscriptions par mois ──
-        const months = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+        const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
         const countByMonth = Array(12).fill(0);
         m.forEach((mb) => {
           const d = new Date(mb.dateInscrit || mb.createdAt);
@@ -108,8 +110,8 @@ export default function Dashboard() {
     };
   }, []);
 
-  const actifs = membres.filter((m) => m.statut === "actif").length;
-  const inactifs = membres.filter((m) => m.statut !== "actif").length;
+  const actifs = membres.filter((m) => m.statut === "actif" || m.status === "active").length;
+  const inactifs = membres.filter((m) => m.statut !== "actif" && m.status !== "active").length;
   const now = new Date();
   const newThisMonth = membres.filter((m) => {
     const d = new Date(m.dateInscrit || m.createdAt);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllUsers, deleteUser } from "Services/apiUser";
+import { deleteUser } from "services/apiUser";
 import LoadingSpinner from "components/UI/LoadingSpinner";
 import EmptyState from "components/UI/EmptyState";
 import { colors } from "theme/gymTheme";
@@ -11,9 +11,11 @@ export default function CardTable() {
 
   const fetchMembres = async () => {
     try {
-      const res = await getAllUsers();
-      const tous = res.data;
-      setMembres(tous.filter((u) => u.role === "membre"));
+      // ✅ fetch direct vers membres — plus de doublons
+      const res = await fetch("http://localhost:5000/api/members/getAllMembers");
+      const data = await res.json();
+      // filtre seulement role='membre' pour exclure coaches et admins
+      setMembres(Array.isArray(data) ? data.filter(u => u.role === "membre") : []);
     } catch (err) {
       console.error("Erreur chargement membres:", err);
     } finally {
@@ -129,9 +131,15 @@ export default function CardTable() {
                     {/* Statut */}
                     <td style={{ padding: "0.85rem 1.25rem" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        <div style={{ width: 8, height: 8, borderRadius: "50%", background: m.statut === "actif" ? "#10b981" : "#6b7280" }}></div>
-                        <span style={{ color: m.statut === "actif" ? "#10b981" : "#6b7280", fontSize: "0.85rem", fontWeight: 600, textTransform: "capitalize" }}>
-                          {m.statut || "actif"}
+                        <div style={{
+                          width: 8, height: 8, borderRadius: "50%",
+                          background: (m.statut === "actif" || m.status === "active") ? "#10b981" : "#6b7280"
+                        }}></div>
+                        <span style={{
+                          color: (m.statut === "actif" || m.status === "active") ? "#10b981" : "#6b7280",
+                          fontSize: "0.85rem", fontWeight: 600, textTransform: "capitalize"
+                        }}>
+                          {m.statut === "actif" ? "Actif" : m.status === "active" ? "Actif" : m.status || m.statut || "pending"}
                         </span>
                       </div>
                     </td>

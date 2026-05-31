@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { notifyAuthChange } from "Services/authSession";
+import { notifyAuthChange } from "services/authSession";
 
 
 // ─── EXACT SAME STYLES FROM INDEX.JS ───────────────────────────────────────

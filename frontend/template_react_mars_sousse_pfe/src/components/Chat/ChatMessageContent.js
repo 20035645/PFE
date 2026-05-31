@@ -1,5 +1,5 @@
 import React from "react";
-import { parseMessageContent } from "Services/apiChat";
+import { parseMessageContent } from "services/apiChat";
 
 function renderInlineText(text, keyPrefix) {
   const parts = [];

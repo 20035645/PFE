@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CardTable from "components/Cards/CardTable.js";
-import { getAllUsers } from "Services/apiUser";
+import { getAllUsers } from "services/apiUser";
 
 export default function Tables() {
   const [stats, setStats] = useState({ actifs: 0 });
@@ -8,10 +8,11 @@ export default function Tables() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await getAllUsers();
-        const membres = res.data.filter((u) => u.role === "membre");
+        const res = await fetch("http://localhost:5000/api/members/getAllMembers");
+        const data = await res.json();
+        const membres = Array.isArray(data) ? data.filter(u => u.role === "membre") : [];
         setStats({
-          actifs: membres.filter((m) => m.statut === "actif").length,
+          actifs: membres.filter((m) => m.statut === "actif" || m.status === "active").length,
         });
       } catch (err) {
         console.error("Erreur:", err);

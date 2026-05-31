@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import ChatMessageContent from "components/Chat/ChatMessageContent";
-import { sendChatMessage } from "Services/apiChat";
+import { sendChatMessage } from "services/apiChat";
 import {
   AUTH_CHANGE_EVENT,
   clearChatSession,
   getChatSessionId,
   getMemberSession,
-} from "Services/authSession";
+} from "services/authSession";
 
 const QUICK_PROMPTS = [
   "Donne-moi 3 conseils pour débuter la musculation",

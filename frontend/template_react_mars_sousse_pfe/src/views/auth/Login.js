@@ -1,14 +1,21 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { loginUser } from "Services/apiUser";
-import { notifyAuthChange } from "Services/authSession";
+import { loginUser } from "services/apiUser";
+import { notifyAuthChange } from "services/authSession";
 
 export default function Login() {
   const history = useHistory();
+  const mountedRef = useRef(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,19 +35,22 @@ export default function Login() {
       if (role === "admin") {
         history.push("/admin/dashboard");
       } else if (role === "coach") {
-        history.push("/coach/dashboard");
+        history.push("/coach/coachdashboard");
       } else {
-        const from = history.location?.state?.from?.pathname;
-        history.push(from === "/landing" ? "/landing" : "/profile");
+        history.push("/profile");
       }
     } catch (err) {
-      setError(
-        err.response?.data?.error ||
-          err.message ||
-          "Erreur de connexion"
-      );
+      if (mountedRef.current) {
+        setError(
+          err.response?.data?.error ||
+            err.message ||
+            "Erreur de connexion"
+        );
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const memberSchema = new mongoose.Schema(
     {
-        
+
         // INFOS PERSONNELLES
         name: {
             type: String,
@@ -13,7 +13,7 @@ const memberSchema = new mongoose.Schema(
         email: {
             type: String,
             required: true,
-            unique: true,
+            // unique: true,
             match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
         },
 
@@ -22,10 +22,10 @@ const memberSchema = new mongoose.Schema(
             required: true,
         },
 
-        phone:  { type: Number },
-        photo:  { type: String, default: null },
+        phone: { type: Number },
+        photo: { type: String, default: null },
         active: { type: Boolean, default: true },
-        age:    { type: Number },
+        age: { type: Number },
 
         // OBJECTIF SPORTIF
         objectif: {
@@ -33,27 +33,39 @@ const memberSchema = new mongoose.Schema(
             enum: ['perte_de_poids', 'musculation', 'cardio', 'souplesse', 'autre'],
         },
 
-        perf: { type: String }, 
+        perf: { type: String },
 
-        
         // ABONNEMENT
         abonnementType: {
             type: String,
             enum: ['mensuel', 'trimestriel', 'annuel'],
         },
-        
-        dateDebut : { type: Date },
-        dateFin :   { type: Date },
-        price :      { type: Number }, 
-        abonnementActif : { type: Boolean, default: true },
+
+        dateDebut: { type: Date },
+        dateFin: { type: Date },
+        price: { type: Number },
+        abonnementActif: { type: Boolean, default: true },
 
         // COACH ASSIGNÉ
         coachAssigned: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Coach', 
+            ref: 'Coach',
+        },
+
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+        },
+
+        // ✅ STATUT INSCRIPTION (nouveau)
+        statut: {
+            type: String,
+            enum: ['pending', 'active', 'rejected', 'actif', 'inactif'],
+            default: 'pending',
         },
     },
-    { timestamps: true }
+    { timestamps: true, autoIndex: false}
+    
 );
 
 
@@ -66,9 +78,8 @@ memberSchema.pre('save', async function () {
 
 
 // MÉTHODE: vérifier mot de passe (login)
-// usage: const isValid = await member.comparePassword(req.body.password)
 memberSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-module.exports = mongoose.model('Member', memberSchema); 
+module.exports = mongoose.model('Member', memberSchema, 'membres'); // ✅ 'membres'

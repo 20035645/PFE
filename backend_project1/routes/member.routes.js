@@ -8,5 +8,7 @@ router.post('/addMember', membercontroller.addMember);
 router.delete('/deleteMember/:memberId', membercontroller.deleteMember);
 router.put('/updateMember/:memberId', membercontroller.UpdateMember);       
 
+router.get('/getByStatus',               membercontroller.getMembersByStatus);
+router.patch('/updateStatus/:memberId',  membercontroller.updateMemberStatus);
 
 module.exports = router;

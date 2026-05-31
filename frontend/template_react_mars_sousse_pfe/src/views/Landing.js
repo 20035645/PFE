@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import API from "Services/api";
+import API from "services/api";
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;800&display=swap');

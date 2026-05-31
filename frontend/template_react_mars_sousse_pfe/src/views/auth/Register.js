@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { registerUser } from "Services/apiUser";
+import { registerUser } from "services/apiUser";
 
 const plans = [
   { id: "standard", name: "Standard", price: "39 DT/mois" },

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { colors, fonts } from "theme/gymTheme";
-import { getMemberSession } from "Services/authSession";
+import { getMemberSession } from "services/authSession";
 
 const links = [
   { to: "/", label: "Accueil", hash: null },

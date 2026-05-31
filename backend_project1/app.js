@@ -30,7 +30,7 @@ const corsOptions = {
   origin: process.env.CORS_ORIGIN || '*', // Autoriser uniquement le frontend 
   credentials: true, // Autoriser les cookies et les informations d'identification 
   optionsSuccessStatus: 200, // Pour les navigateurs qui ne gèrent pas les codes d'état 204
-  methods: 'GET,PUT,POST,DELETE', // Méthodes HTTP autorisées
+  methods: 'GET,PUT,POST,DELETE,PATCH', // Méthodes HTTP autorisées
   allowedHeaders: 'Content-Type,Authorization', // En-têtes autorisés
 };
 
@@ -45,14 +45,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/api/auth', authRouter);
 app.use('/users', usersRouter);
-app.use('/members', memberRouter);
-app.use('/payments', paymentRouter);
-app.use('/programme', programmeRouter);
-app.use('/coaches', coachRouter);
-app.use('/abonnements', abonnementRouter);
-app.use('/progressions', progressionRouter);
-app.use('/seances', seanceRouter);
-
+app.use('/api/members', memberRouter);      // ✅ ajout /api/
+app.use('/api/payments', paymentRouter);    // ✅ ajout /api/
+app.use('/api/programme', programmeRouter);
+app.use('/api/coaches', coachRouter);
+app.use('/api/abonnements', abonnementRouter);
+app.use('/api/progressions', progressionRouter);
+app.use('/api/seances', seanceRouter);
 
 
 // catch 404 and forward to error handler
