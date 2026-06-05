@@ -42,33 +42,34 @@ export const coachAPI = {
 
 // ── /programme ───────────────────────────────────────────────────────────────
 export const programmeAPI = {
-  getAll: () => request("/programme/getAllProgrammes"),
-  getById: (id) => request(`/programme/getProgrammeById/${id}`),
-  add: (body) => request("/programme/addProgramme", { method: "POST", body: JSON.stringify(body) }),
-  update: (id, body) => request(`/programme/updateProgramme/${id}`, { method: "PUT", body: JSON.stringify(body) }),
-  delete: (id) => request(`/programme/deleteProgramme/${id}`, { method: "DELETE" }),
+  getAll:   () => request("/api/programme/getAllProgrammes"),
+  getById:  (id) => request(`/api/programme/getProgrammeById/${id}`),
+  add:      (body) => request("/api/programme/addProgramme", { method: "POST", body: JSON.stringify(body) }),
+  update:   (id, body) => request(`/api/programme/updateProgramme/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  delete:   (id) => request(`/api/programme/deleteProgramme/${id}`, { method: "DELETE" }),
 };
+
 
 // ── /seances ─────────────────────────────────────────────────────────────────
 export const seanceAPI = {
-  getAll: () => request("/seances/getAllSeances"),
-  getById: (id) => request(`/seances/getSeanceById/${id}`),
-  getByProgramme: (programmeId) => request(`/seances/getSeancesByProgramme/${programmeId}`),
-  getByMembre: (membreId) => request(`/seances/getSeancesByMembre/${membreId}`),
-  add: (body) => request("/seances/addSeance", { method: "POST", body: JSON.stringify(body) }),
-  update: (id, body) => request(`/seances/updateSeance/${id}`, { method: "PUT", body: JSON.stringify(body) }),
-  delete: (id) => request(`/seances/deleteSeance/${id}`, { method: "DELETE" }),
-  inscrireMembre: (id, membreId) => request(`/seances/inscrireMembre/${id}`, { method: "POST", body: JSON.stringify({ membreId }) }),
+  getAll:          () => request("/api/seances/getAllSeances"),
+  getById:         (id) => request(`/api/seances/getSeanceById/${id}`),
+  getByProgramme:  (id) => request(`/api/seances/getSeancesByProgramme/${id}`),
+  getByMembre:     (id) => request(`/api/seances/getSeancesByMembre/${id}`),
+  add:             (body) => request("/api/seances/addSeance", { method: "POST", body: JSON.stringify(body) }),
+  update:          (id, body) => request(`/api/seances/updateSeance/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  delete:          (id) => request(`/api/seances/deleteSeance/${id}`, { method: "DELETE" }),
+  inscrireMembre:  (id, membreId) => request(`/api/seances/inscrireMembre/${id}`, { method: "POST", body: JSON.stringify({ membreId }) }),
 };
 
 // ── /progressions ────────────────────────────────────────────────────────────
 export const progressionAPI = {
-  getAll: () => request("/progressions/getAllProgressions"),
-  getById: (id) => request(`/progressions/getProgressionById/${id}`),
-  getByMembre: (membreId) => request(`/progressions/getProgressionsByMembre/${membreId}`),
-  add: (body) => request("/progressions/addProgression", { method: "POST", body: JSON.stringify(body) }),
-  update: (id, body) => request(`/progressions/updateProgression/${id}`, { method: "PUT", body: JSON.stringify(body) }),
-  delete: (id) => request(`/progressions/deleteProgression/${id}`, { method: "DELETE" }),
+  getAll:      () => request("/api/progressions/getAllProgressions"),
+  getById:     (id) => request(`/api/progressions/getProgressionById/${id}`),
+  getByMembre: (id) => request(`/api/progressions/getProgressionsByMembre/${id}`),
+  add:         (body) => request("/api/progressions/addProgression", { method: "POST", body: JSON.stringify(body) }),
+  update:      (id, body) => request(`/api/progressions/updateProgression/${id}`, { method: "PUT", body: JSON.stringify(body) }),
+  delete:      (id) => request(`/api/progressions/deleteProgression/${id}`, { method: "DELETE" }),
 };
 
 // ── /members ─────────────────────────────────────────────────────────────────

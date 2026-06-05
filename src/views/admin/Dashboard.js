@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Chart from "chart.js";
-import { getAllUsers } from "services/apiUser";
+
 
 export default function Dashboard() {
   const lineChartRef = useRef(null);
@@ -15,15 +15,17 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await getAllUsers();
-        const users = res.data;
-        const m = users.filter((u) => u.role === "membre");
-        const c = users.filter((u) => u.role === "coach");
+        const [resMembres, resCoaches] = await Promise.all([
+          fetch("http://localhost:5000/api/members/getAllMembers").then(r => r.json()),
+          fetch("http://localhost:5000/api/coaches/getAllCoaches").then(r => r.json()),
+        ]);
+        const m = Array.isArray(resMembres) ? resMembres.filter(u => u.role === "membre") : [];
+        const c = Array.isArray(resCoaches) ? resCoaches : [];
         setMembres(m);
         setCoaches(c);
 
         // ── Graphique LINE : inscriptions par mois ──
-        const months = ["Jan","Fév","Mar","Avr","Mai","Jun","Jul","Aoû","Sep","Oct","Nov","Déc"];
+        const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"];
         const countByMonth = Array(12).fill(0);
         m.forEach((mb) => {
           const d = new Date(mb.dateInscrit || mb.createdAt);
@@ -108,14 +110,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  const actifs = membres.filter((m) => m.statut === "actif").length;
-  const inactifs = membres.filter((m) => m.statut !== "actif").length;
-  const now = new Date();
-  const newThisMonth = membres.filter((m) => {
-    const d = new Date(m.dateInscrit || m.createdAt);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).length;
-
   return (
     <div style={{ padding: "1.5rem" }}>
 
@@ -145,33 +139,11 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── Stats rapides ── */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
-        {[
-          { label: "Total Membres", value: membres.length, color: "#e11d48", icon: "👥" },
-          { label: "Actifs", value: actifs, color: "#10b981", icon: "✅" },
-          { label: "Inactifs", value: inactifs, color: "#f59e0b", icon: "⚠️" },
-          { label: "Nouveaux ce mois", value: newThisMonth, color: "#6366f1", icon: "🆕" },
-        ].map((s, i) => (
-          <div key={i} style={{ ...cardStyle, display: "flex", alignItems: "center", gap: "1rem", padding: "1rem 1.25rem" }}>
-            <div style={{ width: 45, height: 45, borderRadius: "50%", background: `${s.color}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem", flexShrink: 0 }}>
-              {s.icon}
-            </div>
-            <div>
-              <p style={{ color: "#9ca3af", fontSize: "0.7rem", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", margin: 0 }}>{s.label}</p>
-              <p style={{ color: "white", fontSize: "1.8rem", fontWeight: 800, margin: 0, lineHeight: 1.2 }}>
-                {loading ? "..." : s.value}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
       {/* ── Derniers inscrits ── */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
 
         {/* Derniers membres */}
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, padding: "1.25rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h3 style={{ color: "white", fontWeight: 700, fontSize: "1rem", margin: 0 }}>👥 Derniers Membres</h3>
             <span style={badgeStyle}>{membres.length} total</span>
@@ -213,7 +185,7 @@ export default function Dashboard() {
         </div>
 
         {/* Coaches */}
-        <div style={cardStyle}>
+        <div style={{ ...cardStyle, padding: "1.25rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
             <h3 style={{ color: "white", fontWeight: 700, fontSize: "1rem", margin: 0 }}>🏋️ Coaches</h3>
             <span style={badgeStyle}>{coaches.length} coaches</span>

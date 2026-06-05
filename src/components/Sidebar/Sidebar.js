@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import UserDropdown from "components/Dropdowns/UserDropdown.js";
 
@@ -22,28 +22,6 @@ const styles = {
     borderBottom: "1px solid rgba(214,40,40,0.15)",
     background: "rgba(10,10,10,0.6)",
     flexShrink: 0,
-  },
-  logoWrap: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    textDecoration: "none",
-  },
-  logoIcon: {
-    width: "34px",
-    height: "34px",
-    background: "#D62828",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  logoText: {
-    fontFamily: "'Bebas Neue', sans-serif",
-    fontSize: "1.55rem",
-    letterSpacing: "4px",
-    color: "#F5F5F5",
-    lineHeight: 1,
   },
   body: {
     flex: 1,
@@ -122,7 +100,7 @@ const styles = {
   },
 };
 
-function NavItem({ to, icon, label }) {
+function NavItem({ to, icon, label, badge }) {
   const location = useLocation();
   const active = location.pathname === to;
 
@@ -146,15 +124,58 @@ function NavItem({ to, icon, label }) {
           transition: "all 0.15s ease",
         }}
       >
-        <i className={`${icon} text-sm`} style={{ width: "16px", textAlign: "center", opacity: active ? 1 : 0.6 }} />
-        {label}
+        <i
+          className={`${icon} text-sm`}
+          style={{ width: "16px", textAlign: "center", opacity: active ? 1 : 0.6 }}
+        />
+        <span style={{ flex: 1 }}>{label}</span>
+
+        {/* ✅ Badge optionnel (ex: nombre de membres en attente) */}
+        {badge > 0 && (
+          <span style={{
+            background: "#D62828",
+            color: "#fff",
+            fontSize: "0.6rem",
+            fontWeight: 700,
+            padding: "2px 6px",
+            borderRadius: "10px",
+            letterSpacing: "0.5px",
+            lineHeight: 1.4,
+          }}>
+            {badge}
+          </span>
+        )}
       </Link>
     </li>
   );
 }
 
-export default function Sidebar() {
+export default function Sidebar({ pendingCount = 0 }) {
   const [collapseShow, setCollapseShow] = useState(false);
+  const [sidebarStats, setSidebarStats] = useState({
+    totalMembres: 0,
+    actifs: 0,
+    seances: 0,
+  });
+
+  useEffect(() => {
+    async function fetchSidebarStats() {
+      try {
+        const res = await fetch("http://localhost:5000/api/members/getAllMembers");
+        const members = await res.json();
+        const membresSeulement = members.filter(m => m.role === "membre");
+        const actifs = membresSeulement.filter(m => m.statut === "actif").length;
+        setSidebarStats({
+          totalMembres: membresSeulement.length,
+          actifs,
+          seances: 0, // tu peux connecter /api/seances plus tard
+        });
+      } catch (err) {
+        console.error("Erreur stats sidebar:", err);
+      }
+    }
+    fetchSidebarStats();
+  }, []);
 
   return (
     <>
@@ -171,7 +192,7 @@ export default function Sidebar() {
           top: "16px",
           left: "16px",
           zIndex: 50,
-          display: "none", // géré via CSS media query dans votre setup
+          display: "none",
           background: "rgba(17,17,17,0.9)",
           border: "1px solid rgba(214,40,40,0.3)",
           color: "#F5F5F5",
@@ -187,23 +208,14 @@ export default function Sidebar() {
 
         {/* Header / Logo */}
         <div style={styles.header}>
-          <Link
-            to="/"
-            style={{
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <div
-              style={{
-                fontFamily: "'Bebas Neue', sans-serif",
-                fontSize: "2rem",
-                letterSpacing: "4px",
-                color: "#F5F5F5",
-                lineHeight: 1,
-              }}
-            >
+          <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+            <div style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: "2rem",
+              letterSpacing: "4px",
+              color: "#F5F5F5",
+              lineHeight: 1,
+            }}>
               GYM<span style={{ color: "#D62828" }}>ACCESS</span>
             </div>
           </Link>
@@ -216,7 +228,8 @@ export default function Sidebar() {
           <ul style={{ padding: 0, margin: 0 }}>
             <NavItem to="/admin/dashboard" icon="fas fa-chart-bar" label="Dashboard" />
             <NavItem to="/admin/settings" icon="fas fa-cog" label="Paramètres" />
-            
+            {/* ✅ NOUVEAU — lien Paiements avec badge si membres en attente */}
+            <NavItem to="/admin/paiements" icon="fas fa-credit-card" label="Paiements" badge={pendingCount} />
             <NavItem to="/admin/tables" icon="fas fa-users" label="Membres" />
             <NavItem to="/admin/maps" icon="fas fa-map-marked-alt" label="Localisation" />
           </ul>
@@ -236,17 +249,17 @@ export default function Sidebar() {
             <div style={styles.statsLabel}>Aujourd'hui</div>
             <div style={styles.statsRow}>
               <div style={styles.statItem}>
-                <div style={styles.statValue}>247</div>
+                <div style={styles.statValue}>{sidebarStats.totalMembres}</div>
                 <div style={styles.statDesc}>Membres</div>
               </div>
               <div style={{ width: "1px", background: "rgba(214,40,40,0.2)", alignSelf: "stretch" }} />
               <div style={styles.statItem}>
-                <div style={{ ...styles.statValue, color: "#D62828" }}>89</div>
+                <div style={{ ...styles.statValue, color: "#D62828" }}>{sidebarStats.actifs}</div>
                 <div style={styles.statDesc}>Actifs</div>
               </div>
               <div style={{ width: "1px", background: "rgba(214,40,40,0.2)", alignSelf: "stretch" }} />
               <div style={styles.statItem}>
-                <div style={styles.statValue}>12</div>
+                <div style={styles.statValue}>{sidebarStats.seances}</div>
                 <div style={styles.statDesc}>Séances</div>
               </div>
             </div>

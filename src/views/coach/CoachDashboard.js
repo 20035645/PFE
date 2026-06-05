@@ -1,12 +1,8 @@
 // src/views/coach/CoachDashboard.js
-// ─── Dashboard Coach — connecté aux vrais endpoints backend ──────────────────
-// React Router v5  |  React 17/18  |  Pas de Next.js
-// ─────────────────────────────────────────────────────────────────────────────
 import React from "react";
 import { useHistory } from "react-router-dom";
 import { coachAPI, programmeAPI, seanceAPI, progressionAPI, memberAPI } from "../../services/apiBooks";
 
-// ─── Design tokens ───────────────────────────────────────────────────────────
 const RED          = "#D62828";
 const BG           = "#0A0A0A"; 
 const CARD_BG      = "#121212";
@@ -15,7 +11,6 @@ const TEXT_MUTED   = "#B5B5B5";
 const TEXT_DIM     = "#9A9A9A";
 const AVATAR_COLORS = ["#D62828","#7c3aed","#0891b2","#059669","#d97706","#be185d","#0f766e"];
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 const S = {
   page:       { background: BG, color: "#F5F5F5", fontFamily: "Barlow, Arial, sans-serif", minHeight: "100vh", display: "flex", flexDirection: "column" },
   nav:        { position: "sticky", top: 0, zIndex: 50, display: "flex", justifyContent: "space-between", alignItems: "center", padding: "18px 5%", background: "rgba(10,10,10,0.95)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(214,40,40,0.22)" },
@@ -47,7 +42,6 @@ const S = {
   footer:     { borderTop: "1px solid rgba(214,40,40,0.18)", padding: "28px 5%", color: "#8F8F8F", display: "flex", justifyContent: "space-between", background: BG },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const bdg = (color) => ({
   display: "inline-block",
   background: color === "red" ? "rgba(214,40,40,0.15)" : color === "green" ? "rgba(74,222,128,0.12)" : "rgba(251,191,36,0.12)",
@@ -56,11 +50,10 @@ const bdg = (color) => ({
   padding: "4px 8px", borderRadius: "2px", fontWeight: 700,
 });
 
-const avt   = (color) => ({ width: "36px", height: "36px", borderRadius: "50%", background: color || RED, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: "#fff", flexShrink: 0 });
+const avt     = (color) => ({ width: "36px", height: "36px", borderRadius: "50%", background: color || RED, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1rem", color: "#fff", flexShrink: 0 });
 const fmtDate = (d) => d ? new Date(d).toLocaleDateString("fr-FR") : "—";
-const label = (t) => <div style={{ ...S.statLbl, marginBottom: "6px" }}>{t}</div>;
+const label   = (t) => <div style={{ ...S.statLbl, marginBottom: "6px" }}>{t}</div>;
 
-// ─── Spinner ─────────────────────────────────────────────────────────────────
 function Spinner() {
   return (
     <div style={{ display: "flex", justifyContent: "center", padding: "60px 0" }}>
@@ -70,7 +63,6 @@ function Spinner() {
   );
 }
 
-// ─── Error banner ─────────────────────────────────────────────────────────────
 function ErrBanner({ msg, onClose }) {
   if (!msg) return null;
   return (
@@ -81,7 +73,6 @@ function ErrBanner({ msg, onClose }) {
   );
 }
 
-// ─── Modal ───────────────────────────────────────────────────────────────────
 function Modal({ onClose, title, children }) {
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.85)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -94,7 +85,6 @@ function Modal({ onClose, title, children }) {
   );
 }
 
-// ─── Sidebar item ─────────────────────────────────────────────────────────────
 function SidebarItem({ icon, label, active, onClick, danger }) {
   const [hov, setHov] = React.useState(false);
   return (
@@ -110,7 +100,6 @@ function SidebarItem({ icon, label, active, onClick, danger }) {
   );
 }
 
-// ─── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ value, label, delta, positive }) {
   return (
     <div style={S.statCard}>
@@ -122,9 +111,72 @@ function StatCard({ value, label, delta, positive }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// ✅ ProgrammeForm — HORS de ProgrammesView pour éviter le bug de focus
+// ══════════════════════════════════════════════════════════════════════════════
+function ProgrammeForm({ form, setForm, coaches, err, setErr, saving, handleSave, onCancel }) {
+  return (
+    <>
+      <ErrBanner msg={err} onClose={() => setErr("")} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
+        <div style={{ gridColumn: "1/-1" }}>
+          {label("Nom du programme *")}
+          <input
+            style={S.input}
+            value={form.name}
+            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            placeholder="Ex: Force & Masse"
+          />
+        </div>
+        <div style={{ gridColumn: "1/-1" }}>
+          {label("Description")}
+          <textarea
+            style={{ ...S.input, minHeight: "70px", resize: "vertical" }}
+            value={form.description}
+            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+            placeholder="Objectifs, méthode..."
+          />
+        </div>
+        <div>
+          {label("Durée (semaines)")}
+          <input
+            style={S.input}
+            type="number"
+            min={1}
+            max={52}
+            value={form.duree}
+            onChange={e => setForm(f => ({ ...f, duree: +e.target.value }))}
+          />
+        </div>
+        <div>
+          {label("Niveau")}
+          <select style={S.input} value={form.niveau} onChange={e => setForm(f => ({ ...f, niveau: e.target.value }))}>
+            {["débutant","intermédiaire","avancé"].map(n => <option key={n}>{n}</option>)}
+          </select>
+        </div>
+        <div style={{ gridColumn: "1/-1" }}>
+          {label("Coach assigné")}
+          <select style={S.input} value={form.coach} onChange={e => setForm(f => ({ ...f, coach: e.target.value }))}>
+            <option value="">— Sélectionner un coach —</option>
+            {coaches.map(c => <option key={c._id} value={c._id}>{c.name} · {c.specialite}</option>)}
+          </select>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: "10px" }}>
+        <button style={S.navBtn} onClick={handleSave} disabled={saving}>
+          {saving ? "Sauvegarde..." : "💾 Sauvegarder"}
+        </button>
+        <button onClick={onCancel} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>
+          Annuler
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // VIEW 1 — Vue d'ensemble
 // ══════════════════════════════════════════════════════════════════════════════
-function DashboardHome({ coachId }) {
+function DashboardHome() {
   const [data, setData] = React.useState({ coaches: 0, programmes: [], seances: [], progressions: [] });
   const [load, setLoad] = React.useState(true);
   const [err,  setErr]  = React.useState("");
@@ -145,13 +197,8 @@ function DashboardHome({ coachId }) {
 
   if (load) return <Spinner />;
 
-  // Séances d'aujourd'hui
   const today = new Date().toISOString().split("T")[0];
   const todaySeances = data.seances.filter(s => s.date && s.date.startsWith(today));
-
-  // Progression moyenne (basée sur poids/taille → on affiche le nombre total)
-
-
 
   return (
     <>
@@ -160,63 +207,50 @@ function DashboardHome({ coachId }) {
       <ErrBanner msg={err} onClose={() => setErr("")} />
 
       <div style={S.statsRow}>
-        <StatCard value={data.coaches}           label="Coaches actifs" />
-        <StatCard value={todaySeances.length}    label="Séances aujourd'hui" />
-        <StatCard value={data.programmes.length} label="Programmes actifs" />
+        <StatCard value={data.coaches}             label="Coaches actifs" />
+        <StatCard value={todaySeances.length}      label="Séances aujourd'hui" />
+        <StatCard value={data.programmes.length}   label="Programmes actifs" />
         <StatCard value={data.progressions.length} label="Progressions enregistrées" positive />
       </div>
 
       <div style={S.grid2}>
-        {/* Séances du jour */}
         <div style={S.panel}>
           <div style={S.panelHdr}>
             <h2 style={S.panelTitle}>SÉANCES DU JOUR</h2>
             <span style={bdg("red")}>Aujourd'hui</span>
           </div>
           {todaySeances.length === 0 && (
-            <div style={{ color: TEXT_DIM, fontSize: "0.85rem", padding: "20px 0" }}>
-              Aucune séance prévue aujourd'hui
-            </div>
+            <div style={{ color: TEXT_DIM, fontSize: "0.85rem", padding: "20px 0" }}>Aucune séance prévue aujourd'hui</div>
           )}
           {todaySeances.slice(0, 5).map((s) => (
             <div key={s._id} style={S.seanceCard}>
               <div style={S.timePill}>{s.heure || "—"}</div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#F5F5F5", marginBottom: "2px" }}>
-                  {s.programme?.name || "—"}
-                </div>
-                <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>
-                  Coach : {s.coach?.name || "—"} · Capacité : {s.membres?.length || 0}/{s.capacite}
-                </div>
+                <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "#F5F5F5", marginBottom: "2px" }}>{s.programme?.name || "—"}</div>
+                <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>Coach : {s.coach?.name || "—"} · Capacité : {s.membres?.length || 0}/{s.capacite}</div>
               </div>
               <span style={bdg("green")}>Confirmée</span>
             </div>
           ))}
         </div>
 
-        {/* Dernières progressions */}
         <div style={S.panel}>
           <h2 style={S.panelTitle}>PROGRESSIONS RÉCENTES</h2>
           {data.progressions.length === 0 && (
             <div style={{ color: TEXT_DIM, fontSize: "0.85rem", padding: "20px 0" }}>Aucune progression enregistrée</div>
           )}
-          {data.progressions.slice(0, 5).map((p, i) => (
+          {data.progressions.slice(0, 5).map((p) => (
             <div key={p._id} style={{ display: "flex", gap: "12px", padding: "12px 0", borderBottom: "1px solid #181818", alignItems: "flex-start" }}>
               <div style={{ width: "8px", height: "8px", background: RED, borderRadius: "50%", flexShrink: 0, marginTop: "5px" }} />
               <div>
-                <div style={{ fontSize: "0.85rem", color: "#DEDEDE", marginBottom: "2px" }}>
-                  {p.membre?.name || "Membre"} — {p.objectif || "Objectif non défini"}
-                </div>
-                <div style={{ fontSize: "0.72rem", color: TEXT_DIM }}>
-                  {p.poids ? `${p.poids} kg` : ""} {p.taille ? `· ${p.taille} cm` : ""}
-                </div>
+                <div style={{ fontSize: "0.85rem", color: "#DEDEDE", marginBottom: "2px" }}>{p.membre?.name || "Membre"} — {p.objectif || "Objectif non défini"}</div>
+                <div style={{ fontSize: "0.72rem", color: TEXT_DIM }}>{p.poids ? `${p.poids} kg` : ""} {p.taille ? `· ${p.taille} cm` : ""}</div>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Programmes en cours */}
       <div style={S.panel}>
         <h2 style={S.panelTitle}>PROGRAMMES EN COURS</h2>
         <div style={S.grid3}>
@@ -224,9 +258,7 @@ function DashboardHome({ coachId }) {
             <div key={p._id} style={{ background: "#111", border: "1px solid #1E1E1E", padding: "18px", borderRadius: "2px" }}>
               <div style={{ fontSize: "0.62rem", color: RED, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "6px" }}>{p.niveau || "—"}</div>
               <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.15rem", letterSpacing: "1px", marginBottom: "8px" }}>{p.name}</div>
-              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>
-                Coach : {p.coach?.name || "—"} · {p.duree} sem.
-              </div>
+              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>Coach : {p.coach?.name || "—"} · {p.duree} sem.</div>
             </div>
           ))}
         </div>
@@ -236,16 +268,16 @@ function DashboardHome({ coachId }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// VIEW 2 — Programmes  (vrai CRUD → /programme)
+// VIEW 2 — Programmes
 // ══════════════════════════════════════════════════════════════════════════════
 function ProgrammesView() {
   const [programmes, setProgrammes] = React.useState([]);
   const [coaches,    setCoaches]    = React.useState([]);
-  const [load,  setLoad]   = React.useState(true);
-  const [saving,setSaving] = React.useState(false);
-  const [err,   setErr]    = React.useState("");
-  const [showCreate,  setShowCreate]  = React.useState(false);
-  const [editTarget,  setEditTarget]  = React.useState(null);
+  const [load,       setLoad]       = React.useState(true);
+  const [saving,     setSaving]     = React.useState(false);
+  const [err,        setErr]        = React.useState("");
+  const [showCreate, setShowCreate] = React.useState(false);
+  const [editTarget, setEditTarget] = React.useState(null);
 
   const emptyForm = { name: "", description: "", duree: 8, niveau: "débutant", coach: "" };
   const [form, setForm] = React.useState(emptyForm);
@@ -289,47 +321,6 @@ function ProgrammesView() {
 
   if (load) return <Spinner />;
 
-  const ProgrammeForm = () => (
-    <>
-      <ErrBanner msg={err} onClose={() => setErr("")} />
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "16px" }}>
-        <div style={{ gridColumn: "1/-1" }}>
-          {label("Nom du programme *")}
-          <input style={S.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Ex: Force & Masse" />
-        </div>
-        <div style={{ gridColumn: "1/-1" }}>
-          {label("Description")}
-          <textarea style={{ ...S.input, minHeight: "70px", resize: "vertical" }} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} placeholder="Objectifs, méthode..." />
-        </div>
-        <div>
-          {label("Durée (semaines)")}
-          <input style={S.input} type="number" min={1} max={52} value={form.duree} onChange={e => setForm(f => ({ ...f, duree: +e.target.value }))} />
-        </div>
-        <div>
-          {label("Niveau")}
-          <select style={S.input} value={form.niveau} onChange={e => setForm(f => ({ ...f, niveau: e.target.value }))}>
-            {["débutant","intermédiaire","avancé"].map(n => <option key={n}>{n}</option>)}
-          </select>
-        </div>
-        <div style={{ gridColumn: "1/-1" }}>
-          {label("Coach assigné")}
-          <select style={S.input} value={form.coach} onChange={e => setForm(f => ({ ...f, coach: e.target.value }))}>
-            <option value="">— Sélectionner un coach —</option>
-            {coaches.map(c => <option key={c._id} value={c._id}>{c.name} · {c.specialite}</option>)}
-          </select>
-        </div>
-      </div>
-      <div style={{ display: "flex", gap: "10px" }}>
-        <button style={S.navBtn} onClick={handleSave} disabled={saving}>
-          {saving ? "Sauvegarde..." : "💾 Sauvegarder"}
-        </button>
-        <button onClick={() => { setShowCreate(false); setEditTarget(null); }} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none" }}>
-          Annuler
-        </button>
-      </div>
-    </>
-  );
-
   return (
     <>
       <div style={S.pageTag}>Planification</div>
@@ -341,24 +332,16 @@ function ProgrammesView() {
       </div>
 
       {programmes.length === 0 && !load && (
-        <div style={{ ...S.panel, textAlign: "center", color: TEXT_DIM, padding: "60px" }}>
-          Aucun programme. Créez-en un !
-        </div>
+        <div style={{ ...S.panel, textAlign: "center", color: TEXT_DIM, padding: "60px" }}>Aucun programme. Créez-en un !</div>
       )}
 
       <div style={S.grid3}>
         {programmes.map(p => (
           <div key={p._id} style={{ ...S.panel, display: "flex", flexDirection: "column", marginBottom: 0 }}>
-            <div style={{ fontSize: "0.62rem", color: niveauColor[p.niveau] || RED, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px", fontWeight: 700 }}>
-              {p.niveau || "—"}
-            </div>
+            <div style={{ fontSize: "0.62rem", color: niveauColor[p.niveau] || RED, letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px", fontWeight: 700 }}>{p.niveau || "—"}</div>
             <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.2rem", letterSpacing: "1px", margin: "0 0 6px" }}>{p.name}</h3>
-            {p.description && (
-              <div style={{ color: TEXT_DIM, fontSize: "0.75rem", marginBottom: "8px", lineHeight: 1.4 }}>{p.description}</div>
-            )}
-            <div style={{ color: TEXT_MUTED, fontSize: "0.78rem", marginBottom: "14px" }}>
-              {p.duree} semaines · Coach : {p.coach?.name || "Non assigné"}
-            </div>
+            {p.description && <div style={{ color: TEXT_DIM, fontSize: "0.75rem", marginBottom: "8px", lineHeight: 1.4 }}>{p.description}</div>}
+            <div style={{ color: TEXT_MUTED, fontSize: "0.78rem", marginBottom: "14px" }}>{p.duree} semaines · Coach : {p.coach?.name || "Non assigné"}</div>
             <div style={{ display: "flex", gap: "10px", marginTop: "auto" }}>
               <button onClick={() => openEdit(p)} style={{ ...S.navBtn, padding: "8px 14px", fontSize: "0.68rem" }}>✏️ Modifier</button>
               <button onClick={() => handleDelete(p._id)} style={{ ...S.navBtn, background: "transparent", border: "1px solid #333", boxShadow: "none", padding: "8px 12px", fontSize: "0.68rem", color: "#f87171" }}>🗑️</button>
@@ -367,14 +350,25 @@ function ProgrammesView() {
         ))}
       </div>
 
+      {/* ✅ ProgrammeForm reçoit tout via props — plus de re-création au render */}
       {showCreate && (
         <Modal onClose={() => setShowCreate(false)} title="NOUVEAU PROGRAMME">
-          <ProgrammeForm />
+          <ProgrammeForm
+            form={form} setForm={setForm}
+            coaches={coaches} err={err} setErr={setErr}
+            saving={saving} handleSave={handleSave}
+            onCancel={() => setShowCreate(false)}
+          />
         </Modal>
       )}
       {editTarget && (
         <Modal onClose={() => setEditTarget(null)} title={`MODIFIER — ${editTarget.name}`}>
-          <ProgrammeForm />
+          <ProgrammeForm
+            form={form} setForm={setForm}
+            coaches={coaches} err={err} setErr={setErr}
+            saving={saving} handleSave={handleSave}
+            onCancel={() => setEditTarget(null)}
+          />
         </Modal>
       )}
     </>
@@ -382,7 +376,7 @@ function ProgrammesView() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// VIEW 3 — Séances  (vrai CRUD → /seances)
+// VIEW 3 — Séances
 // ══════════════════════════════════════════════════════════════════════════════
 function SeancesView() {
   const [seances,    setSeances]    = React.useState([]);
@@ -441,12 +435,8 @@ function SeancesView() {
           <div key={s._id} style={{ ...S.seanceCard, flexWrap: "wrap" }}>
             <div style={S.timePill}>{s.heure || "—"}</div>
             <div style={{ flex: 1, minWidth: "200px" }}>
-              <div style={{ fontSize: "0.88rem", fontWeight: 700, marginBottom: "3px" }}>
-                {s.programme?.name || "—"}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>
-                📅 {fmtDate(s.date)} · 👤 {s.coach?.name || "—"} · 👥 {s.membres?.length || 0}/{s.capacite}
-              </div>
+              <div style={{ fontSize: "0.88rem", fontWeight: 700, marginBottom: "3px" }}>{s.programme?.name || "—"}</div>
+              <div style={{ fontSize: "0.75rem", color: TEXT_MUTED }}>📅 {fmtDate(s.date)} · 👤 {s.coach?.name || "—"} · 👥 {s.membres?.length || 0}/{s.capacite}</div>
             </div>
             <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
               <span style={bdg(s.membres?.length >= s.capacite ? "red" : "green")}>
@@ -500,7 +490,7 @@ function SeancesView() {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
-// VIEW 4 — Progressions  (→ /progressions)
+// VIEW 4 — Progressions
 // ══════════════════════════════════════════════════════════════════════════════
 function ProgressionsView() {
   const [progs,   setProgs]   = React.useState([]);
@@ -527,18 +517,14 @@ function ProgressionsView() {
     if (!form.membre) { setErr("Membre requis"); return; }
     setSaving(true);
     try {
-        const payload = {
-            ...form,
-            seance: form.seance || undefined  // ← "" devient undefined
-        };
-        await progressionAPI.add(payload);
-        setShowAdd(false);
-        setForm(emptyForm);
-        fetchAll();
-    }
-    catch (e) { setErr(e.message); }
+      const payload = { ...form, seance: form.seance || undefined };
+      await progressionAPI.add(payload);
+      setShowAdd(false);
+      setForm(emptyForm);
+      fetchAll();
+    } catch (e) { setErr(e.message); }
     setSaving(false);
-};
+  };
 
   const handleUpdate = async () => {
     setSaving(true);
@@ -561,9 +547,9 @@ function ProgressionsView() {
       <ErrBanner msg={err} onClose={() => setErr("")} />
 
       <div style={S.statsRow}>
-        <StatCard value={progs.length}                                         label="Entrées total" />
-        <StatCard value={members.length}                                       label="Membres suivis" />
-        <StatCard value={progs.filter(p=>p.objectif).length}                  label="Avec objectif" positive />
+        <StatCard value={progs.length}                                          label="Entrées total" />
+        <StatCard value={members.length}                                        label="Membres suivis" />
+        <StatCard value={progs.filter(p=>p.objectif).length}                   label="Avec objectif" positive />
         <StatCard value={progs.length ? Math.round(progs.reduce((s,p)=>s+(+p.poids||0),0)/progs.length)+"kg" : "—"} label="Poids moyen" />
       </div>
 
@@ -603,7 +589,6 @@ function ProgressionsView() {
         </table>
       </div>
 
-      {/* Modal Ajouter */}
       {showAdd && (
         <Modal onClose={() => setShowAdd(false)} title="NOUVELLE PROGRESSION">
           <ErrBanner msg={err} onClose={() => setErr("")} />
@@ -642,7 +627,6 @@ function ProgressionsView() {
         </Modal>
       )}
 
-      {/* Modal Modifier */}
       {editing && (
         <Modal onClose={() => setEditing(null)} title="MODIFIER PROGRESSION">
           <ErrBanner msg={err} onClose={() => setErr("")} />
@@ -678,19 +662,18 @@ function ProgressionsView() {
 // LAYOUT PRINCIPAL
 // ══════════════════════════════════════════════════════════════════════════════
 const NAV_ITEMS = [
-  { key: "home",        icon: "⊞", label: "Vue d'ensemble"  },
-  { key: "programmes",  icon: "📋", label: "Programmes"      },
-  { key: "seances",     icon: "📅", label: "Séances"         },
-  { key: "progressions",icon: "📈", label: "Progressions"    },
+  { key: "home",         icon: "⊞", label: "Vue d'ensemble"  },
+  { key: "programmes",   icon: "📋", label: "Programmes"      },
+  { key: "seances",      icon: "📅", label: "Séances"         },
+  { key: "progressions", icon: "📈", label: "Progressions"    },
 ];
 
 export default function CoachDashboard() {
-  const history = useHistory();                              // ← React Router v5
+  const history = useHistory();
   const [activeView, setActiveView] = React.useState("home");
   const [coachName,  setCoachName]  = React.useState("");
 
   React.useEffect(() => {
-    // Charger fonts
     if (!document.getElementById("gymaccess-fonts")) {
       const link = document.createElement("link");
       link.id   = "gymaccess-fonts";
@@ -698,19 +681,16 @@ export default function CoachDashboard() {
       link.rel  = "stylesheet";
       document.head.appendChild(link);
     }
-
-    // Récupérer le coach depuis localStorage
     const stored = localStorage.getItem("gymaccess_user");
     if (stored) {
       try { setCoachName(JSON.parse(stored).name || "Coach"); } catch {}
     }
   }, []);
 
-  // ── Logout : supprime token + redirect vers /  ────────────────────────────
   const handleLogout = () => {
     localStorage.removeItem("gymaccess_token");
     localStorage.removeItem("gymaccess_user");
-    history.push("/");          // → landing page (Route path="/" dans index.js)
+    history.push("/");
   };
 
   const renderView = () => {
@@ -724,30 +704,24 @@ export default function CoachDashboard() {
 
   return (
     <div style={S.page}>
-      {/* ── Navbar ── */}
       <nav style={S.nav}>
         <a href="/" style={{ ...S.logo, textDecoration: "none", color: "#F5F5F5" }}>
           GYM<span style={{ color: RED }}>ACCESS</span>
         </a>
         <div style={{ display: "flex", gap: "24px", alignItems: "center" }}>
-          <a href="/#salle"        style={S.navLink}>Salle</a>
-          <a href="/#services"     style={S.navLink}>Services</a>
-          <a href="/#nutrition"    style={S.navLink}>Nutrition</a>
-          <a href="/#abonnements"  style={S.navLink}>Abonnements</a>
-          {coachName && (
-            <span style={{ color: TEXT_MUTED, fontSize: "0.78rem" }}>👋 {coachName}</span>
-          )}
+          <a href="/#salle"       style={S.navLink}>Salle</a>
+          <a href="/#services"    style={S.navLink}>Services</a>
+          <a href="/#nutrition"   style={S.navLink}>Nutrition</a>
+          <a href="/#abonnements" style={S.navLink}>Abonnements</a>
+          {coachName && <span style={{ color: TEXT_MUTED, fontSize: "0.78rem" }}>👋 {coachName}</span>}
           <button onClick={handleLogout} style={{ ...S.navBtn, background: "transparent", border: "1px solid rgba(214,40,40,0.6)", boxShadow: "none" }}>
             Se déconnecter
           </button>
         </div>
       </nav>
 
-      {/* ── Body ── */}
       <div style={S.wrapper}>
-        {/* Sidebar */}
         <aside style={S.sidebar}>
-          {/* Profil coach */}
           <div style={{ padding: "0 20px 24px", borderBottom: "1px solid #1A1A1A", marginBottom: "8px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
               <div style={{ width: "44px", height: "44px", borderRadius: "4px", background: RED, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.2rem", color: "#fff" }}>
@@ -771,17 +745,14 @@ export default function CoachDashboard() {
             />
           ))}
 
-          {/* Se déconnecter — pas de Paramètres */}
           <div style={{ marginTop: "auto", borderTop: "1px solid #1A1A1A", paddingTop: "16px" }}>
             <SidebarItem icon="🔓" label="Se déconnecter" danger onClick={handleLogout} />
           </div>
         </aside>
 
-        {/* Contenu */}
         <main style={S.main}>{renderView()}</main>
       </div>
 
-      {/* ── Footer ── */}
       <footer style={S.footer}>
         <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: "1.5rem", letterSpacing: "3px" }}>
           GYM<span style={{ color: RED }}>ACCESS</span>

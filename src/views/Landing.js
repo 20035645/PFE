@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import API from "../services/api";
+import API from "services/api";
 
 const css = `
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600;700;800&display=swap');
@@ -370,7 +370,7 @@ export default function NutritionPage() {
 
   useEffect(() => {
 
-    API.get("/test")
+    API.get("/api/test")
       .then((res) => {
         setBackendMessage(res.data.message);
       })
@@ -512,7 +512,7 @@ export default function NutritionPage() {
               <div className="plan-price">{p.cal}</div>
               <div className="plan-period">calories / jour · {p.period}</div>
               <ul className="plan-feats">{p.feats.map(f => <li key={f}><span>→</span>{f}</li>)}</ul>
-              
+
             </div>
           ))}
         </div>
@@ -545,7 +545,6 @@ export default function NutritionPage() {
                 </div>
               </div>
             ))}
-            <button className="btn-red" style={{ width: "100%", marginTop: "20px", border: "none" }}>Obtenir mon plan →</button>
           </div>
         </div>
       </section>

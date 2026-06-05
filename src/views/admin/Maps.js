@@ -12,8 +12,6 @@ export default function Maps() {
       {/* Branch info */}
       <div className="flex flex-wrap mt-4">
         {[
-          { name: "GymAccess - Centre", address: "Av. Habib Bourguiba, Tunis", members: 847, status: "Ouvert" },
-          { name: "GymAccess - Lac", address: "Les Berges du Lac, Tunis", members: 400, status: "Ouvert" },
         ].map((branch, i) => (
           <div key={i} className="w-full lg:w-6/12 px-4 mb-6">
             <div className="rounded p-4" style={{ backgroundColor: '#111111', border: '1px solid #2a2a2a' }}>

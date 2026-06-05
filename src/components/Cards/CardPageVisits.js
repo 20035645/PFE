@@ -6,7 +6,6 @@ export default function CardPageVisits() {
     { name: "Cardio", count: "218 séances", progress: 64, change: "+7.2%" },
     { name: "CrossFit", count: "156 séances", progress: 48, change: "+24.7%" },
     { name: "Yoga", count: "98 séances", progress: 32, change: "+12.1%" },
-    { name: "Natation", count: "76 séances", progress: 24, change: "-3.4%" },
   ];
 
   return (

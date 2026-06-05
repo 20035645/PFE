@@ -32,14 +32,16 @@ export default function CardStats({
               </div>
             </div>
           </div>
-          <p className="text-sm text-blueGray-400 mt-4">
-            <span className={`${statPercentColor} mr-2 font-semibold`} style={{ fontFamily: 'Rajdhani, sans-serif' }}>
-              <i className={`fas fa-arrow-${statArrow}`}></i> {statPercent}%
-            </span>
-            <span className="whitespace-nowrap text-xs" style={{ color: '#6b7280', fontFamily: 'Rajdhani, sans-serif' }}>
-              {statDescripiton}
-            </span>
-          </p>
+          {statPercent && (
+            <p className="text-sm text-blueGray-400 mt-4">
+              <span className={`${statPercentColor} mr-2 font-semibold`} style={{ fontFamily: 'Rajdhani, sans-serif' }}>
+                <i className={`fas fa-arrow-${statArrow}`}></i> {statPercent}%
+              </span>
+              <span className="whitespace-nowrap text-xs" style={{ color: '#6b7280', fontFamily: 'Rajdhani, sans-serif' }}>
+                {statDescripiton}
+              </span>
+            </p>
+          )}
         </div>
       </div>
     </>

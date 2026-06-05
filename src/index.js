@@ -13,9 +13,19 @@ import Index from "views/Index.js";
 import Landing from "views/Landing.js";
 import Profile from "views/Profile.js";
 import NewPage from "views/NewPage.js";
+import GymChatWidget from "components/Chat/GymChatWidget.js";
 
-// ✅ Composant PrivateRoute
-// Remplace l'ancienne version par celle-ci
+// ✅ Helper — lit le user depuis localStorage
+function getUser() {
+  try {
+    const user = localStorage.getItem("user");
+    return user ? JSON.parse(user) : null;
+  } catch {
+    return null;
+  }
+}
+
+// ✅ Route protégée par token uniquement
 function PrivateRoute({ component: Component, ...rest }) {
   const token = localStorage.getItem("token");
   return (
@@ -32,16 +42,50 @@ function PrivateRoute({ component: Component, ...rest }) {
   );
 }
 
+// ✅ Route protégée par rôle
+function RoleRoute({ component: Component, roles, ...rest }) {
+  const token = localStorage.getItem("token");
+  const user = getUser();
+
+  return (
+    <Route
+      {...rest}
+      render={(props) => {
+        // Pas connecté → login
+        if (!token || !user) {
+          return <Redirect to={{ pathname: "/auth/login", state: { from: props.location } }} />;
+        }
+        // Connecté mais mauvais rôle → login
+        if (!roles.includes(user.role)) {
+          return <Redirect to="/auth/login" />;
+        }
+        return <Component {...props} />;
+      }}
+    />
+  );
+}
+
 ReactDOM.render(
   <BrowserRouter>
+    <GymChatWidget />
     <Switch>
-      <Route path="/admin" component={Admin} />
+      {/* ✅ Admin — seulement role: 'admin' */}
+      <RoleRoute path="/admin" component={Admin} roles={["admin"]} />
+
+      {/* ✅ Coach — seulement role: 'coach' */}
+      <RoleRoute path="/coach" component={Coach} roles={["coach"]} />
+
+      {/* Auth — toujours accessible */}
       <Route path="/auth" component={Auth} />
-      <Route path="/coach" component={Coach} />
-      <PrivateRoute path="/landing" component={Landing} /> {/* ✅ protégée */}
-      <Route path="/profile" component={Profile} />
-      <Route path="/newpage" component={NewPage} />
+
+      {/* Pages publiques */}
       <Route path="/" exact component={Index} />
+      <Route path="/newpage" component={NewPage} />
+
+      {/* Pages privées — connecté peu importe le rôle */}
+      <PrivateRoute path="/landing" component={Landing} />
+      <PrivateRoute path="/profile" component={Profile} />
+
       <Redirect from="*" to="/" />
     </Switch>
   </BrowserRouter>,

@@ -1,16 +1,21 @@
-// LOGIN.JS
-
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import { loginUser } from "../../services/apiUser";
+import { loginUser } from "services/apiUser";
+import { notifyAuthChange } from "services/authSession";
 
 export default function Login() {
+  const history = useHistory();
+  const mountedRef = useRef(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");       // ← ajout
-  const [loading, setLoading] = useState(false); // ← ajout
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const history = useHistory(); // ← ajout
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,30 +27,36 @@ export default function Login() {
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
+      notifyAuthChange();
 
       const role = res.data.user.role;
       console.log(role);
 
-      // Redirige selon le rôle
-      // Redirige selon le rôle
       if (role === "admin") {
         history.push("/admin/dashboard");
       } else if (role === "coach") {
-        history.push("/coach/dashboard");  // ← ajout
+        history.push("/coach/coachdashboard");
       } else {
-        history.push("/profile"); // membre
+        history.push("/profile");
       }
-
     } catch (err) {
-      setError(err.response?.data?.error || err.response?.data?.message || "Erreur de connexion");
+      if (mountedRef.current) {
+        setError(
+          err.response?.data?.error ||
+            err.message ||
+            "Erreur de connexion"
+        );
+      }
     } finally {
-      setLoading(false);
+      if (mountedRef.current) {
+        setLoading(false);
+      }
     }
   };
 
   return (
     <div style={styles.page}>
-      <div style={styles.overlay}></div>
+      <div style={styles.overlay} />
 
       <div style={styles.card}>
         <div style={styles.iconWrap}>
@@ -53,22 +64,13 @@ export default function Login() {
         </div>
 
         <h1 style={styles.title}>CONNEXION</h1>
+        <p style={styles.subtitle}>Connectez-vous à votre espace GymAccess</p>
 
-        <p style={styles.subtitle}>
-          Connectez-vous à votre espace GymAccess
-        </p>
-
-        {/* ← Message d'erreur ajouté */}
-        {error && (
-          <div style={styles.errorBox}>
-            {error}
-          </div>
-        )}
+        {error && <div style={styles.errorBox}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div>
             <label style={styles.label}>EMAIL</label>
-
             <input
               type="email"
               required
@@ -81,7 +83,6 @@ export default function Login() {
 
           <div>
             <label style={styles.label}>MOT DE PASSE</label>
-
             <input
               type="password"
               required
@@ -92,7 +93,6 @@ export default function Login() {
             />
           </div>
 
-          {/* ← loading ajouté sur le bouton */}
           <button type="submit" style={styles.button} disabled={loading}>
             {loading ? "CONNEXION..." : "SE CONNECTER"}
           </button>
@@ -109,6 +109,11 @@ export default function Login() {
           <Link to="/auth/register" style={styles.linkRed}>
             Créer un compte
           </Link>
+        </p>
+
+        <p style={styles.demoHint}>
+          Seed — <span style={{ color: "#888" }}>admin@gym.com</span> /{" "}
+          <span style={{ color: "#888" }}>Admin123!</span>
         </p>
       </div>
     </div>
@@ -127,14 +132,11 @@ const styles = {
     padding: "2rem",
     boxSizing: "border-box",
   },
-
   overlay: {
     position: "absolute",
     inset: 0,
-    background:
-      "radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)",
+    background: "radial-gradient(circle at top, rgba(220,38,38,0.15), transparent 40%)",
   },
-
   card: {
     position: "relative",
     zIndex: 2,
@@ -146,7 +148,6 @@ const styles = {
     padding: "2.5rem",
     boxShadow: "0 20px 60px rgba(220,38,38,0.25)",
   },
-
   iconWrap: {
     width: "70px",
     height: "70px",
@@ -157,11 +158,7 @@ const styles = {
     justifyContent: "center",
     margin: "0 auto 1.5rem",
   },
-
-  icon: {
-    fontSize: "30px",
-  },
-
+  icon: { fontSize: "30px" },
   title: {
     color: "#fff",
     textAlign: "center",
@@ -170,14 +167,7 @@ const styles = {
     letterSpacing: "0.2em",
     marginBottom: "0.7rem",
   },
-
-  subtitle: {
-    color: "#888",
-    textAlign: "center",
-    marginBottom: "2rem",
-  },
-
-  // ← style du message d'erreur ajouté
+  subtitle: { color: "#888", textAlign: "center", marginBottom: "2rem" },
   errorBox: {
     background: "rgba(220,38,38,0.12)",
     border: "1px solid rgba(220,38,38,0.4)",
@@ -188,13 +178,7 @@ const styles = {
     fontSize: "0.88rem",
     textAlign: "center",
   },
-
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1.5rem",
-  },
-
+  form: { display: "flex", flexDirection: "column", gap: "1.5rem" },
   label: {
     display: "block",
     color: "#aaa",
@@ -203,7 +187,6 @@ const styles = {
     marginBottom: "0.5rem",
     letterSpacing: "0.15em",
   },
-
   input: {
     width: "100%",
     background: "#000",
@@ -215,10 +198,9 @@ const styles = {
     outline: "none",
     boxSizing: "border-box",
   },
-
   button: {
     marginTop: "0.5rem",
-    background: "linear-gradient(135deg,#ef4444,#991b1b)",
+    background: "linear-gradient(135deg,#D62828,#991b1b)",
     border: "none",
     color: "#fff",
     padding: "1rem",
@@ -229,27 +211,14 @@ const styles = {
     cursor: "pointer",
     boxShadow: "0 10px 30px rgba(220,38,38,0.35)",
   },
-
-  links: {
-    marginTop: "1rem",
-    textAlign: "right",
-  },
-
-  link: {
-    color: "#aaa",
-    textDecoration: "none",
-    fontSize: "0.9rem",
-  },
-
-  footer: {
+  links: { marginTop: "1rem", textAlign: "right" },
+  link: { color: "#aaa", textDecoration: "none", fontSize: "0.9rem" },
+  footer: { textAlign: "center", color: "#888", marginTop: "2rem" },
+  linkRed: { color: "#ef4444", textDecoration: "none", fontWeight: 700 },
+  demoHint: {
+    color: "#444",
+    fontSize: "0.72rem",
     textAlign: "center",
-    color: "#888",
-    marginTop: "2rem",
-  },
-
-  linkRed: {
-    color: "#ef4444",
-    textDecoration: "none",
-    fontWeight: 700,
+    marginTop: "1.5rem",
   },
 };
